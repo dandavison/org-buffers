@@ -63,7 +63,8 @@
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
 
-(defvar org-buffers-list-mode-hook nil
+(defvar org-buffers-list-mode-hook
+  '(org-buffers-list-chomp-mode-from-modes)
   "Hook for functions to be called after buffer listing is
   created.")
 
@@ -94,10 +95,6 @@ buffers should be listed."
 	      (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
 	(goto-char (point-min))
 	(unless no-group (org-buffers-group-entries-by-property property))
-	(if (equal property "major-mode")
-	    (org-map-entries
-	     (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
-			    (replace-match "")))))
 	(org-sort-entries-or-items nil ?a)
 	(org-overview)
 	(unless no-group (org-content))
@@ -187,6 +184,13 @@ The heading is a link to `buffer'."
    (lambda () (kill-buffer (org-entry-get nil "buffer-name")))
    "+delete")
   (org-buffers-list-buffers))
+
+
+(defun org-buffers-list-chomp-mode-from-modes ()
+  (if (equal (cdr (assoc :by org-buffers-list-params)) "major-mode")
+      (org-map-entries
+       (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
+		      (replace-match ""))))))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
