@@ -1,0 +1,21 @@
+
+* Org-buffers
+
+This file provides a function org-buffers-list-buffers, which creates
+an Org-mode buffer listing. Buffers are grouped by major mode; within
+each major-mode, the heading for each buffer is a link to the buffer.
+
+The file also provides links to buffers for org-mode.
+
+Possible directions
+*** Operations on buffers
+    - kill buffer
+*** Further buffer info for sorting, etc
+    Information for each buffer is stored as properties of the
+    buffer's entry in the listing. At the moment the only property
+    stored is major-mode, but we could add further info which may be
+    useful for sorting and reviewing buffers. E.g.
+    - buffer-file-name
+    - buffer minor modes
+    - buffer default-directory
+    - buffer size
