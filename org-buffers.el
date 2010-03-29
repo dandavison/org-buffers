@@ -45,6 +45,11 @@
     link))
 
 ;;; Buffer listing
+
+(defvar org-buffers-listing-buffer-name
+  "*Buffers*"
+  "Name of buffer in which buffer listing is displayed")
+
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-listing-buffer-name)
   "List of names of buffers (strings) that should not be listed
@@ -53,11 +58,14 @@
 
 (defun org-buffers-list-buffers (&optional property frame)
   "Create an Org-mode listing of Emacs buffers.
-The buffers are grouped by major mode."
+Buffers are grouped into one subtree for each major
+mode. Optional argument `property' specifies a different property
+to group be. Optional argument `frame' specifies the frame whose
+buffers should be listed."
   (interactive)
   (unless property (setq property "major-mode"))
   (pop-to-buffer
-   (with-current-buffer (get-buffer-create "*Buffer Tree*")
+   (with-current-buffer (get-buffer-create org-buffers-listing-buffer-name)
      (erase-buffer)
      (org-mode)
      (mapc 'org-buffers-insert-entry
