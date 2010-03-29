@@ -45,17 +45,22 @@
     link))
 
 ;;; Buffer listing
-(defun org-buffers-list-buffers (&optional frame)
+(defun org-buffers-list-buffers (&optional property frame)
   "Create an Org-mode listing of Emacs buffers.
 The buffers are grouped by major mode."
   (interactive)
+  (unless property (setq property "major-mode"))
   (pop-to-buffer
    (with-current-buffer (get-buffer-create "*Buffer Tree*")
      (erase-buffer)
      (org-mode)
      (mapc 'org-buffers-insert-entry (buffer-list frame))
      (goto-char (point-min))
-     (org-buffers-group-entries-by-property "major-mode")
+     (org-buffers-group-entries-by-property property)
+     (if (equal property "major-mode")
+	 (org-map-entries
+	  (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
+			 (replace-match "")))))
      (current-buffer))))
 
 (defun org-buffers-group-entries-by-property (property)
@@ -63,9 +68,9 @@ The buffers are grouped by major mode."
   ;; Create subtree for each value of `property'
   (mapc (lambda (subtree)
 	  (org-insert-heading t)
-	  (insert (replace-regexp-in-string "-mode$" "" (car subtree)) "\n")
 	  (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
+	  (insert (car subtree) "\n")
 	  (org-insert-subheading t)
 	  (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
 	(prog1
