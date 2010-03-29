@@ -44,11 +44,6 @@
     (org-add-link-props :link link :description desc)
     link))
 
-(defun org-buffers-link-open (buffer)
-  "Open a link to an Emacs buffer."
-  (error "Not used")
-  (display-buffer buffer))
-
 ;;; Buffer listing
 (defun org-buffers-list-buffers (&optional frame)
   "Create an Org-mode listing of Emacs buffers.
