@@ -97,8 +97,8 @@ buffers should be listed."
 	(org-sort-entries-or-items nil ?a)
 	(org-overview)
 	(unless no-group (org-content))
-	(org-buffer-list-mode)
 	(when p (goto-char p) (beginning-of-line))
+	(org-buffer-list-mode)
 	(current-buffer))))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
