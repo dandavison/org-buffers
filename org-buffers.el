@@ -56,6 +56,11 @@
   by org-buffers-list-buffers."
   :group 'org-buffers)
 
+(defun org-buffers-set-key-bindings ()
+  (local-set-key [(return)] 'org-buffers-follow-link-at-heading)
+  (local-set-key "d" 'org-buffers-mark-for-deletion)
+  (local-set-key "x" 'org-buffers-apply-pending-operations))
+
 (defun org-buffers-list-buffers (&optional property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
@@ -79,6 +84,7 @@ buffers should be listed."
      (org-sort-entries-or-items nil ?a)
      (org-overview)
      (org-content)
+     (org-buffers-set-key-bindings)
      (current-buffer))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
