@@ -147,6 +147,7 @@ The heading is a link to `buffer'."
      (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
     (org-set-property "major-mode" (symbol-name major-mode))
     (org-set-property "buffer-file-name" file)
+    (org-set-property "buffer-name" buffer-name)
     (org-set-property "default-directory" dir)))
 
 (defun org-buffers-follow-link-at-heading ()
