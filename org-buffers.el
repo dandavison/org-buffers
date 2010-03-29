@@ -54,7 +54,8 @@
 
 (define-minor-mode org-buffer-list-mode
   "Org-mode support for buffer management"
-  nil " buffer-list" nil)
+  nil " buffer-list" nil
+  (setq buffer-read-only t))
 
 (defvar org-buffers-list-buffer-name
   "*Buffers*"
@@ -78,6 +79,7 @@ buffers should be listed."
    (let ((p (if (equal (buffer-name) org-buffers-list-buffer-name)
 		(point)))) ;; TODO how to check for minor modes?
      (with-current-buffer (get-buffer-create org-buffers-list-buffer-name)
+       (setq buffer-read-only nil)
        (erase-buffer)
        (org-mode)
        (mapc 'org-buffers-insert-entry
@@ -164,7 +166,8 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-mark-for-deletion ()
   (interactive)
-  (org-toggle-tag "delete")
+  (let ((buffer-read-only nil))
+    (org-toggle-tag "delete"))
   ;; hack: I'm struggling to make new tag be visible
   (org-show-entry)
   (org-back-to-heading)
