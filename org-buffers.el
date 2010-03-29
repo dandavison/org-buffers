@@ -82,6 +82,7 @@ The buffers are grouped by major mode."
   (goto-char (point-min))
   (org-sort-entries-or-items nil ?a)
   (org-overview)
+  (org-content)
   (current-buffer))
 
 (defun org-buffers-get-info-for-entries (prop val)
