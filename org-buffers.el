@@ -209,3 +209,16 @@ The heading is a link to `buffer'."
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
+(defun org-buffers-merge-params (&rest plists)
+  "Merge parameters.
+Earlier values have precedence over later ones."
+  (let (params)
+    (mapc
+     (lambda (plist)
+       (mapc (lambda (pair)
+	       (unless (assoc (car pair) params)
+		 (add-to-list 'params pair)))
+	     plist))
+     plists)
+    params))
+
