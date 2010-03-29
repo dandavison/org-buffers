@@ -45,6 +45,12 @@
     link))
 
 ;;; Buffer listing
+(defcustom org-buffers-excluded-buffers
+  `("*Completions*" ,org-buffers-listing-buffer-name)
+  "List of names of buffers (strings) that should not be listed
+  by org-buffers-list-buffers."
+  :group 'org-buffers)
+
 (defun org-buffers-list-buffers (&optional property frame)
   "Create an Org-mode listing of Emacs buffers.
 The buffers are grouped by major mode."
@@ -54,7 +60,8 @@ The buffers are grouped by major mode."
    (with-current-buffer (get-buffer-create "*Buffer Tree*")
      (erase-buffer)
      (org-mode)
-     (mapc 'org-buffers-insert-entry (buffer-list frame))
+     (mapc 'org-buffers-insert-entry
+	   (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
      (goto-char (point-min))
      (org-buffers-group-entries-by-property property)
      (if (equal property "major-mode")
@@ -62,6 +69,12 @@ The buffers are grouped by major mode."
 	  (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 			 (replace-match "")))))
      (current-buffer))))
+
+(defun org-buffers-exclude-buffer-p (buffer)
+  "Return non-nil if buffer should not be listed."
+  (let ((name (buffer-name buffer)))
+    (or (member name org-buffers-excluded-buffers)
+	(string= (substring name 0 1) " "))))
 
 (defun org-buffers-group-entries-by-property (property)
   "Group toplevel headings according to the value of `property'."
@@ -100,27 +113,24 @@ The buffers are grouped by major mode."
 
 (defun org-buffers-insert-parsed-entry (entry &optional heading-only)
   "Insert a parsed entry"
-  (unless (org-on-heading-p)
-    (org-insert-heading t))
+  (unless (org-on-heading-p) (org-insert-heading t))
   (insert (car entry) "\n")
   (unless heading-only
     (insert (cdr entry))))
 
-(defun org-buffers-insert-entry (buffer &optional hidden-ok)
+(defun org-buffers-insert-entry (buffer)
   "Create an entry for `buffer'.
 The heading is a link to `buffer'."
   (let ((buffer-name (buffer-name buffer))
 	(major-mode (with-current-buffer buffer major-mode))
 	(file (buffer-file-name buffer))
 	(dir (with-current-buffer buffer default-directory)))
-    (when (or hidden-ok
-	      (not (string= (substring buffer-name 0 1) " ")))
-      (org-insert-heading t)
-      (insert
-       (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
-      (org-set-property "major-mode" (symbol-name major-mode))
-      (org-set-property "buffer-file-name" file)
-      (org-set-property "default-directory" dir))))
+    (org-insert-heading t)
+    (insert
+     (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
+    (org-set-property "major-mode" (symbol-name major-mode))
+    (org-set-property "buffer-file-name" file)
+    (org-set-property "default-directory" dir)))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
