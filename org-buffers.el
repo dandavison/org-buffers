@@ -75,22 +75,25 @@ buffers should be listed."
   (interactive)
   (unless property (setq property "major-mode"))
   (pop-to-buffer
-   (with-current-buffer (get-buffer-create org-buffers-list-buffer-name)
-     (erase-buffer)
-     (org-mode)
-     (mapc 'org-buffers-insert-entry
-	   (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
-     (goto-char (point-min))
-     (org-buffers-group-entries-by-property property)
-     (if (equal property "major-mode")
-	 (org-map-entries
-	  (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
-			 (replace-match "")))))
-     (org-sort-entries-or-items nil ?a)
-     (org-overview)
-     (org-content)
-     (org-buffer-list-mode)
-     (current-buffer))))
+   (let ((p (if (equal (buffer-name) org-buffers-list-buffer-name)
+		(point)))) ;; TODO how to check for minor modes?
+     (with-current-buffer (get-buffer-create org-buffers-list-buffer-name)
+       (erase-buffer)
+       (org-mode)
+       (mapc 'org-buffers-insert-entry
+	     (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
+       (goto-char (point-min))
+       (org-buffers-group-entries-by-property property)
+       (if (equal property "major-mode")
+	   (org-map-entries
+	    (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
+			   (replace-match "")))))
+       (org-sort-entries-or-items nil ?a)
+       (org-overview)
+       (org-content)
+       (org-buffer-list-mode)
+       (when p (goto-char p) (beginning-of-line))
+       (current-buffer)))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
   "Return non-nil if buffer should not be listed."
