@@ -76,6 +76,11 @@ buffers should be listed."
 	 (org-map-entries
 	  (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 			 (replace-match "")))))
+     (org-sort-entries-or-items nil ?a)
+     (org-overview)
+     (org-content)
+     (setq (make-local-variable org-speed-commands-default)
+	   (cons org-speed-commands-default '("")
      (current-buffer))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
@@ -87,25 +92,22 @@ buffers should be listed."
 (defun org-buffers-group-entries-by-property (property)
   "Group toplevel headings according to the value of `property'."
   ;; Create subtree for each value of `property'
-  (mapc (lambda (subtree)
-	  (org-insert-heading t)
-	  (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
+  (save-excursion
+    (goto-char (point-min))
+    (mapc (lambda (subtree)
+	    (org-insert-heading t)
+	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
-	  (insert (car subtree) "\n")
-	  (org-insert-subheading t)
-	  (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
-	(prog1
-	    ;; Form list of parsed entries for each value of `property'
-	    (mapcar (lambda (val)
-		      (cons val (org-buffers-get-info-for-entries property val)))
-		    ;; Find unique values of `property'
-		    (delete-dups (org-map-entries (lambda () (org-entry-get nil property nil)))))
-	  (erase-buffer)))
-  (goto-char (point-min))
-  (org-sort-entries-or-items nil ?a)
-  (org-overview)
-  (org-content)
-  (current-buffer))
+	    (insert (car subtree) "\n")
+	    (org-insert-subheading t)
+	    (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
+	  (prog1
+	      ;; Form list of parsed entries for each value of `property'
+	      (mapcar (lambda (val)
+			(cons val (org-buffers-get-info-for-entries property val)))
+		      ;; Find unique values of `property'
+		      (delete-dups (org-map-entries (lambda () (org-entry-get nil property nil)))))
+	    (erase-buffer)))))
 
 (defun org-buffers-get-info-for-entries (prop val)
   "Parse all entries with `property' value `val'."
