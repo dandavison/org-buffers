@@ -63,8 +63,9 @@ The buffers are grouped by major mode."
   ;; Create subtree for each value of `property'
   (mapc (lambda (subtree)
 	  (org-insert-heading t)
-	  (if (> (org-outline-level) 1) (org-promote))
 	  (insert (replace-regexp-in-string "-mode$" "" (car subtree)) "\n")
+	  (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
+	      (org-promote))
 	  (org-insert-subheading t)
 	  (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
 	(prog1
