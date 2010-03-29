@@ -50,8 +50,8 @@
 
 (define-key org-buffer-list-mode-map [(return)] 'org-buffers-follow-link-at-heading)
 (define-key org-buffer-list-mode-map "d" 'org-buffers-mark-for-deletion)
-(define-key org-buffer-list-mode-map "l" '(lambda () (interactive) (org-buffers-list-buffers 'no-group)))l
-(define-key org-buffer-list-mode-map "g" 'org-buffers-list-buffers)
+(define-key org-buffer-list-mode-map "g" '(lambda () (interactive) (org-buffers-list-buffers 'refresh)))
+(define-key org-buffer-list-mode-map "l" '(lambda () (interactive) (org-buffers-list-buffers 'refresh 'no-group)))
 (define-key org-buffer-list-mode-map "x" 'org-buffers-apply-pending-operations)
 
 (define-minor-mode org-buffer-list-mode
@@ -69,7 +69,7 @@
   by org-buffers-list-buffers."
   :group 'org-buffers)
 
-(defun org-buffers-list-buffers (&optional no-group property frame)
+(defun org-buffers-list-buffers (&optional refresh no-group property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
 mode. Optional argument `property' specifies a different property
@@ -78,26 +78,28 @@ buffers should be listed."
   (interactive)
   (unless property (setq property "major-mode"))
   (pop-to-buffer
-   (let ((p (if (equal (buffer-name) org-buffers-list-buffer-name)
-		(point)))) ;; TODO how to check for minor modes?
-     (with-current-buffer (get-buffer-create org-buffers-list-buffer-name)
-       (setq buffer-read-only nil)
-       (erase-buffer)
-       (org-mode)
-       (mapc 'org-buffers-insert-entry
-	     (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
-       (goto-char (point-min))
-       (unless no-group (org-buffers-group-entries-by-property property))
-       (if (equal property "major-mode")
-	   (org-map-entries
-	    (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
-			   (replace-match "")))))
-       (org-sort-entries-or-items nil ?a)
-       (org-overview)
-       (unless no-group (org-content))
-       (org-buffer-list-mode)
-       (when p (goto-char p) (beginning-of-line))
-       (current-buffer)))))
+   (or
+    (and (not refresh) (get-buffer org-buffers-list-buffer-name))
+    (let ((p (if (equal (buffer-name) org-buffers-list-buffer-name)
+		 (point)))) ;; TODO how to check for minor modes?
+      (with-current-buffer (get-buffer-create org-buffers-list-buffer-name)
+	(setq buffer-read-only nil)
+	(erase-buffer)
+	(org-mode)
+	(mapc 'org-buffers-insert-entry
+	      (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
+	(goto-char (point-min))
+	(unless no-group (org-buffers-group-entries-by-property property))
+	(if (equal property "major-mode")
+	    (org-map-entries
+	     (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
+			    (replace-match "")))))
+	(org-sort-entries-or-items nil ?a)
+	(org-overview)
+	(unless no-group (org-content))
+	(org-buffer-list-mode)
+	(when p (goto-char p) (beginning-of-line))
+	(current-buffer))))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
   "Return non-nil if buffer should not be listed."
