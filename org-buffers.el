@@ -30,7 +30,6 @@
 (require 'org)
 (require 'cl)
 
-
 ;;; Links to buffers
 (org-add-link-type "buffer" 'display-buffer)
 (add-hook 'org-store-link-functions 'org-buffers-link-store-link)
@@ -46,15 +45,16 @@
 
 ;;; Buffer list
 
-(define-minor-mode org-buffer-list-mode
-  "Org-mode support for buffer management"
-  nil " buffer-list" nil)
-
 (defvar org-buffer-list-mode-map (make-sparse-keymap)
   "The keymap for `org-buffer-list-mode'.")
 
+(define-key org-buffer-list-mode-map [(return)] 'org-buffers-follow-link-at-heading)
 (define-key org-buffer-list-mode-map "d" 'org-buffers-mark-for-deletion)
 (define-key org-buffer-list-mode-map "x" 'org-buffers-apply-pending-operations)
+
+(define-minor-mode org-buffer-list-mode
+  "Org-mode support for buffer management"
+  nil " buffer-list" nil)
 
 (defvar org-buffers-list-buffer-name
   "*Buffers*"
