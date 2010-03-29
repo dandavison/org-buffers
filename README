@@ -8,7 +8,7 @@ each major-mode, the heading for each buffer is a link to the buffer.
 The file also provides links to buffers for org-mode.
 
 * Tasks
-*** TODO Make RET work elsewhere on header line to follow link?
+*** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** Operations on buffers
     These could work by setting tags to define pending operations,
@@ -31,7 +31,7 @@ The file also provides links to buffers for org-mode.
     - replace the terminal -mode on major mode names
     - filter buffers / major modes
 * Bugs
-*** TODO Stop hijacking keys in other org buffers
+*** DONE Stop hijacking keys in other org buffers
 *** TODO Make tags visible
 * Example Output
 =====================================================================
