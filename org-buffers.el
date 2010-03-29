@@ -32,9 +32,9 @@
 
 ;;; Links to buffers
 (org-add-link-type "buffer" 'display-buffer)
-(add-hook 'org-store-link-functions 'org-buffers-link-store-link)
+(add-hook 'org-store-link-functions 'org-buffers-store-link)
 
-(defun org-buffers-link-store-link ()
+(defun org-buffers-store-link ()
   "Store a link to an Emacs buffer."
   (let* ((desc (buffer-name))
 	 (target desc) link)
@@ -45,90 +45,104 @@
 
 ;;; Buffer list
 
-(defvar org-buffer-list-mode-map (make-sparse-keymap)
-  "The keymap for `org-buffer-list-mode'.")
+(defvar org-buffers-mode-map (make-sparse-keymap)
+  "The keymap for `org-buffers-mode'.")
 
-(define-key org-buffer-list-mode-map [(return)] 'org-buffers-follow-link-at-heading)
-(define-key org-buffer-list-mode-map "d" 'org-buffers-mark-for-deletion)
-(define-key org-buffer-list-mode-map "g" '(lambda () (interactive) (org-buffers-list-buffers 'refresh)))
-(define-key org-buffer-list-mode-map "l" '(lambda () (interactive) (org-buffers-list-buffers 'refresh 'no-group)))
-(define-key org-buffer-list-mode-map "x" 'org-buffers-apply-pending-operations)
+(define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link-at-heading)
+(define-key org-buffers-mode-map "b" 'org-buffers-list:by)
+(define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffers-mode-map "g" '(lambda () (interactive) (org-buffers-list 'refresh)))
+(define-key org-buffers-mode-map "l" 'org-buffers-list:flat)
+(define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 
-(define-minor-mode org-buffer-list-mode
+(define-minor-mode org-buffers-mode
   "Org-mode support for buffer management"
-  nil " buffer-list" nil
-  (setq buffer-read-only t))
+  nil " buffer-list" nil)
 
-(defvar org-buffers-list-buffer-name
+(defvar org-buffers-buffer-name
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
 
-(defvar org-buffers-list-mode-hook
-  '(org-buffers-list-chomp-mode-from-modes)
+(defvar org-buffers-mode-hook
+  '(org-buffers-chomp-mode-from-modes)
   "Hook for functions to be called after buffer listing is
   created.")
 
+(defvar org-buffers-params
+  '((:by . "major-mode"))
+  "Alist of parameters controlling org-buffers-list output.")
+
 (defcustom org-buffers-excluded-buffers
-  `("*Completions*" ,org-buffers-list-buffer-name)
+  `("*Completions*" ,org-buffers-buffer-name)
   "List of names of buffers (strings) that should not be listed
-  by org-buffers-list-buffers."
+  by org-buffers-list."
   :group 'org-buffers)
 
-(defun org-buffers-list-buffers (&optional refresh no-group property frame)
+(defun org-buffers-list (&optional refresh property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
 mode. Optional argument `property' specifies a different property
 to group be. Optional argument `frame' specifies the frame whose
 buffers should be listed."
   (interactive)
-  (unless property (setq property "major-mode"))
   (pop-to-buffer
    (or
-    (and (not refresh) (get-buffer org-buffers-list-buffer-name))
-    (let ((p (if (equal (buffer-name) org-buffers-list-buffer-name)
-		 (point)))) ;; TODO how to check for minor modes?
-      (with-current-buffer (get-buffer-create org-buffers-list-buffer-name)
+    (and (not refresh) (get-buffer org-buffers-buffer-name))
+    (let ((p (if (equal (buffer-name) org-buffers-buffer-name)
+		 (point))) ;; TODO how to check for minor modes?
+	  (by (or (cdr (assoc :by org-buffers-params)) "major-mode")))
+      (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
 	(mapc 'org-buffers-insert-entry
-	      (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
+	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
 	(goto-char (point-min))
-	(unless no-group (org-buffers-group-entries-by-property property))
+	(unless (equal by "none") (org-buffers-group-by by t))
 	(org-sort-entries-or-items nil ?a)
-	(org-overview)
-	(unless no-group (org-content))
+	;; (org-overview)
+	(if (equal by "none") (show-all)
+	  (org-content))
+	(unless (equal by "none") (org-content))
 	(when p (goto-char p) (beginning-of-line))
-	(org-buffer-list-mode)
+	(org-buffers-mode)
+	(setq buffer-read-only t)
 	(current-buffer))))))
 
-(defun org-buffers-exclude-buffer-p (buffer)
+(defun org-buffers-list:flat ()
+  (interactive)
+  (setq org-buffers-params '((:by . "none")))
+  (org-buffers-list))
+
+(defun org-buffers-list:by ()
+  (interactive)
+  (setq org-buffers-params '((:by . "major-mode")))
+  (org-buffers-list))
+
+(defun org-buffers-exclude-p (buffer)
   "Return non-nil if buffer should not be listed."
   (let ((name (buffer-name buffer)))
     (or (member name org-buffers-excluded-buffers)
 	(string= (substring name 0 1) " "))))
 
-(defun org-buffers-group-entries-by-property (property &optional listp)
-  "Group toplevel headings according to the value of `property'."
-  ;; Create subtree for each value of `property'
+(defun org-buffers-group-by (property &optional listp)
+  "Group top level headings according to the value of `property'."
   (save-excursion
     (goto-char (point-min))
-    (mapc (lambda (subtree)
-	    (if listp (org-insert-item) (org-insert-heading t))
+    (mapc (lambda (subtree) ;; Create subtree for each value of `property'
+	    (org-insert-heading t)
 	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
-	    (org-insert-subheading nil)
+	    (if listp (insert " - ") (org-insert-subheading t))
 	    (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
 	  (prog1
-	      ;; Form list of parsed entries for each value of `property'
-	      (mapcar (lambda (val)
-			(cons val (org-buffers-get-info-for-entries property val)))
-		      ;; Find unique values of `property'
+	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
+			(cons val (org-buffers-parse-selected-entries property val)))
 		      (delete-dups (org-map-entries (lambda () (org-entry-get nil property nil)))))
 	    (erase-buffer)))))
 
-(defun org-buffers-get-info-for-entries (prop val)
+(defun org-buffers-parse-selected-entries (prop val)
   "Parse all entries with `property' value `val'."
   (delq nil
 	(org-map-entries
@@ -140,11 +154,12 @@ buffers should be listed."
   (cons (org-get-heading)
 	(org-get-entry)))
 
-(defun org-buffers-insert-parsed-entry (entry &optional heading-only)
+(defun org-buffers-insert-parsed-entry (entry)
   "Insert a parsed entry"
-  (unless (org-on-heading-p) (org-insert-heading))
+  (unless (or (org-on-heading-p) (org-at-item-p))
+    (org-insert-heading))
   (insert (car entry) "\n")
-  (unless heading-only
+  (if (cdr (assoc :with-props org-buffers-params))
     (insert (cdr entry))))
 
 (defun org-buffers-insert-entry (buffer)
@@ -178,16 +193,16 @@ The heading is a link to `buffer'."
   (org-back-to-heading)
   (hide-subtree))
 
-(defun org-buffers-apply-pending-operations ()
+(defun org-buffers-execute-pending-operations ()
   (interactive)
   (org-map-entries
    (lambda () (kill-buffer (org-entry-get nil "buffer-name")))
    "+delete")
-  (org-buffers-list-buffers))
+  (org-buffers-list))
 
 
-(defun org-buffers-list-chomp-mode-from-modes ()
-  (if (equal (cdr (assoc :by org-buffers-list-params)) "major-mode")
+(defun org-buffers-chomp-mode-from-modes ()
+  (if (equal (cdr (assoc :by org-buffers-params)) "major-mode")
       (org-map-entries
        (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 		      (replace-match ""))))))
