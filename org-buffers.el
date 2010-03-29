@@ -58,8 +58,8 @@ The buffers are grouped by major mode."
    (with-current-buffer (get-buffer-create "*Buffer Tree*")
      (erase-buffer)
      (org-mode)
-     (save-excursion
-       (mapc 'org-buffers-insert-entry (buffer-list frame)))
+     (mapc 'org-buffers-insert-entry (buffer-list frame))
+     (goto-char (point-min))
      (org-buffers-group-entries-by-property "major-mode")
      (current-buffer))))
 
