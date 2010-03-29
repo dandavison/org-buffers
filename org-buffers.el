@@ -44,11 +44,12 @@
     (org-add-link-props :link link :description desc)
     link))
 
-;;; Buffer listing
+;;; Buffer list
 
-(defvar org-buffers-listing-buffer-name
+(defvar org-buffers-list-buffer-name
   "*Buffers*"
-  "Name of buffer in which buffer listing is displayed")
+  "Name of buffer in which buffer list is displayed")
+
 (defvar org-buffers-list-map
   ;; Copied from org-goto-map
   (let ((map (make-sparse-keymap)))
@@ -63,7 +64,7 @@
     map))
 
 (defcustom org-buffers-excluded-buffers
-  `("*Completions*" ,org-buffers-listing-buffer-name)
+  `("*Completions*" ,org-buffers-list-buffer-name)
   "List of names of buffers (strings) that should not be listed
   by org-buffers-list-buffers."
   :group 'org-buffers)
@@ -77,7 +78,7 @@ buffers should be listed."
   (interactive)
   (unless property (setq property "major-mode"))
   (pop-to-buffer
-   (with-current-buffer (get-buffer-create org-buffers-listing-buffer-name)
+   (with-current-buffer (get-buffer-create org-buffers-list-buffer-name)
      (erase-buffer)
      (org-mode)
      (mapc 'org-buffers-insert-entry
