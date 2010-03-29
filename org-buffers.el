@@ -142,5 +142,12 @@ The heading is a link to `buffer'."
     (org-set-property "buffer-file-name" file)
     (org-set-property "default-directory" dir)))
 
+(defun org-buffers-follow-link-at-heading ()
+  (interactive)
+  (save-excursion
+    (org-back-to-heading)
+    (if (re-search-forward "\\[\\[buffer:" (point-at-eol) t)
+	(org-open-at-point))))
+
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
