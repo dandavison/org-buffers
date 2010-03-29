@@ -111,17 +111,17 @@ buffers should be listed."
     (or (member name org-buffers-excluded-buffers)
 	(string= (substring name 0 1) " "))))
 
-(defun org-buffers-group-entries-by-property (property)
+(defun org-buffers-group-entries-by-property (property &optional listp)
   "Group toplevel headings according to the value of `property'."
   ;; Create subtree for each value of `property'
   (save-excursion
     (goto-char (point-min))
     (mapc (lambda (subtree)
-	    (org-insert-heading t)
+	    (if listp (org-insert-item) (org-insert-heading t))
 	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
-	    (org-insert-subheading t)
+	    (org-insert-subheading nil)
 	    (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
 	  (prog1
 	      ;; Form list of parsed entries for each value of `property'
@@ -145,7 +145,7 @@ buffers should be listed."
 
 (defun org-buffers-insert-parsed-entry (entry &optional heading-only)
   "Insert a parsed entry"
-  (unless (org-on-heading-p) (org-insert-heading t))
+  (unless (org-on-heading-p) (org-insert-heading))
   (insert (car entry) "\n")
   (unless heading-only
     (insert (cdr entry))))
