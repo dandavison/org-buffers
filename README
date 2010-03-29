@@ -9,9 +9,13 @@ The file also provides links to buffers for org-mode.
 
 Possible extensions
 
+*** TODO Make RET work elsewhere on header line to follow link?
+    Could do this with a speed command.
 *** Operations on buffers
-    - save buffer
-    - kill buffer
+    These could work by setting tags to define pending operations,
+    and then executing those operations.
+***** TODO save buffer
+***** TODO kill buffer
 *** Further buffer info for sorting, etc
     Information for each buffer is stored as properties of the
     buffer's entry in the listing. At the moment the only property
@@ -20,6 +24,13 @@ Possible extensions
     - buffer-modified-p
     - buffer size
     - buffer minor modes
+*** TODO Add blacklists for filtering
+***** DONE buffer names
+***** TODO major modes
+*** TODO Add hook
+    E.g. to
+    - replace the terminal -mode on major mode names
+    - filter buffers / major modes
 
 * Example Output
 =====================================================================
