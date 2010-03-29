@@ -104,13 +104,17 @@ The buffers are grouped by major mode."
   "Create an entry for `buffer'.
 The heading is a link to `buffer'."
   (let ((buffer-name (buffer-name buffer))
-	(major-mode (with-current-buffer buffer major-mode)))
+	(major-mode (with-current-buffer buffer major-mode))
+	(file-name (buffer-file-name buffer))
+	(dir (with-current-buffer buffer default-directory)))
     (when (or hidden-ok
 	      (not (string= (substring buffer-name 0 1) " ")))
       (org-insert-heading t)
       (insert
        (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
-      (org-set-property "major-mode" (symbol-name major-mode)))))
+      (org-set-property "major-mode" (symbol-name major-mode))
+      (org-set-property "buffer-file-name" file-name)
+      (org-set-property "default-directory" dir))))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
