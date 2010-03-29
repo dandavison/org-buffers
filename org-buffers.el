@@ -49,6 +49,18 @@
 (defvar org-buffers-listing-buffer-name
   "*Buffers*"
   "Name of buffer in which buffer listing is displayed")
+(defvar org-buffers-list-map
+  ;; Copied from org-goto-map
+  (let ((map (make-sparse-keymap)))
+    (let ((cmds '(isearch-forward
+		  isearch-backward
+		  kill-ring-save set-mark-command
+		  mouse-drag-region universal-argument org-occur)) cmd)
+      (while (setq cmd (pop cmds))
+	(substitute-key-definition cmd cmd map global-map)))
+    (suppress-keymap map)
+    (org-defkey map [(return)] 'org-buffers-follow-link-at-heading)
+    map))
 
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-listing-buffer-name)
@@ -79,6 +91,7 @@ buffers should be listed."
      (org-sort-entries-or-items nil ?a)
      (org-overview)
      (org-content)
+     (use-local-map org-buffers-list-map)
      (current-buffer))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
