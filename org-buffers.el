@@ -161,7 +161,11 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-mark-for-deletion ()
   (interactive)
-  (org-toggle-tag "delete"))
+  (org-toggle-tag "delete")
+  ;; hack: I'm struggling to make new tag be visible
+  (org-show-entry)
+  (org-back-to-heading)
+  (hide-subtree))
 
 (defun org-buffers-apply-pending-operations ()
   (interactive)
