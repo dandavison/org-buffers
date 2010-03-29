@@ -46,6 +46,16 @@
 
 ;;; Buffer list
 
+(define-minor-mode org-buffer-list-mode
+  "Org-mode support for buffer management"
+  nil " buffer-list" nil)
+
+(defvar org-buffer-list-mode-map (make-sparse-keymap)
+  "The keymap for `org-buffer-list-mode'.")
+
+(define-key org-buffer-list-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffer-list-mode-map "x" 'org-buffers-apply-pending-operations)
+
 (defvar org-buffers-list-buffer-name
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
@@ -55,11 +65,6 @@
   "List of names of buffers (strings) that should not be listed
   by org-buffers-list-buffers."
   :group 'org-buffers)
-
-(defun org-buffers-set-key-bindings ()
-  (local-set-key [(return)] 'org-buffers-follow-link-at-heading)
-  (local-set-key "d" 'org-buffers-mark-for-deletion)
-  (local-set-key "x" 'org-buffers-apply-pending-operations))
 
 (defun org-buffers-list-buffers (&optional property frame)
   "Create an Org-mode listing of Emacs buffers.
@@ -84,7 +89,7 @@ buffers should be listed."
      (org-sort-entries-or-items nil ?a)
      (org-overview)
      (org-content)
-     (org-buffers-set-key-bindings)
+     (org-buffer-list-mode)
      (current-buffer))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
