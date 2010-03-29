@@ -152,5 +152,12 @@ The heading is a link to `buffer'."
   (interactive)
   (org-toggle-tag "delete"))
 
+(defun org-buffers-apply-pending-operations ()
+  (interactive)
+  (org-map-entries
+   (lambda () (kill-buffer (org-entry-get nil "buffer-name")))
+   "+delete")
+  (org-buffers-list-buffers))
+
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
