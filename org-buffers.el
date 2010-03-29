@@ -63,6 +63,10 @@
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
 
+(defvar org-buffers-list-mode-hook nil
+  "Hook for functions to be called after buffer listing is
+  created.")
+
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-list-buffer-name)
   "List of names of buffers (strings) that should not be listed
