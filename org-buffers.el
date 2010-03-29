@@ -50,6 +50,7 @@
 
 (define-key org-buffer-list-mode-map [(return)] 'org-buffers-follow-link-at-heading)
 (define-key org-buffer-list-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffer-list-mode-map "g" 'org-buffers-list-buffers)
 (define-key org-buffer-list-mode-map "x" 'org-buffers-apply-pending-operations)
 
 (define-minor-mode org-buffer-list-mode
