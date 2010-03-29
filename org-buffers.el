@@ -53,14 +53,9 @@
 (defvar org-buffers-list-map
   ;; Copied from org-goto-map
   (let ((map (make-sparse-keymap)))
-    (let ((cmds '(isearch-forward
-		  isearch-backward
-		  kill-ring-save set-mark-command
-		  mouse-drag-region universal-argument org-occur)) cmd)
-      (while (setq cmd (pop cmds))
-	(substitute-key-definition cmd cmd map global-map)))
-    (suppress-keymap map)
+    ;; (suppress-keymap map)
     (org-defkey map [(return)] 'org-buffers-follow-link-at-heading)
+    (org-defkey map "d" 'org-buffers-mark-for-deletion)
     map))
 
 (defcustom org-buffers-excluded-buffers
@@ -160,6 +155,10 @@ The heading is a link to `buffer'."
     (org-back-to-heading)
     (if (re-search-forward "\\[\\[buffer:" (point-at-eol) t)
 	(org-open-at-point))))
+
+(defun org-buffers-mark-for-deletion ()
+  (interactive)
+  (org-toggle-tag "delete"))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
