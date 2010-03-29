@@ -19,3 +19,62 @@ Possible directions
     - buffer minor modes
     - buffer default-directory
     - buffer size
+
+* Example Output
+=====================================================================
+* help
+*** [[buffer:*Help*][*Help*]]
+  :PROPERTIES:
+  :major-mode: help-mode
+  :default-directory: /home/dan/emacs/org-buffers/
+  :END:
+* inferior-ess
+*** [[buffer:*R-yakuba*][*R-yakuba*]]
+  :PROPERTIES:
+  :major-mode: inferior-ess-mode
+  :default-directory: /yakuba:Work/petera/simsec/bench/simsec-hmm/
+  :END:
+* lisp-interaction
+*** [[buffer:*scratch*][*scratch*]]
+  :PROPERTIES:
+  :major-mode: lisp-interaction-mode
+  :default-directory: ~/
+  :END:
+* magit
+*** [[buffer:*magit:%20org-buffers*][*magit: org-buffers*]]
+  :PROPERTIES:
+  :major-mode: magit-mode
+  :default-directory: /home/dan/emacs/org-buffers/
+  :END:
+* magit-log-edit
+*** [[buffer:*magit-log-edit*][*magit-log-edit*]]
+  :PROPERTIES:
+  :major-mode: magit-log-edit-mode
+  :default-directory: /home/dan/emacs/org-buffers/
+  :END:
+* org
+*** [[buffer:*Buffer%20Tree*][*Buffer Tree*]]
+  :PROPERTIES:
+  :major-mode: org-mode
+  :default-directory: /home/dan/config/emacs/
+  :END:
+*** [[buffer:simsec.org][simsec.org]]
+  :PROPERTIES:
+  :major-mode: org-mode
+  :buffer-file-name: /home/dan/Work/petera/simsec/org/simsec.org
+  :default-directory: /home/dan/Work/petera/simsec/org/
+  :END:
+*** [[buffer:emacs.org][emacs.org]]
+  :PROPERTIES:
+  :major-mode: org-mode
+  :buffer-file-name: /home/dan/config/emacs/emacs.org
+  :default-directory: /home/dan/config/emacs/
+  :END:
+*** [[buffer:events.org][events.org]]
+  :PROPERTIES:
+  :major-mode: org-mode
+  :buffer-file-name: /home/dan/org/events.org
+  :default-directory: /home/dan/org/
+  :END:
+
+=====================================================================
