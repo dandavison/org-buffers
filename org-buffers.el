@@ -79,8 +79,6 @@ buffers should be listed."
      (org-sort-entries-or-items nil ?a)
      (org-overview)
      (org-content)
-     (setq (make-local-variable org-speed-commands-default)
-	   (cons org-speed-commands-default '("")
      (current-buffer))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
