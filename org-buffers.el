@@ -50,6 +50,7 @@
 
 (define-key org-buffer-list-mode-map [(return)] 'org-buffers-follow-link-at-heading)
 (define-key org-buffer-list-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffer-list-mode-map "l" '(lambda () (interactive) (org-buffers-list-buffers 'no-group)))l
 (define-key org-buffer-list-mode-map "g" 'org-buffers-list-buffers)
 (define-key org-buffer-list-mode-map "x" 'org-buffers-apply-pending-operations)
 
@@ -68,7 +69,7 @@
   by org-buffers-list-buffers."
   :group 'org-buffers)
 
-(defun org-buffers-list-buffers (&optional property frame)
+(defun org-buffers-list-buffers (&optional no-group property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
 mode. Optional argument `property' specifies a different property
@@ -86,14 +87,14 @@ buffers should be listed."
        (mapc 'org-buffers-insert-entry
 	     (remove-if 'org-buffers-exclude-buffer-p (buffer-list frame)))
        (goto-char (point-min))
-       (org-buffers-group-entries-by-property property)
+       (unless no-group (org-buffers-group-entries-by-property property))
        (if (equal property "major-mode")
 	   (org-map-entries
 	    (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 			   (replace-match "")))))
        (org-sort-entries-or-items nil ?a)
        (org-overview)
-       (org-content)
+       (unless no-group (org-content))
        (org-buffer-list-mode)
        (when p (goto-char p) (beginning-of-line))
        (current-buffer)))))
