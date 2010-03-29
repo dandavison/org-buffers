@@ -65,7 +65,6 @@ The buffers are grouped by major mode."
 
 (defun org-buffers-group-entries-by-property (property)
   "Group toplevel headings according to the value of `property'."
-  (erase-buffer)
   ;; Create subtree for each value of `property'
   (mapc (lambda (subtree)
 	  (org-insert-heading t)
@@ -73,11 +72,13 @@ The buffers are grouped by major mode."
 	  (insert (replace-regexp-in-string "-mode$" "" (car subtree)) "\n")
 	  (org-insert-subheading t)
 	  (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
-	;; Form list of parsed entries for each value of `property'
-	(mapcar (lambda (val)
-		  (cons val (org-buffers-get-info-for-entries property val)))
-		;; Find unique values of `property'
-		(delete-dups (org-map-entries (lambda () (org-entry-get nil property nil))))))
+	(prog1
+	    ;; Form list of parsed entries for each value of `property'
+	    (mapcar (lambda (val)
+		      (cons val (org-buffers-get-info-for-entries property val)))
+		    ;; Find unique values of `property'
+		    (delete-dups (org-map-entries (lambda () (org-entry-get nil property nil)))))
+	  (erase-buffer)))
   (goto-char (point-min))
   (org-sort-entries-or-items nil ?a)
   (org-overview)
