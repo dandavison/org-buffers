@@ -50,14 +50,6 @@
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
 
-(defvar org-buffers-list-map
-  ;; Copied from org-goto-map
-  (let ((map (make-sparse-keymap)))
-    ;; (suppress-keymap map)
-    (org-defkey map [(return)] 'org-buffers-follow-link-at-heading)
-    (org-defkey map "d" 'org-buffers-mark-for-deletion)
-    map))
-
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-list-buffer-name)
   "List of names of buffers (strings) that should not be listed
@@ -87,7 +79,6 @@ buffers should be listed."
      (org-sort-entries-or-items nil ?a)
      (org-overview)
      (org-content)
-     (use-local-map org-buffers-list-map)
      (current-buffer))))
 
 (defun org-buffers-exclude-buffer-p (buffer)
