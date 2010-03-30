@@ -104,7 +104,7 @@ buffers should be listed."
 	(unless (equal by "none") (org-buffers-group-by by atom))
 	(org-sort-entries-or-items nil ?a)
 	(org-overview)
-	(if nil ;; TODO user control over this
+	(if t ;; TODO user control over this
 	    (unless (equal by "none")
 	      (case atom
 		('heading (org-content))
