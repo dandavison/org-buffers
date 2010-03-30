@@ -126,8 +126,13 @@ buffers should be listed."
      (mapc
       (lambda (pair)
 	(insert
-	 (format "%S\t%S\n" (car pair) (cdr pair))))
+	 (format "%-10s\t%S\n"
+		 (cond
+		  ((characterp (car pair)) (char-to-string (car pair)))
+		  ((symbolp (car pair)) (symbol-name (car pair))))
+		 (cdr pair))))
       (cdr org-buffers-mode-map))
+     (help-mode)
      (current-buffer))))
 
 (defun org-buffers-list:flat ()
