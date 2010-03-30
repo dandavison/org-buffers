@@ -247,19 +247,25 @@ The heading is a link to `buffer'."
     (if (re-search-forward "\\[\\[buffer:" (point-at-eol) t)
 	(org-open-at-point))))
 
-(defun org-buffers-mark-for-deletion ()
-  (interactive)
-  (beginning-of-line)
+(defun org-buffers-mark-for-deletion (beg end)
+  (interactive "r")
   (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot set tags on non-headings: type \"l\" to toggle view"))
-  (when (or (org-buffers-param-eq :by "none")
-	    (> (org-outline-level) 1))
     (let ((buffer-read-only nil))
-      (org-toggle-tag "delete")
-      ;; hack: I'm struggling to make new tag be visible
-      (org-show-entry)
-      (org-back-to-heading)
-      (hide-subtree))))
+      (save-excursion
+	(narrow-to-region beg end)
+	(goto-char (point-min))
+	(org-map-entries
+	 (lambda ()
+	   (when (or (org-buffers-param-eq :by "none")
+		     (> (org-outline-level) 1))
+	     (org-set-tags-to
+	      (delete-duplicates (cons "delete" (org-get-tags)) :test 'string-equal))
+	     ;; hack: I'm struggling to make new tag be visible
+	     (org-show-entry)
+	     (org-back-to-heading)
+	     (hide-subtree))))
+	(widen))))
 
 (defun org-buffers-execute-pending-operations ()
   (interactive)
