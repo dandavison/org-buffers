@@ -56,6 +56,7 @@
 (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
 (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
+(define-key org-buffers-mode-map "?" 'org-buffers-display-help)
 
 (defvar org-buffers-mode-hook
   '(org-buffers-chomp-mode-from-modes)
@@ -116,6 +117,18 @@ buffers should be listed."
 	(org-buffers-mode)
 	(setq buffer-read-only t)
 	(current-buffer))))))
+
+(defun org-buffers-display-help ()
+  (interactive)
+  (display-buffer
+   (with-current-buffer (get-buffer-create "*Org Buffers Help*")
+     (erase-buffer)
+     (mapc
+      (lambda (pair)
+	(insert
+	 (format "%S\t%S\n" (car pair) (cdr pair))))
+      (cdr org-buffers-mode-map))
+     (current-buffer))))
 
 (defun org-buffers-list:flat ()
   (interactive)
