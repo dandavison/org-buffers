@@ -59,7 +59,7 @@
 
 (define-minor-mode org-buffers-mode
   "Org-mode support for buffer management"
-  nil " buffer-list" nil)
+  nil " buffers" nil)
 
 (defvar org-buffers-buffer-name
   "*Buffers*"
