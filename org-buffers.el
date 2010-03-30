@@ -142,7 +142,19 @@ buffers should be listed."
 
 (defun org-buffers-list:by ()
   (interactive)
-  (org-buffers-set-params '((:by . "major-mode")))
+  (unless (org-buffers-param-get :properties)
+    (org-buffers-list:toggle-properties))
+  (let* ((buffer-read-only nil)
+	 (props
+	  (set-difference
+	   (delete-dups
+	    (apply 'append
+		   (org-map-entries (lambda ()
+				      (mapcar 'car (org-entry-properties))))))
+	   '("BLOCKED" "CATEGORY") :test 'string-equal))
+	(prop
+	 (org-completing-read "Property to group by: " props)))
+  (org-buffers-set-params `((:by . ,prop))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-list:toggle-plain-lists ()
