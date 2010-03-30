@@ -107,7 +107,8 @@ buffers should be listed."
 	(unless (equal by "none")
 	  (case atom
 	   ('heading (org-content))
-	   ('item (show-all))))
+	   ('item (show-all))
+	   ('line (show-all))))
 	(when line-col ;; TODO try searching for stored entry rather than this?
 	  (org-goto-line (car line-col))
 	  (org-move-to-column (cdr line-col)))
@@ -128,9 +129,9 @@ buffers should be listed."
 (defun org-buffers-list:toggle-plain-lists ()
   (interactive)
   (org-buffers-set-params
-   (if (eq (cdr (assoc :atom org-buffers-params)) 'item)
+   (if (memq (cdr (assoc :atom org-buffers-params)) '(item line))
        '((:atom . heading))
-     '((:atom . item) (:properties . nil))))
+     '((:atom . line) (:properties . nil))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-list:toggle-properties ()
@@ -150,7 +151,7 @@ buffers should be listed."
 	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
-	    (if (eq atom 'item)
+	    (if (memq atom '(item line))
 		(progn
 		  (mapc 'org-buffers-insert-parsed-entry-as-list-item (cdr subtree))
 		  (insert "\n"))
@@ -183,8 +184,13 @@ buffers should be listed."
 
 (defun org-buffers-insert-parsed-entry-as-list-item (entry)
   "Insert a parsed entry"
-  (if (org-at-item-p) (org-insert-item)
-    (insert "- ")) ;; TODO is there a function which starts a plain list?
+  (cond
+   ((eq (cdr (assoc :atom org-buffers-params)) 'line)
+    (or (eq (char-before) ?\n)
+	(insert "\n")))
+   ((org-at-item-p)
+    (org-insert-item))
+   (t (insert "- "))) ;; TODO is there a function which starts a plain list?
   (insert (car entry)))
 
 (defun org-buffers-insert-entry (buffer)
