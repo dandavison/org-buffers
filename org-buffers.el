@@ -167,8 +167,9 @@ buffers should be listed."
   (unless (or (org-on-heading-p) (org-at-item-p))
     (org-insert-heading))
   (insert (car entry) "\n")
-  (if (cdr (assoc :properties org-buffers-params))
-    (insert (cdr entry))))
+  (if (and (eq (cdr (assoc :atom org-buffers-params)) 'heading)
+	   (cdr (assoc :properties org-buffers-params)))
+      (insert (cdr entry))))
 
 (defun org-buffers-insert-entry (buffer)
   "Create an entry for `buffer'.
