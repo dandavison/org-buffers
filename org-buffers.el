@@ -110,9 +110,9 @@ buffers should be listed."
 		('heading (org-content))
 		('item (show-all))
 		('line (show-all)))))
-	(when line-col ;; TODO try searching for stored entry rather than this?
-	  (org-goto-line (car line-col))
-	  (org-move-to-column (cdr line-col)))
+	(if line-col ;; TODO try searching for stored entry rather than this?
+	  (org-goto-line (car line-col)))
+	(org-beginning-of-line)
 	(org-buffers-mode)
 	(setq buffer-read-only t)
 	(current-buffer))))))
