@@ -54,7 +54,7 @@
 (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" '(lambda () (interactive) (org-buffers-list 'refresh)))
 (define-key org-buffers-mode-map "l" 'org-buffers-list:as-lists)
-(define-key org-buffers-mode-map "p" 'org-buffers-list:with-properties)
+(define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 
 (defvar org-buffers-mode-hook
@@ -128,9 +128,12 @@ buffers should be listed."
   (org-buffers-set-params '((:atom . item) (:properties . nil)))
   (org-buffers-list 'refresh))
 
-(defun org-buffers-list:with-properties ()
+(defun org-buffers-list:toggle-properties ()
   (interactive)
-  (org-buffers-set-params '((:atom . heading) (:properties . t)))
+  (org-buffers-set-params
+   (if (cdr (assoc :properties org-buffers-params))
+       '((:properties . nil))
+     '((:atom . heading) (:properties . t))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-group-by (property atom)
