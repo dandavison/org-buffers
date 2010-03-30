@@ -114,13 +114,13 @@ buffers should be listed."
 
 (defun org-buffers-list:flat ()
   (interactive)
-  (setq org-buffers-params '((:by . "none")))
-  (org-buffers-list))
+  (org-buffers-set-params '((:by . "none")))
+  (org-buffers-list 'refresh))
 
 (defun org-buffers-list:by ()
   (interactive)
-  (setq org-buffers-params '((:by . "major-mode")))
-  (org-buffers-list))
+  (org-buffers-set-params '((:by . "major-mode")))
+  (org-buffers-list 'refresh))
 
 (defun org-buffers-list:as-lists ()
   (interactive)
