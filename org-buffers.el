@@ -52,11 +52,11 @@
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
 (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
-(define-key org-buffers-mode-map "g" '(lambda () (interactive) (org-buffers-list 'refresh)))
+(define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
 (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
-(define-key org-buffers-mode-map "?" 'org-buffers-display-help)
+(define-key org-buffers-mode-map "?" 'org-buffers-help)
 
 (defvar org-buffers-mode-hook
   '(org-buffers-chomp-mode-from-modes)
@@ -64,7 +64,8 @@
   created.")
 
 (define-minor-mode org-buffers-mode
-  "Org-mode support for buffer management"
+;;  "Org-mode support for buffer management. \\{org-buffers-mode-map}"
+  "\\{org-buffers-mode-map}"
   nil " buffers" nil)
 
 (defvar org-buffers-buffer-name
@@ -118,22 +119,13 @@ buffers should be listed."
 	(setq buffer-read-only t)
 	(current-buffer))))))
 
-(defun org-buffers-display-help ()
+(defun org-buffers-help ()
   (interactive)
-  (display-buffer
-   (with-current-buffer (get-buffer-create "*Org Buffers Help*")
-     (erase-buffer)
-     (mapc
-      (lambda (pair)
-	(insert
-	 (format "%-10s\t%S\n"
-		 (cond
-		  ((characterp (car pair)) (char-to-string (car pair)))
-		  ((symbolp (car pair)) (symbol-name (car pair))))
-		 (cdr pair))))
-      (cdr org-buffers-mode-map))
-     (help-mode)
-     (current-buffer))))
+  (describe-function 'org-buffers-mode))
+
+(defun org-buffers-list:refresh ()
+  (interactive)
+  (org-buffers-list 'refresh))
 
 (defun org-buffers-list:flat ()
   (interactive)
