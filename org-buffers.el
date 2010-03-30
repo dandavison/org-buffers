@@ -184,6 +184,12 @@ The heading is a link to `buffer'."
     (org-set-property "buffer-name" buffer-name)
     (org-set-property "default-directory" dir)))
 
+(defun org-buffers-exclude-p (buffer)
+  "Return non-nil if buffer should not be listed."
+  (let ((name (buffer-name buffer)))
+    (or (member name org-buffers-excluded-buffers)
+	(string= (substring name 0 1) " "))))
+
 (defun org-buffers-follow-link-at-heading ()
   (interactive)
   (save-excursion
@@ -204,19 +210,22 @@ The heading is a link to `buffer'."
   (interactive)
   (unless (cdr (assoc :properties org-buffers-params))
     (org-buffers-list:with-properties))
+  (org-map-entries
+   (lambda ()
+     (kill-buffer (org-entry-get nil "buffer-name"))
+     (delete-region (point) (outline-end-of-heading)))
+   "+delete"))
+
+(provide 'org-buffers)
+;;; org-buffers.el ends here
+(provide 'org-buffers)
+;;; org-buffers.el ends here
 (defun org-buffers-chomp-mode-from-modes ()
   (if (equal (cdr (assoc :by org-buffers-params)) "major-mode")
       (org-map-entries
        (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 		      (replace-match ""))))))
 
-  (org-map-entries
-   (lambda ()
-     (kill-buffer (org-entry-get nil "buffer-name"))
-     (delete-region (point) (outline-end-of-heading)))
-   "+delete"))
-(provide 'org-buffers)
-;;; org-buffers.el ends here
 (defun org-buffers-set-params (params)
   "Add settings to global parameter list.
 New settings have precedence over existing ones."
@@ -226,3 +235,5 @@ New settings have precedence over existing ones."
    org-buffers-params)
   (setq org-buffers-params params))
 
+(provide 'org-buffers)
+;;; org-buffers.el ends here
