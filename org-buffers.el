@@ -84,6 +84,11 @@
   by org-buffers-list."
   :group 'org-buffers)
 
+(defcustom org-buffers-excluded-modes nil
+  "List of names of major-modes (strings) that should not be listed
+  by org-buffers-list."
+  :group 'org-buffers)
+
 (defun org-buffers-list (&optional refresh property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
@@ -233,8 +238,10 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-exclude-p (buffer)
   "Return non-nil if buffer should not be listed."
-  (let ((name (buffer-name buffer)))
-    (or (member name org-buffers-excluded-buffers)
+  (let ((name (buffer-name buffer))
+	(mode (with-current-buffer buffer major-mode)))
+    (or (member mode org-buffers-excluded-modes)
+	(member name org-buffers-excluded-buffers)
 	(string= (substring name 0 1) " "))))
 
 (defun org-buffers-follow-link ()
