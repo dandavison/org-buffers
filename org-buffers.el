@@ -271,7 +271,8 @@ The heading is a link to `buffer'."
     (org-map-entries
      (lambda ()
        (kill-buffer (org-entry-get nil "buffer-name"))
-       (if (org-first-sibling-p) (org-up-heading-safe))
+       (if (and (org-first-sibling-p) (not (org-goto-sibling)))
+	   (org-up-heading-safe))
        (delete-region (point) (1+ (org-end-of-subtree))))
      "+delete")))
 
