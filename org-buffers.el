@@ -93,7 +93,7 @@ buffers should be listed."
     (let ((p (if (equal (buffer-name) org-buffers-buffer-name)
 		 (point))) ;; TODO how to check for current minor modes?
 	  (by (or (cdr (assoc :by org-buffers-params)) "major-mode"))
-	  (atoms (cdr (assoc :atoms org-buffers-params))))
+	  (atom (cdr (assoc :atom org-buffers-params))))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -101,7 +101,7 @@ buffers should be listed."
 	(mapc 'org-buffers-insert-entry
 	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
 	(goto-char (point-min))
-	(unless (equal by "none") (org-buffers-group-by by atoms))
+	(unless (equal by "none") (org-buffers-group-by by atom))
 	(org-sort-entries-or-items nil ?a)
 	(org-overview)
 	(cond
@@ -124,15 +124,15 @@ buffers should be listed."
 
 (defun org-buffers-list:as-lists ()
   (interactive)
-  (org-buffers-set-params '((:atoms . items)))
+  (org-buffers-set-params '((:atom . item) (:properties . nil)))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-list:with-properties ()
   (interactive)
-  (org-buffers-set-params '((:atoms . headings) (:properties . t)))
+  (org-buffers-set-params '((:atom . heading) (:properties . t)))
   (org-buffers-list 'refresh))
 
-(defun org-buffers-group-by (property atoms)
+(defun org-buffers-group-by (property atom)
   "Group top level headings according to the value of `property'."
   (save-excursion
     (goto-char (point-min))
@@ -141,7 +141,7 @@ buffers should be listed."
 	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
-	    (if (eq atoms 'items) (insert " - ") (org-insert-subheading t))
+	    (if (eq atom 'item) (insert " - ") (org-insert-subheading t))
 	    (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
 	  (prog1
 	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
