@@ -64,8 +64,8 @@
   created.")
 
 (define-minor-mode org-buffers-mode
-;;  "Org-mode support for buffer management. \\{org-buffers-mode-map}"
-  "\\{org-buffers-mode-map}"
+  "Org-mode support for buffer management.
+  \\{org-buffers-mode-map}"
   nil " buffers" nil)
 
 (defvar org-buffers-buffer-name
