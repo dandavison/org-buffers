@@ -215,12 +215,15 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-mark-for-deletion ()
   (interactive)
-  (let ((buffer-read-only nil))
-    (org-toggle-tag "delete"))
-  ;; hack: I'm struggling to make new tag be visible
-  (org-show-entry)
-  (org-back-to-heading)
-  (hide-subtree))
+  (beginning-of-line)
+  (when (or (eq (cdr (assoc :by org-buffers-params) "none"))
+	    (> (org-outline-level) 1))
+    (let ((buffer-read-only nil))
+      (org-toggle-tag "delete")
+      ;; hack: I'm struggling to make new tag be visible
+      (org-show-entry)
+      (org-back-to-heading)
+      (hide-subtree))))
 
 (defun org-buffers-execute-pending-operations ()
   (interactive)
