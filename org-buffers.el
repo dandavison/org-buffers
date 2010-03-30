@@ -148,8 +148,12 @@ buffers should be listed."
 	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
-	    (if (eq atom 'item) (insert " - ") (org-insert-subheading t))
-	    (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
+	    (if (eq atom 'item) (insert "- ") ;; TODO what is correct way to start plain list?
+	      (org-insert-subheading t))
+	    (dotimes (i (length subtree))
+	      (org-buffers-insert-parsed-entry (nth i (cdr subtree)) i atom)))
+	    ;; (mapc (lambda (entry) (org-buffers-insert-parsed-entry entry atom))
+	    ;; 	  (cdr subtree)))
 	  (prog1
 	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
 			(cons val (org-buffers-parse-selected-entries property val)))
@@ -168,14 +172,14 @@ buffers should be listed."
   (cons (org-get-heading)
 	(org-get-entry)))
 
-(defun org-buffers-insert-parsed-entry (entry)
+(defun org-buffers-insert-parsed-entry (entry index atom)
   "Insert a parsed entry"
-  (unless (or (org-on-heading-p) (org-at-item-p))
-    (org-insert-heading))
-  (insert (car entry) "\n")
-  (if (and (eq (cdr (assoc :atom org-buffers-params)) 'heading)
+;;  (unless (or (org-on-heading-p) (org-at-item-p))
+  (unless (eq index 0) (org-insert-heading))
+  (insert (car entry))
+  (if (and (eq atom 'heading)
 	   (cdr (assoc :properties org-buffers-params)))
-      (insert (cdr entry))))
+      (insert "\n" (cdr entry))))
 
 (defun org-buffers-insert-entry (buffer)
   "Create an entry for `buffer'.
