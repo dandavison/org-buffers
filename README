@@ -8,12 +8,26 @@ each major-mode, the heading for each buffer is a link to the buffer.
 The file also provides links to buffers for org-mode.
 
 * Tasks
-*** Operations on buffers
+*** TODO Set meaningful tags as buffer variable
+*** TODO Operations on buffers
     These could work by setting tags to define pending operations,
     and then executing those operations.
 ***** TODO Implement some of the operations of Buffer-menu-mode
+******* TODO o
 ***** TODO save buffer
 ***** DONE kill buffer
+*** TODO Filtering and folding 
+***** TODO Add modes which should be folded by default
+***** TODO Add blacklists for filtering
+***** DONE buffer names
+***** TODO major modes
+*** DONE Add hook
+    E.g. to
+    - replace the terminal -mode on major mode names
+    - filter buffers / major modes
+*** DONE Make RET work elsewhere on header line to follow link?
+    Could do this with a speed command.
+*** DONE Macro for working with params?
 *** Further buffer info for sorting, etc
     Information for each buffer is stored as properties of the
     buffer's entry in the listing. At the moment the only property
@@ -22,18 +36,13 @@ The file also provides links to buffers for org-mode.
     - buffer-modified-p
     - buffer size
     - buffer minor modes
-*** TODO Add blacklists for filtering
-***** DONE buffer names
-***** TODO major modes
-*** TODO Add hook
-    E.g. to
-    - replace the terminal -mode on major mode names
-    - filter buffers / major modes
-*** DONE Make RET work elsewhere on header line to follow link?
-    Could do this with a speed command.
 * Bugs
+*** TODO Ungrouped mode
+*** DONE Tags for deletion
 *** DONE Stop hijacking keys in other org buffers
-*** TODO Make tags visible
+*** DONE Make tags visible
+*** CANCELLED Get rid of newline at eob 
+*** TODO Point movement
 * Example Output
 =====================================================================
 * help
