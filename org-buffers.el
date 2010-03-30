@@ -280,10 +280,11 @@ The heading is a link to `buffer'."
   (let ((buffer-read-only nil))
     (org-map-entries
      (lambda ()
-       (kill-buffer (org-entry-get nil "buffer-name"))
-       (if (and (org-first-sibling-p) (not (org-goto-sibling)))
-	   (org-up-heading-safe))
-       (delete-region (point) (1+ (org-end-of-subtree))))
+       (if (not (kill-buffer (org-entry-get nil "buffer-name")))
+	   (error "failed to kill buffer %s" (org-entry-get nil "buffer-name"))
+	 (if (and (org-first-sibling-p) (not (org-goto-sibling)))
+	     (org-up-heading-safe))
+	 (org-cut-subtree)))
      "+delete")))
 
 (defun org-buffers-chomp-mode-from-modes ()
