@@ -104,11 +104,12 @@ buffers should be listed."
 	(unless (equal by "none") (org-buffers-group-by by atom))
 	(org-sort-entries-or-items nil ?a)
 	(org-overview)
-	(unless (equal by "none")
-	  (case atom
-	   ('heading (org-content))
-	   ('item (show-all))
-	   ('line (show-all))))
+	(if nil ;; TODO user control over this
+	    (unless (equal by "none")
+	      (case atom
+		('heading (org-content))
+		('item (show-all))
+		('line (show-all)))))
 	(when line-col ;; TODO try searching for stored entry rather than this?
 	  (org-goto-line (car line-col))
 	  (org-move-to-column (cdr line-col)))
