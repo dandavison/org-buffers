@@ -148,11 +148,12 @@ buffers should be listed."
 	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
-	    (if (eq atom 'item) (insert "- ") ;; TODO what is correct way to start plain list?
-	      (org-insert-subheading t))
-	    (mapc (if (eq atom 'heading) 'org-buffers-insert-parsed-entry
-		    'org-buffers-insert-parsed-entry-as-list-item)
-	     	  (cdr subtree)))
+	    (if (eq atom 'item)
+		(progn
+		  (mapc 'org-buffers-insert-parsed-entry-as-list-item (cdr subtree))
+		  (insert "\n"))
+	      (org-insert-subheading t)
+	      (mapc 'org-buffers-insert-parsed-entry (cdr subtree))))
 	  (prog1
 	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
 			(cons val (org-buffers-parse-selected-entries property val)))
@@ -180,7 +181,8 @@ buffers should be listed."
 
 (defun org-buffers-insert-parsed-entry-as-list-item (entry)
   "Insert a parsed entry"
-  (unless (org-first-list-item-p) (org-insert-item))
+  (if (org-at-item-p) (org-insert-item)
+    (insert "- ")) ;; TODO is there a function which starts a plain list?
   (insert (car entry)))
 
 (defun org-buffers-insert-entry (buffer)
