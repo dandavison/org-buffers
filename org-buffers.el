@@ -1,4 +1,4 @@
-;;; org-buffers.el --- Support for using Org-mode to work with Emacs buffers
+;;; org-buffers.el --- A buffer management tool
 
 ;; Copyright (C) 2010  Dan Davison
 
