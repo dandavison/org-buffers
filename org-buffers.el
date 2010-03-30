@@ -90,8 +90,8 @@ buffers should be listed."
   (pop-to-buffer
    (or
     (and (not refresh) (get-buffer org-buffers-buffer-name))
-    (let ((p (if (equal (buffer-name) org-buffers-buffer-name)
-		 (point))) ;; TODO how to check for current minor modes?
+    (let ((line-col (if (equal (buffer-name) org-buffers-buffer-name) ;; TODO how to check for current minor modes?
+			(cons (org-current-line) (current-column))))
 	  (by (or (cdr (assoc :by org-buffers-params)) "major-mode"))
 	  (atom (cdr (assoc :atom org-buffers-params))))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
@@ -108,7 +108,9 @@ buffers should be listed."
 	  (case atom
 	   ('heading (org-content))
 	   ('item (show-all))))
-	(when p (goto-char p) (beginning-of-line)) ;; TODO try searching for stored entry before goto-char
+	(when line-col ;; TODO try searching for stored entry rather than this?
+	  (org-goto-line (car line-col))
+	  (org-move-to-column (cdr line-col)))
 	(org-buffers-mode)
 	(setq buffer-read-only t)
 	(current-buffer))))))
