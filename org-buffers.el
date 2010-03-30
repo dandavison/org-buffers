@@ -216,10 +216,6 @@ The heading is a link to `buffer'."
      (delete-region (point) (outline-end-of-heading)))
    "+delete"))
 
-(provide 'org-buffers)
-;;; org-buffers.el ends here
-(provide 'org-buffers)
-;;; org-buffers.el ends here
 (defun org-buffers-chomp-mode-from-modes ()
   (if (equal (cdr (assoc :by org-buffers-params)) "major-mode")
       (org-map-entries
