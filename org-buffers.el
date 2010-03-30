@@ -150,10 +150,9 @@ buffers should be listed."
 	    (insert (car subtree) "\n")
 	    (if (eq atom 'item) (insert "- ") ;; TODO what is correct way to start plain list?
 	      (org-insert-subheading t))
-	    (dotimes (i (length subtree))
-	      (org-buffers-insert-parsed-entry (nth i (cdr subtree)) i atom)))
-	    ;; (mapc (lambda (entry) (org-buffers-insert-parsed-entry entry atom))
-	    ;; 	  (cdr subtree)))
+	    (mapc (if (eq atom 'heading) 'org-buffers-insert-parsed-entry
+		    'org-buffers-insert-parsed-entry-as-list-item)
+	     	  (cdr subtree)))
 	  (prog1
 	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
 			(cons val (org-buffers-parse-selected-entries property val)))
@@ -172,14 +171,17 @@ buffers should be listed."
   (cons (org-get-heading)
 	(org-get-entry)))
 
-(defun org-buffers-insert-parsed-entry (entry index atom)
+(defun org-buffers-insert-parsed-entry (entry)
   "Insert a parsed entry"
-;;  (unless (or (org-on-heading-p) (org-at-item-p))
-  (unless (eq index 0) (org-insert-heading))
-  (insert (car entry))
-  (if (and (eq atom 'heading)
-	   (cdr (assoc :properties org-buffers-params)))
-      (insert "\n" (cdr entry))))
+  (unless (org-at-heading-p) (org-insert-heading))
+  (insert (car entry) "\n")
+  (if (cdr (assoc :properties org-buffers-params))
+      (insert (cdr entry))))
+
+(defun org-buffers-insert-parsed-entry-as-list-item (entry)
+  "Insert a parsed entry"
+  (unless (org-first-list-item-p) (org-insert-item))
+  (insert (car entry)))
 
 (defun org-buffers-insert-entry (buffer)
   "Create an entry for `buffer'.
