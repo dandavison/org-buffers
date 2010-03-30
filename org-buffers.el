@@ -51,8 +51,10 @@
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link-at-heading)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" '(lambda () (interactive) (org-buffers-list 'refresh)))
-(define-key org-buffers-mode-map "l" 'org-buffers-list:flat)
+(define-key org-buffers-mode-map "l" 'org-buffers-list:as-lists)
+(define-key org-buffers-mode-map "p" 'org-buffers-list:with-properties)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 
 (define-minor-mode org-buffers-mode
@@ -69,7 +71,7 @@
   created.")
 
 (defvar org-buffers-params
-  '((:by . "major-mode"))
+  '((:by . "major-mode") (:atoms . headings) (:with-props . nil))
   "Alist of parameters controlling org-buffers-list output.")
 
 (defcustom org-buffers-excluded-buffers
@@ -89,8 +91,9 @@ buffers should be listed."
    (or
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((p (if (equal (buffer-name) org-buffers-buffer-name)
-		 (point))) ;; TODO how to check for minor modes?
-	  (by (or (cdr (assoc :by org-buffers-params)) "major-mode")))
+		 (point))) ;; TODO how to check for current minor modes?
+	  (by (or (cdr (assoc :by org-buffers-params)) "major-mode"))
+	  (atoms (cdr (assoc :atoms org-buffers-params))))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -98,13 +101,13 @@ buffers should be listed."
 	(mapc 'org-buffers-insert-entry
 	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
 	(goto-char (point-min))
-	(unless (equal by "none") (org-buffers-group-by by t))
+	(unless (equal by "none") (org-buffers-group-by by atoms))
 	(org-sort-entries-or-items nil ?a)
-	;; (org-overview)
-	(if (equal by "none") (show-all)
-	  (org-content))
-	(unless (equal by "none") (org-content))
-	(when p (goto-char p) (beginning-of-line))
+	(org-overview)
+	(cond
+	 ((equal atoms 'headings) (org-content))
+	 ((equal atoms 'items) (show-all)))
+	(when p (goto-char p) (beginning-of-line)) ;; TODO try searching for stored entry before goto-char
 	(org-buffers-mode)
 	(setq buffer-read-only t)
 	(current-buffer))))))
@@ -119,13 +122,17 @@ buffers should be listed."
   (setq org-buffers-params '((:by . "major-mode")))
   (org-buffers-list))
 
-(defun org-buffers-exclude-p (buffer)
-  "Return non-nil if buffer should not be listed."
-  (let ((name (buffer-name buffer)))
-    (or (member name org-buffers-excluded-buffers)
-	(string= (substring name 0 1) " "))))
+(defun org-buffers-list:as-lists ()
+  (interactive)
+  (org-buffers-set-params '((:atoms . items)))
+  (org-buffers-list 'refresh))
 
-(defun org-buffers-group-by (property &optional listp)
+(defun org-buffers-list:with-properties ()
+  (interactive)
+  (org-buffers-set-params '((:atoms . headings) (:properties . t)))
+  (org-buffers-list 'refresh))
+
+(defun org-buffers-group-by (property atoms)
   "Group top level headings according to the value of `property'."
   (save-excursion
     (goto-char (point-min))
@@ -134,7 +141,7 @@ buffers should be listed."
 	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
-	    (if listp (insert " - ") (org-insert-subheading t))
+	    (if (eq atoms 'items) (insert " - ") (org-insert-subheading t))
 	    (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
 	  (prog1
 	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
@@ -159,7 +166,7 @@ buffers should be listed."
   (unless (or (org-on-heading-p) (org-at-item-p))
     (org-insert-heading))
   (insert (car entry) "\n")
-  (if (cdr (assoc :with-props org-buffers-params))
+  (if (cdr (assoc :properties org-buffers-params))
     (insert (cdr entry))))
 
 (defun org-buffers-insert-entry (buffer)
@@ -201,6 +208,8 @@ The heading is a link to `buffer'."
   (org-buffers-list))
 
 
+  (unless (cdr (assoc :properties org-buffers-params))
+    (org-buffers-list:with-properties))
 (defun org-buffers-chomp-mode-from-modes ()
   (if (equal (cdr (assoc :by org-buffers-params)) "major-mode")
       (org-map-entries
