@@ -71,7 +71,7 @@
   "Name of buffer in which buffer list is displayed")
 
 (defvar org-buffers-params
-  '((:by . "major-mode") (:atoms . headings) (:with-props . nil))
+  '((:by . "major-mode") (:atom . heading) (:properties . nil))
   "Alist of parameters controlling org-buffers-list output.")
 
 (defcustom org-buffers-excluded-buffers
