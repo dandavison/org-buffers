@@ -8,19 +8,28 @@ each major-mode, the heading for each buffer is a link to the buffer.
 The file also provides links to buffers for org-mode.
 
 * Tasks
-*** TODO Set meaningful tags as buffer variable
-*** TODO Operations on buffers
+*** TODO Set meaningful tags as buffer-local variable
+    To be offered as tag completions
+*** STARTED Operations on buffers
     These could work by setting tags to define pending operations,
     and then executing those operations.
 ***** TODO Implement some of the operations of Buffer-menu-mode
 ******* TODO o
 ***** TODO save buffer
 ***** DONE kill buffer
-*** TODO Filtering and folding 
+*** STARTED Filtering,folding and sorting 
 ***** TODO Add modes which should be folded by default
-***** TODO Add blacklists for filtering
+***** TODO Buffer-name blacklist for filtering
+***** TODO Major mode blacklist for filtering
 ***** DONE buffer names
-***** TODO major modes
+***** Sort by recency?
+***** When grouping by file/dir, use directory hierarchy?
+***** Store further buffer properties
+      - buffer-modified-p
+      - buffer size
+      - buffer minor modes
+*** Extend to recent files?
+*** Organise by frames
 *** DONE Add hook
     E.g. to
     - replace the terminal -mode on major mode names
@@ -28,14 +37,6 @@ The file also provides links to buffers for org-mode.
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-*** Further buffer info for sorting, etc
-    Information for each buffer is stored as properties of the
-    buffer's entry in the listing. At the moment the only property
-    stored is major-mode, but we could add further info which may be
-    useful for sorting and reviewing buffers. E.g.
-    - buffer-modified-p
-    - buffer size
-    - buffer minor modes
 * Bugs
 *** TODO Ungrouped mode
 *** DONE Tags for deletion
@@ -43,61 +44,3 @@ The file also provides links to buffers for org-mode.
 *** DONE Make tags visible
 *** CANCELLED Get rid of newline at eob 
 *** TODO Point movement
-* Example Output
-=====================================================================
-* help
-*** [[buffer:*Help*][*Help*]]
-  :PROPERTIES:
-  :major-mode: help-mode
-  :default-directory: /home/dan/emacs/org-buffers/
-  :END:
-* inferior-ess
-*** [[buffer:*R-yakuba*][*R-yakuba*]]
-  :PROPERTIES:
-  :major-mode: inferior-ess-mode
-  :default-directory: /yakuba:Work/petera/simsec/bench/simsec-hmm/
-  :END:
-* lisp-interaction
-*** [[buffer:*scratch*][*scratch*]]
-  :PROPERTIES:
-  :major-mode: lisp-interaction-mode
-  :default-directory: ~/
-  :END:
-* magit
-*** [[buffer:*magit:%20org-buffers*][*magit: org-buffers*]]
-  :PROPERTIES:
-  :major-mode: magit-mode
-  :default-directory: /home/dan/emacs/org-buffers/
-  :END:
-* magit-log-edit
-*** [[buffer:*magit-log-edit*][*magit-log-edit*]]
-  :PROPERTIES:
-  :major-mode: magit-log-edit-mode
-  :default-directory: /home/dan/emacs/org-buffers/
-  :END:
-* org
-*** [[buffer:*Buffer%20Tree*][*Buffer Tree*]]
-  :PROPERTIES:
-  :major-mode: org-mode
-  :default-directory: /home/dan/config/emacs/
-  :END:
-*** [[buffer:simsec.org][simsec.org]]
-  :PROPERTIES:
-  :major-mode: org-mode
-  :buffer-file-name: /home/dan/Work/petera/simsec/org/simsec.org
-  :default-directory: /home/dan/Work/petera/simsec/org/
-  :END:
-*** [[buffer:emacs.org][emacs.org]]
-  :PROPERTIES:
-  :major-mode: org-mode
-  :buffer-file-name: /home/dan/config/emacs/emacs.org
-  :default-directory: /home/dan/config/emacs/
-  :END:
-*** [[buffer:events.org][events.org]]
-  :PROPERTIES:
-  :major-mode: org-mode
-  :buffer-file-name: /home/dan/org/events.org
-  :default-directory: /home/dan/org/
-  :END:
-
-=====================================================================
