@@ -57,6 +57,11 @@
 (define-key org-buffers-mode-map "p" 'org-buffers-list:with-properties)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 
+(defvar org-buffers-mode-hook
+  '(org-buffers-chomp-mode-from-modes)
+  "Hook for functions to be called after buffer listing is
+  created.")
+
 (define-minor-mode org-buffers-mode
   "Org-mode support for buffer management"
   nil " buffers" nil)
@@ -64,11 +69,6 @@
 (defvar org-buffers-buffer-name
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
-
-(defvar org-buffers-mode-hook
-  '(org-buffers-chomp-mode-from-modes)
-  "Hook for functions to be called after buffer listing is
-  created.")
 
 (defvar org-buffers-params
   '((:by . "major-mode") (:atoms . headings) (:with-props . nil))
