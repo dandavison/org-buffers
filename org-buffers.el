@@ -53,7 +53,7 @@
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
 (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" '(lambda () (interactive) (org-buffers-list 'refresh)))
-(define-key org-buffers-mode-map "l" 'org-buffers-list:as-lists)
+(define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
 (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 
@@ -123,9 +123,12 @@ buffers should be listed."
   (org-buffers-set-params '((:by . "major-mode")))
   (org-buffers-list 'refresh))
 
-(defun org-buffers-list:as-lists ()
+(defun org-buffers-list:toggle-plain-lists ()
   (interactive)
-  (org-buffers-set-params '((:atom . item) (:properties . nil)))
+  (org-buffers-set-params
+   (if (eq (cdr (assoc :atom org-buffers-params)) 'item)
+       '((:atom . heading))
+     '((:atom . item) (:properties . nil))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-list:toggle-properties ()
