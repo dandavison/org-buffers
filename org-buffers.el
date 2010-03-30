@@ -48,7 +48,7 @@
 (defvar org-buffers-mode-map (make-sparse-keymap)
   "The keymap for `org-buffers-mode'.")
 
-(define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link-at-heading)
+(define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
 (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
@@ -215,10 +215,13 @@ The heading is a link to `buffer'."
     (or (member name org-buffers-excluded-buffers)
 	(string= (substring name 0 1) " "))))
 
-(defun org-buffers-follow-link-at-heading ()
+(defun org-buffers-follow-link ()
   (interactive)
   (save-excursion
-    (org-back-to-heading)
+    (let ((atom (cdr (assoc :atom org-buffers-params))))
+      (cond
+       ((eq atom 'heading) (org-back-to-heading))
+       (t (beginning-of-line))))
     (if (re-search-forward "\\[\\[buffer:" (point-at-eol) t)
 	(org-open-at-point))))
 
