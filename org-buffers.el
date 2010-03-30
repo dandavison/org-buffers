@@ -61,7 +61,9 @@
 (defvar org-buffers-mode-hook
   '(org-buffers-chomp-mode-from-modes)
   "Hook for functions to be called after buffer listing is
-  created.")
+  created. Note that the buffer is read-only, so if the hook
+  function is to modify the buffer it use a let binding to
+  temporarily bind buffer-read-only to nil.")
 
 (define-minor-mode org-buffers-mode
   "Org-mode support for buffer management.
@@ -289,9 +291,10 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-chomp-mode-from-modes ()
   (if (org-buffers-param-eq :by "major-mode")
-      (org-map-entries
-       (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
-		      (replace-match ""))))))
+      (let ((buffer-read-only nil))
+	(org-map-entries
+	 (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
+			(replace-match "")))))))
 
 (defun org-buffers-set-params (params)
   "Add settings to global parameter list.
