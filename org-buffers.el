@@ -66,7 +66,9 @@
 (define-minor-mode org-buffers-mode
   "Org-mode support for buffer management.
   \\{org-buffers-mode-map}"
-  nil " buffers" nil)
+  nil " buffers" nil
+  (set (make-local-variable 'org-tag-alist) '(("delete" . ?d)))
+  (setq buffer-read-only t))
 
 (defvar org-buffers-buffer-name
   "*Buffers*"
@@ -115,7 +117,6 @@ buffers should be listed."
 	  (org-goto-line (car line-col)))
 	(org-beginning-of-line)
 	(org-buffers-mode)
-	(setq buffer-read-only t)
 	(current-buffer))))))
 
 (defun org-buffers-help ()
