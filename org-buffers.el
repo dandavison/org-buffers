@@ -104,9 +104,10 @@ buffers should be listed."
 	(unless (equal by "none") (org-buffers-group-by by atom))
 	(org-sort-entries-or-items nil ?a)
 	(org-overview)
-	(cond
-	 ((equal atoms 'headings) (org-content))
-	 ((equal atoms 'items) (show-all)))
+	(unless (equal by "none")
+	  (case atom
+	   ('heading (org-content))
+	   ('item (show-all))))
 	(when p (goto-char p) (beginning-of-line)) ;; TODO try searching for stored entry before goto-char
 	(org-buffers-mode)
 	(setq buffer-read-only t)
