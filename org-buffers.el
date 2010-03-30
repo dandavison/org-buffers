@@ -92,8 +92,8 @@ buffers should be listed."
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((line-col (if (equal (buffer-name) org-buffers-buffer-name) ;; TODO how to check for current minor modes?
 			(cons (org-current-line) (current-column))))
-	  (by (or (cdr (assoc :by org-buffers-params)) "major-mode"))
-	  (atom (cdr (assoc :atom org-buffers-params))))
+	  (by (or (org-buffers-param-get :by) "major-mode"))
+	  (atom (org-buffers-param-get :atom)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -130,7 +130,7 @@ buffers should be listed."
 (defun org-buffers-list:toggle-plain-lists ()
   (interactive)
   (org-buffers-set-params
-   (if (memq (cdr (assoc :atom org-buffers-params)) '(item line))
+   (if (memq (org-buffers-param-get :atom) '(item line))
        '((:atom . heading))
      '((:atom . line) (:properties . nil))))
   (org-buffers-list 'refresh))
@@ -138,7 +138,7 @@ buffers should be listed."
 (defun org-buffers-list:toggle-properties ()
   (interactive)
   (org-buffers-set-params
-   (if (cdr (assoc :properties org-buffers-params))
+   (if (org-buffers-param-get :properties)
        '((:properties . nil))
      '((:atom . heading) (:properties . t))))
   (org-buffers-list 'refresh))
@@ -180,13 +180,13 @@ buffers should be listed."
   "Insert a parsed entry"
   (unless (org-at-heading-p) (org-insert-heading))
   (insert (car entry) "\n")
-  (if (cdr (assoc :properties org-buffers-params))
+  (if (org-buffers-param-get :properties)
       (insert (cdr entry))))
 
 (defun org-buffers-insert-parsed-entry-as-list-item (entry)
   "Insert a parsed entry"
   (cond
-   ((eq (cdr (assoc :atom org-buffers-params)) 'line)
+   ((org-buffers-param-eq :atom 'line)
     (or (eq (char-before) ?\n)
 	(insert "\n")))
    ((org-at-item-p)
@@ -218,7 +218,7 @@ The heading is a link to `buffer'."
 (defun org-buffers-follow-link ()
   (interactive)
   (save-excursion
-    (let ((atom (cdr (assoc :atom org-buffers-params))))
+    (let ((atom (org-buffers-param-get :atom)))
       (cond
        ((eq atom 'heading) (org-back-to-heading))
        (t (beginning-of-line))))
@@ -228,9 +228,9 @@ The heading is a link to `buffer'."
 (defun org-buffers-mark-for-deletion ()
   (interactive)
   (beginning-of-line)
-  (unless (eq (cdr (assoc :atom org-buffers-params)) 'heading)
+  (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot set tags on non-headings: type \"l\" to toggle view"))
-  (when (or (eq (cdr (assoc :by org-buffers-params)) "none")
+  (when (or (org-buffers-param-eq :by "none")
 	    (> (org-outline-level) 1))
     (let ((buffer-read-only nil))
       (org-toggle-tag "delete")
@@ -241,9 +241,9 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-execute-pending-operations ()
   (interactive)
-  (unless (eq (cdr (assoc :atom org-buffers-params)) 'heading)
+  (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot operate on non-headings: type \"l\" to toggle view"))
-  (unless (cdr (assoc :properties org-buffers-params))
+  (unless (org-buffers-param-get :properties)
     (org-buffers-list:toggle-properties))
   (let ((buffer-read-only nil))
     (org-map-entries
@@ -254,7 +254,7 @@ The heading is a link to `buffer'."
      "+delete")))
 
 (defun org-buffers-chomp-mode-from-modes ()
-  (if (equal (cdr (assoc :by org-buffers-params)) "major-mode")
+  (if (org-buffers-param-eq :by "major-mode")
       (org-map-entries
        (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 		      (replace-match ""))))))
@@ -267,6 +267,12 @@ New settings have precedence over existing ones."
 		    (add-to-list 'params pair)))
    org-buffers-params)
   (setq org-buffers-params params))
+
+(defmacro org-buffers-param-get (key)
+  `(cdr (assoc ,key org-buffers-params)))
+
+(defmacro org-buffers-param-eq (key val)
+  `(equal (org-buffers-param-get ,key) ,val))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
