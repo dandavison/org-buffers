@@ -202,12 +202,6 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-execute-pending-operations ()
   (interactive)
-  (org-map-entries
-   (lambda () (kill-buffer (org-entry-get nil "buffer-name")))
-   "+delete")
-  (org-buffers-list))
-
-
   (unless (cdr (assoc :properties org-buffers-params))
     (org-buffers-list:with-properties))
 (defun org-buffers-chomp-mode-from-modes ()
@@ -216,6 +210,11 @@ The heading is a link to `buffer'."
        (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 		      (replace-match ""))))))
 
+  (org-map-entries
+   (lambda ()
+     (kill-buffer (org-entry-get nil "buffer-name"))
+     (delete-region (point) (outline-end-of-heading)))
+   "+delete"))
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
 (defun org-buffers-set-params (params)
