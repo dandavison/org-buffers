@@ -54,7 +54,9 @@
 (define-key org-buffers-mode-map "D" 'org-buffers-mark-for-deletion-in-region)
 (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
+(define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
+(define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
 (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
 (define-key org-buffers-mode-map "U" 'org-buffers-remove-marks-in-region)
@@ -249,15 +251,30 @@ The heading is a link to `buffer'."
 	(member name org-buffers-excluded-buffers)
  	(string= (substring name 0 1) " "))))
 
+;;; Follow-link behaviour
 (defun org-buffers-follow-link ()
   (interactive)
+  (org-buffers-switch-to-buffer-generic org-buffers-follow-link-method))
+
+(defun org-buffers-switch-to-buffer ()
+  (interactive)
+  (org-buffers-switch-to-buffer-generic 'current-window))
+
+(defun org-buffers-switch-to-buffer-other-window ()
+  (interactive)
+  (org-buffers-switch-to-buffer-generic 'other-window))
+
+(defun org-buffers-switch-to-buffer-generic (method)
   (save-excursion
     (let ((atom (org-buffers-param-get :atom)))
       (cond
        ((eq atom 'heading) (org-back-to-heading))
        (t (beginning-of-line))))
-    (if (re-search-forward "\\[\\[buffer:" (point-at-eol) t)
-	(org-open-at-point))))
+    (if (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t)
+	(case method
+	  ('org-open-at-point (org-open-at-point))
+	  ('current-window (switch-to-buffer (match-string 1)))
+	  ('other-window (switch-to-buffer-other-window (match-string 1)))))))
 
 (defun org-buffers-get-buffer-name ()
   "Get buffer-name for current entry."
