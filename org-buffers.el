@@ -146,6 +146,8 @@ buffers should be listed."
 	(if line-col ;; TODO try searching for stored entry rather than this?
 	  (org-goto-line (car line-col)))
 	(org-beginning-of-line)
+	(mark-whole-buffer)
+	(indent-region (point-min) (point-max))
 	(org-buffers-mode)
 	(current-buffer))))))
 
