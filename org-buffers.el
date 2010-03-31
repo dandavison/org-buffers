@@ -276,8 +276,6 @@ The heading is a link to `buffer'."
   (interactive)
   (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot operate on non-headings: use \"l\" to toggle view"))
-  (unless (org-buffers-param-get :properties)
-    (org-buffers-list:toggle-properties))
   (let ((buffer-read-only nil) buffer-name)
     (mapc (lambda (pair) (delete-region (car pair) (cdr pair)))
 	  (nreverse
