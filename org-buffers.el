@@ -74,6 +74,7 @@
   \\{org-buffers-mode-map}"
   nil " buffers" nil
   (set (make-local-variable 'org-tag-alist) '(("delete" . ?d)))
+  (set (make-local-variable 'org-tags-column) -50)
   (setq buffer-read-only t))
 
 (defvar org-buffers-buffer-name
