@@ -66,7 +66,8 @@
   temporarily bind buffer-read-only to nil.")
 
 (define-minor-mode org-buffers-mode
-  "Org-mode support for buffer management.
+  "Emacs buffer management via Org-mode.
+
   \\{org-buffers-mode-map}"
   nil " buffers" nil
   (set (make-local-variable 'org-tag-alist) '(("delete" . ?d)))
@@ -216,10 +217,8 @@ buffers should be listed."
   "Insert a parsed entry"
   (cond
    ((org-buffers-param-eq :atom 'line)
-    (or (eq (char-before) ?\n)
-	(insert "\n")))
-   ((org-at-item-p)
-    (org-insert-item))
+    (or (eq (char-before) ?\n) (insert "\n")))
+   ((org-at-item-p) (org-insert-item))
    (t (insert "- "))) ;; TODO is there a function which starts a plain list?
   (insert (car entry)))
 
@@ -244,7 +243,7 @@ The heading is a link to `buffer'."
 	(mode (with-current-buffer buffer major-mode)))
     (or (member mode org-buffers-excluded-modes)
 	(member name org-buffers-excluded-buffers)
-	(string= (substring name 0 1) " "))))
+ 	(string= (substring name 0 1) " "))))
 
 (defun org-buffers-follow-link ()
   (interactive)
@@ -276,7 +275,7 @@ The heading is a link to `buffer'."
 (defun org-buffers-execute-pending-operations ()
   (interactive)
   (unless (org-buffers-param-eq :atom 'heading)
-    (error "Cannot operate on non-headings: type \"l\" to toggle view"))
+    (error "Cannot operate on non-headings: use \"l\" to toggle view"))
   (unless (org-buffers-param-get :properties)
     (org-buffers-list:toggle-properties))
   (let ((buffer-read-only nil) buffer-name)
