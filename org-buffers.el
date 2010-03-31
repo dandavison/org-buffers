@@ -356,8 +356,7 @@ If TAGS is nil, remove all tags at such headings."
 		      (error "Failed to kill buffer %s" buffer-name)
 		    (if (and (org-first-sibling-p) (not (org-goto-sibling)))
 			(org-up-heading-safe))
-		    (cons (point) (1+ (org-end-of-subtree))))
-		(error "Failed to get buffer name")))
+		    (cons (point) (1+ (org-end-of-subtree))))))
 	    "+delete")))))
 
 ;;; Utilities
