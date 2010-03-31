@@ -299,7 +299,8 @@ hard-wired."
   (or (org-entry-get nil "buffer-name")
       (and (save-excursion
 	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
-	   (match-string 1))))
+	   (org-link-unescape (match-string 1)))))
+
 ;;; Setting tags and executing operations
 (defun org-buffers-mark-for-deletion ()
   (interactive)
