@@ -279,15 +279,18 @@ The heading is a link to `buffer'."
     (error "Cannot operate on non-headings: type \"l\" to toggle view"))
   (unless (org-buffers-param-get :properties)
     (org-buffers-list:toggle-properties))
-  (let ((buffer-read-only nil))
-    (org-map-entries
-     (lambda ()
-       (if (not (kill-buffer (org-entry-get nil "buffer-name")))
-	   (error "failed to kill buffer %s" (org-entry-get nil "buffer-name"))
-	 (if (and (org-first-sibling-p) (not (org-goto-sibling)))
-	     (org-up-heading-safe))
-	 (org-cut-subtree)))
-     "+delete")))
+  (let ((buffer-read-only nil) buffer-name)
+    (save-excursion
+      (org-buffers-map-entries
+       (lambda ()
+	 (if (setq buffer-name (org-entry-get nil "buffer-name"))
+	     (if (not (kill-buffer buffer-name))
+		 (error "failed to kill buffer %s" (org-entry-get nil "buffer-name"))
+	       (if (and (org-first-sibling-p) (not (org-goto-sibling)))
+		   (org-up-heading-safe))
+	       (setq org-map-continue-from (point-at-bol))
+	       (org-cut-subtree))))
+       "+delete"))))
 
 (defun org-buffers-chomp-mode-from-modes ()
   (if (org-buffers-param-eq :by "major-mode")
@@ -304,6 +307,9 @@ New settings have precedence over existing ones."
 		    (add-to-list 'params pair)))
    org-buffers-params)
   (setq org-buffers-params params))
+
+(defun org-buffers-map-entries (func match)
+  (org-scan-tags func (cdr (org-make-tags-matcher match))))
 
 (defmacro org-buffers-param-get (key)
   `(cdr (assoc ,key org-buffers-params)))
