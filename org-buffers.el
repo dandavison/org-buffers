@@ -257,18 +257,23 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-mark-for-deletion (beg end)
   (interactive "r")
+  (org-buffers-set-tags-in-region '("delete") beg end))
+
+(defun org-buffers-set-tags-in-region (data beg end)
+  "Set tags to TAGS at all non top-level headings in region.
+If TAGS is nil, remove all tags at such headings."
   (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot set tags on non-headings: type \"l\" to toggle view"))
     (let ((buffer-read-only nil))
       (save-excursion
 	(narrow-to-region beg end)
 	(goto-char (point-min))
-	(org-map-entries
+	(org-buffers-map-entries
 	 (lambda ()
 	   (when (or (org-buffers-param-eq :by "none")
 		     (> (org-outline-level) 1))
 	     (org-set-tags-to
-	      (delete-duplicates (cons "delete" (org-get-tags)) :test 'string-equal)))))
+	      (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
 	(widen)
 	(org-content))))
 
