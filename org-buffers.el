@@ -197,9 +197,9 @@ buffers should be listed."
 	 (save-excursion (forward-line 1) (point)) 'nomsg 'activate)
 	(org-forward-same-level 1)
 	(org-ctrl-c-star)
-	(pop-mark)))
-    (mark-whole-buffer)
-    (indent-region (point-min) (point-max)))
+	(pop-mark))
+      (mark-whole-buffer)
+      (indent-region (point-min) (point-max))))
   (org-buffers-set-params
    `((:atom . ,(case (org-buffers-param-get :atom)
 		 ('line 'heading)
