@@ -55,6 +55,7 @@
 (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
+(define-key org-buffers-mode-map "," 'org-buffers-cycle-presentation)
 (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
 (define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
 (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
@@ -181,6 +182,26 @@ buffers should be listed."
        '((:atom . heading))
      '((:atom . line) (:properties . nil))))
   (org-buffers-list 'refresh))
+
+(defun org-buffers-cycle-presentation ()
+  (interactive)
+  (let ((buffer-read-only nil))
+    (save-excursion
+      (goto-char (point-min))
+      (unless (outline-on-heading-p)
+	(outline-next-heading))
+      (while (not (eobp))
+	(push-mark
+	 (save-excursion (forward-line 1) (point)) 'nomsg 'activate)
+	(org-forward-same-level 1)
+	(org-ctrl-c-star)
+	(pop-mark)))
+    (mark-whole-buffer)
+    (indent-region (point-min) (point-max)))
+  (org-buffers-set-params
+   `((:atom . ,(case (org-buffers-param-get :atom)
+		 ('line 'heading)
+		 ('heading 'line))))))
 
 ;;; Group by properties
 (defun org-buffers-list:toggle-properties ()
