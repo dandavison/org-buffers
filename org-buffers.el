@@ -135,7 +135,7 @@ buffers should be listed."
 	(mapc 'org-buffers-insert-entry
 	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
 	(goto-char (point-min))
-	(unless (equal by "none") (org-buffers-group-by by atom))
+	(unless (equal by "none") (org-buffers-group-by by))
 	(org-sort-entries-or-items nil ?a)
 	(org-overview)
 	(unless (equal by "none")
@@ -214,26 +214,27 @@ buffers should be listed."
      '((:atom . heading) (:properties . t))))
   (org-buffers-list 'refresh))
 
-(defun org-buffers-group-by (property atom)
+(defun org-buffers-group-by (property)
   "Group top level headings according to the value of PROPERTY."
-  (save-excursion
-    (goto-char (point-min))
-    (mapc (lambda (subtree) ;; Create subtree for each value of `property'
-	    (org-insert-heading t)
-	    (if (> (org-buffers-outline-level) 1)
-	      (org-promote))
-	    (insert (car subtree) "\n")
-	    (if (memq atom '(item line))
-		(progn
-		  (mapc 'org-buffers-insert-parsed-entry-as-list-item (cdr subtree))
-		  (insert "\n"))
-	      (org-insert-subheading t)
-	      (mapc 'org-buffers-insert-parsed-entry (cdr subtree))))
-	  (prog1
-	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
-			(cons val (org-buffers-parse-selected-entries property val)))
-		      (delete-dups (org-buffers-map-entries (lambda () (org-entry-get nil property nil)))))
-	    (erase-buffer)))))
+  (let ((atom (org-buffers-param-get :atom)))
+    (save-excursion
+      (goto-char (point-min))
+      (mapc (lambda (subtree) ;; Create subtree for each value of `property'
+	      (org-insert-heading t)
+	      (if (> (org-buffers-outline-level) 1)
+		  (org-promote))
+	      (insert (car subtree) "\n")
+	      (if (memq atom '(item line))
+		  (progn
+		    (mapc 'org-buffers-insert-parsed-entry-as-list-item (cdr subtree))
+		    (insert "\n"))
+		(org-insert-subheading t)
+		(mapc 'org-buffers-insert-parsed-entry (cdr subtree))))
+	    (prog1
+		(mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
+			  (cons val (org-buffers-parse-selected-entries property val)))
+			(delete-dups (org-buffers-map-entries (lambda () (org-entry-get nil property nil)))))
+	      (erase-buffer))))))
 
 (defun org-buffers-parse-selected-entries (prop val)
   "Parse all entries with property PROP value VAL."
