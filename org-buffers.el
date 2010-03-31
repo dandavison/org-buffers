@@ -57,6 +57,7 @@
 (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
 (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
+(define-key org-buffers-mode-map "U" 'org-buffers-remove-marks-in-region)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 
@@ -272,7 +273,10 @@ The heading is a link to `buffer'."
   (interactive)
   (org-buffers-set-tags '("delete")))
 
-(defun org-buffers-remove-marks (beg end)
+(defun org-buffers-remove-marks ()
+  (org-buffers-set-tags nil))
+
+(defun org-buffers-remove-marks-in-region (beg end)
   (interactive "r")
   (org-buffers-set-tags-in-region nil beg end))
 
