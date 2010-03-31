@@ -1,35 +1,50 @@
 
-* Org-buffers
+* An Org-mode buffer management tool
 
-This provides a function org-buffers-list-buffers, which creates an
-Org-mode buffer listing. Buffers are grouped by major mode; within
-each major-mode, the heading for each buffer is a link to the buffer.
+The function `org-buffers-list' creates a read-only Org-mode buffer
+populated with links to currently open buffers. By default, buffers
+are grouped by major mode. Buffers can be flagged for deletion (d) and
+pending operations executed (x), in a similar way to dired and
+buffer-menu-mode.
 
-The file also provides links to buffers for org-mode.
+Type "?" to see all available, and also see the variables
 
-* Tasks
-*** TODO Set meaningful tags as buffer-local variable
-    To be offered as tag completions
-*** STARTED Operations on buffers
-    These could work by setting tags to define pending operations,
-    and then executing those operations.
-***** TODO Implement some of the operations of Buffer-menu-mode
-******* TODO o
+- org-buffers-excluded-buffers
+- org-buffers-excluded-modes
+- org-buffers-mode-hook
+- org-buffers-buffer-name
+- org-buffers-params
+
+* Tasks [5/7]
+*** STARTED Operations on buffers [2/4]
+    These work by setting tags to define pending operations, and then
+    executing those operations.
+***** TODO o
 ***** TODO save buffer
+***** UI: follow dired or buffer-menu-mode?
+***** Implement other actions of dired or buffer-menu-mode?
+***** DONE u
 ***** DONE kill buffer
-*** STARTED Filtering,folding and sorting 
+*** STARTED Filtering, folding and sorting
 ***** TODO Add modes which should be folded by default
 ***** TODO Buffer-name blacklist for filtering
 ***** TODO Major mode blacklist for filtering
-***** DONE buffer names
 ***** Sort by recency?
 ***** When grouping by file/dir, use directory hierarchy?
 ***** Store further buffer properties
       - buffer-modified-p
       - buffer size
       - buffer minor modes
-*** Extend to recent files?
+*** DONE Use stripped down mapping function
+*** Message when following link to visible buffer
+    and hence doing nothing
+*** Extend to files?
+    - recent files?
 *** Organise by frames
+*** Deal with acting on region more correctly
+    I.e. Is it right that d is for this line whereas D is for region?
+*** DONE Set meaningful tags as buffer-local variable
+    To be offered as tag completions
 *** DONE Add hook
     E.g. to
     - replace the terminal -mode on major mode names
@@ -37,9 +52,13 @@ The file also provides links to buffers for org-mode.
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs
+* Bugs [4/6]
+*** Tags can be hard to line up with buffers
+*** DONE Tags for deletion [3/3]
+***** DONE Deletes alternates
+***** DONE Needs active region
+***** DONE Executing pending doesn't work first time
 *** TODO Ungrouped mode
-*** DONE Tags for deletion
 *** DONE Stop hijacking keys in other org buffers
 *** DONE Make tags visible
 *** CANCELLED Get rid of newline at eob 
