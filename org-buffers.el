@@ -78,6 +78,16 @@
   '((:by . "major-mode") (:atom . heading) (:properties . nil))
   "Alist of parameters controlling org-buffers-list output.")
 
+(defvar org-buffers-follow-link-method 'org-open-at-point
+  "Method used to follow link with RET. Must be one of
+
+'org-open-at-point :: use `org-open-at-point' to follow link.
+'current-window    :: use switch-to-buffer
+'other-window      :: use switch-to-buffer-other-window
+
+Setting this variable to 'current-window makes the behaviour more
+consistent with that of `Buffer-menu-mode' and `dired-mode'")
+
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-buffer-name)
   "List of names of buffers (strings) that should not be listed
@@ -253,14 +263,21 @@ The heading is a link to `buffer'."
 
 ;;; Follow-link behaviour
 (defun org-buffers-follow-link ()
+  "Follow link to buffer on this line.
+The buffer-switching behaviour is determined by
+`org-buffers-follow-link-method'. See also
+`org-buffers-switch-to-buffer' and
+`org-buffers-switch-to-buffer-other-window'."
   (interactive)
   (org-buffers-switch-to-buffer-generic org-buffers-follow-link-method))
 
 (defun org-buffers-switch-to-buffer ()
+"Switch to this entry's buffer in current window."
   (interactive)
   (org-buffers-switch-to-buffer-generic 'current-window))
 
 (defun org-buffers-switch-to-buffer-other-window ()
+  "Switch to this entry's buffer in other window."
   (interactive)
   (org-buffers-switch-to-buffer-generic 'other-window))
 
