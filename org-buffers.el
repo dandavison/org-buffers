@@ -256,6 +256,13 @@ The heading is a link to `buffer'."
     (if (re-search-forward "\\[\\[buffer:" (point-at-eol) t)
 	(org-open-at-point))))
 
+(defun org-buffers-get-buffer-name ()
+  "Get buffer-name for current entry."
+  (or (org-entry-get nil "buffer-name")
+      (and (save-excursion
+	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
+	   (match-string 1))))
+
 (defun org-buffers-mark-for-deletion (beg end)
   (interactive "r")
   (org-buffers-set-tags-in-region '("delete") beg end))
@@ -287,16 +294,17 @@ If TAGS is nil, remove all tags at such headings."
   (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot operate on non-headings: use \"l\" to toggle view"))
   (let ((buffer-read-only nil) buffer-name)
-    (mapc (lambda (pair) (delete-region (car pair) (cdr pair)))
+    (mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
 	  (nreverse
 	   (org-buffers-map-entries
 	    (lambda ()
-	      (if (setq buffer-name (org-entry-get nil "buffer-name"))
+	      (if (setq buffer-name (org-buffers-get-buffer-name))
 		  (if (not (kill-buffer buffer-name))
-		      (error "failed to kill buffer %s" buffer-name)
+		      (error "Failed to kill buffer %s" buffer-name)
 		    (if (and (org-first-sibling-p) (not (org-goto-sibling)))
 			(org-up-heading-safe))
-		    (cons (point) (1+ (org-end-of-subtree))))))
+		    (cons (point) (1+ (org-end-of-subtree))))
+		(error "Failed to get buffer name")))
 	    "+delete")))))
 
 (defun org-buffers-chomp-mode-from-modes ()
