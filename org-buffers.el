@@ -55,6 +55,7 @@
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
 (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
+(define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 
@@ -258,6 +259,10 @@ The heading is a link to `buffer'."
 (defun org-buffers-mark-for-deletion (beg end)
   (interactive "r")
   (org-buffers-set-tags-in-region '("delete") beg end))
+
+(defun org-buffers-remove-marks (beg end)
+  (interactive "r")
+  (org-buffers-set-tags-in-region nil beg end))
 
 (defun org-buffers-set-tags-in-region (data beg end)
   "Set tags to TAGS at all non top-level headings in region.
