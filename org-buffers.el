@@ -353,8 +353,8 @@ hard-wired."
 (defun org-buffers-set-tags-in-region (data beg end)
   "Set tags to TAGS at all non top-level headings in region.
 If TAGS is nil, remove all tags at such headings."
-  (unless (org-buffers-param-eq :atom 'heading)
-    (error "Cannot set tags on non-headings: type \"l\" to toggle view"))
+  (while (not (org-buffers-param-eq :atom 'heading))
+    (org-buffers-cycle-presentation))
     (let ((buffer-read-only nil)
 	  (eoh (save-excursion (outline-end-of-heading) (point))))
       (save-excursion
