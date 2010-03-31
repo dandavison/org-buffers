@@ -197,7 +197,7 @@ buffers should be listed."
     (goto-char (point-min))
     (mapc (lambda (subtree) ;; Create subtree for each value of `property'
 	    (org-insert-heading t)
-	    (if (> (save-excursion (goto-char (point-at-bol)) (org-outline-level)) 1)
+	    (if (> (org-buffers-outline-level) 1)
 	      (org-promote))
 	    (insert (car subtree) "\n")
 	    (if (memq atom '(item line))
@@ -390,6 +390,9 @@ New settings have precedence over existing ones."
 
 (defmacro org-buffers-param-eq (key val)
   `(equal (org-buffers-param-get ,key) ,val))
+
+(defmacro org-buffers-outline-level ()
+  '(save-excursion (beginning-of-line) (org-outline-level)))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
