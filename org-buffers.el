@@ -1,8 +1,8 @@
-;;; org-buffers.el --- A buffer management tool
+;;; org-buffers.el --- Buffer management via Org-mode
 
 ;; Copyright (C) 2010  Dan Davison
 
-;; Author: Dan Davison <dandavison0 at gmail.com>
+;; Author: Dan Davison <dandavison0 at gmail dot com>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
 
@@ -264,10 +264,11 @@ The heading is a link to `buffer'."
 ;;; Follow-link behaviour
 (defun org-buffers-follow-link ()
   "Follow link to buffer on this line.
-The buffer-switching behaviour is determined by
+The buffer-switching behaviour of this function is determined by
 `org-buffers-follow-link-method'. See also
 `org-buffers-switch-to-buffer' and
-`org-buffers-switch-to-buffer-other-window'."
+`org-buffers-switch-to-buffer-other-window', whose behaviour is
+hard-wired."
   (interactive)
   (org-buffers-switch-to-buffer-generic org-buffers-follow-link-method))
 
@@ -299,7 +300,7 @@ The buffer-switching behaviour is determined by
       (and (save-excursion
 	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
 	   (match-string 1))))
-;;; Marks, tags and execution of operations
+;;; Setting tags and executing operations
 (defun org-buffers-mark-for-deletion ()
   (interactive)
   (org-buffers-set-tags '("delete")))
