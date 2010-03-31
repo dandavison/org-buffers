@@ -284,15 +284,15 @@ hard-wired."
 
 (defun org-buffers-switch-to-buffer-generic (method)
   (save-excursion
-    (let ((atom (org-buffers-param-get :atom)))
+    (let ((atom (org-buffers-param-get :atom)) buffer)
       (cond
        ((eq atom 'heading) (org-back-to-heading))
-       (t (beginning-of-line))))
-    (if (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t)
-	(case method
-	  ('org-open-at-point (org-open-at-point))
-	  ('current-window (switch-to-buffer (match-string 1)))
-	  ('other-window (switch-to-buffer-other-window (match-string 1)))))))
+       (t (beginning-of-line)))
+      (if (setq buffer (org-buffers-get-buffer-name))
+	  (case method
+	    ('org-open-at-point (org-open-at-point))
+	    ('current-window (switch-to-buffer buffer))
+	    ('other-window (switch-to-buffer-other-window buffer)))))))
 
 (defun org-buffers-get-buffer-name ()
   "Get buffer-name for current entry."
