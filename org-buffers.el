@@ -355,8 +355,9 @@ If TAGS is nil, remove all tags at such headings."
 	      (if (setq buffer-name (org-buffers-get-buffer-name))
 		  (if (not (kill-buffer buffer-name))
 		      (error "Failed to kill buffer %s" buffer-name)
-		    (if (and (org-first-sibling-p) (not (org-goto-sibling)))
-			(org-up-heading-safe))
+		    (if (and (org-first-sibling-p)
+			     (not (save-excursion (org-goto-sibling))))
+			(org-up-heading-safe)) ;; Only child so delete parent also
 		    (cons (point) (1+ (org-end-of-subtree))))))
 	    "+delete")))))
 
