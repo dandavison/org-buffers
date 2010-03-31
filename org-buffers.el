@@ -280,17 +280,17 @@ The heading is a link to `buffer'."
   (unless (org-buffers-param-get :properties)
     (org-buffers-list:toggle-properties))
   (let ((buffer-read-only nil) buffer-name)
-    (save-excursion
-      (org-buffers-map-entries
-       (lambda ()
-	 (if (setq buffer-name (org-entry-get nil "buffer-name"))
-	     (if (not (kill-buffer buffer-name))
-		 (error "failed to kill buffer %s" (org-entry-get nil "buffer-name"))
-	       (if (and (org-first-sibling-p) (not (org-goto-sibling)))
-		   (org-up-heading-safe))
-	       (setq org-map-continue-from (point-at-bol))
-	       (org-cut-subtree))))
-       "+delete"))))
+    (mapc (lambda (pair) (delete-region (car pair) (cdr pair)))
+	  (nreverse
+	   (org-buffers-map-entries
+	    (lambda ()
+	      (if (setq buffer-name (org-entry-get nil "buffer-name"))
+		  (if (not (kill-buffer buffer-name))
+		      (error "failed to kill buffer %s" buffer-name)
+		    (if (and (org-first-sibling-p) (not (org-goto-sibling)))
+			(org-up-heading-safe))
+		    (cons (point) (1+ (org-end-of-subtree))))))
+	    "+delete")))))
 
 (defun org-buffers-chomp-mode-from-modes ()
   (if (org-buffers-param-eq :by "major-mode")
