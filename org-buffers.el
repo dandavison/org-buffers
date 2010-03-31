@@ -117,8 +117,8 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
 (defun org-buffers-list (&optional refresh property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
-mode. Optional argument `property' specifies a different property
-to group be. Optional argument `frame' specifies the frame whose
+mode. Optional argument PROPERTY specifies a different property
+to group be. Optional argument FRAME specifies the frame whose
 buffers should be listed."
   (interactive)
   (pop-to-buffer
@@ -215,7 +215,7 @@ buffers should be listed."
   (org-buffers-list 'refresh))
 
 (defun org-buffers-group-by (property atom)
-  "Group top level headings according to the value of `property'."
+  "Group top level headings according to the value of PROPERTY."
   (save-excursion
     (goto-char (point-min))
     (mapc (lambda (subtree) ;; Create subtree for each value of `property'
@@ -236,7 +236,7 @@ buffers should be listed."
 	    (erase-buffer)))))
 
 (defun org-buffers-parse-selected-entries (prop val)
-  "Parse all entries with `property' value `val'."
+  "Parse all entries with property PROP value VAL."
   (delq nil
 	(org-buffers-map-entries
 	 (lambda () (when (equal (org-entry-get nil prop) val)
@@ -264,8 +264,8 @@ buffers should be listed."
   (insert (car entry)))
 
 (defun org-buffers-insert-entry (buffer)
-  "Create an entry for `buffer'.
-The heading is a link to `buffer'."
+  "Create an entry for BUFFER.
+The heading is a link to BUFFER."
   (let ((buffer-name (buffer-name buffer))
 	(major-mode (with-current-buffer buffer major-mode))
 	(file (buffer-file-name buffer))
@@ -279,7 +279,7 @@ The heading is a link to `buffer'."
     (org-set-property "default-directory" dir)))
 
 (defun org-buffers-exclude-p (buffer)
-  "Return non-nil if buffer should not be listed."
+  "Return non-nil if BUFFER should not be listed."
   (let ((name (buffer-name buffer))
 	(mode (with-current-buffer buffer major-mode)))
     (or (member mode org-buffers-excluded-modes)
@@ -400,7 +400,7 @@ If TAGS is nil, remove all tags at such headings."
 			(replace-match "")))))))
 
 (defun org-buffers-set-params (params)
-  "Add settings to global parameter list.
+  "Add PARAMS to global parameter list.
 New settings have precedence over existing ones."
   (mapc
    (lambda (pair) (unless (assoc (car pair) params)
