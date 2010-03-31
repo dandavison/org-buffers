@@ -282,7 +282,7 @@ The heading is a link to `buffer'."
       (and (save-excursion
 	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
 	   (match-string 1))))
-
+;;; Marks, tags and execution of operations
 (defun org-buffers-mark-for-deletion ()
   (interactive)
   (org-buffers-set-tags '("delete")))
@@ -343,6 +343,11 @@ If TAGS is nil, remove all tags at such headings."
 		(error "Failed to get buffer name")))
 	    "+delete")))))
 
+;;; Utilities
+(defun org-buffers-map-entries (func &optional match)
+  (org-scan-tags
+   func (if match (cdr (org-make-tags-matcher match)) t)))
+  
 (defun org-buffers-chomp-mode-from-modes ()
   (if (org-buffers-param-eq :by "major-mode")
       (let ((buffer-read-only nil))
@@ -359,10 +364,6 @@ New settings have precedence over existing ones."
    org-buffers-params)
   (setq org-buffers-params params))
 
-(defun org-buffers-map-entries (func &optional match)
-  (org-scan-tags
-   func (if match (cdr (org-make-tags-matcher match)) t)))
-  
 (defmacro org-buffers-param-get (key)
   `(cdr (assoc ,key org-buffers-params)))
 
