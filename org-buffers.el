@@ -70,15 +70,6 @@
   function is to modify the buffer it use a let binding to
   temporarily bind buffer-read-only to nil.")
 
-(define-minor-mode org-buffers-mode
-  "Emacs buffer management via Org-mode.
-
-  \\{org-buffers-mode-map}"
-  nil " buffers" nil
-  (set (make-local-variable 'org-tag-alist) '(("delete" . ?d)))
-  (set (make-local-variable 'org-tags-column) -50)
-  (setq buffer-read-only t))
-
 (defvar org-buffers-buffer-name
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
@@ -97,6 +88,15 @@
   "List of names of major-modes (strings) that should not be listed
   by org-buffers-list."
   :group 'org-buffers)
+
+(define-minor-mode org-buffers-mode
+  "Emacs buffer management via Org-mode.
+
+  \\{org-buffers-mode-map}"
+  nil " buffers" nil
+  (set (make-local-variable 'org-tag-alist) '(("delete" . ?d)))
+  (set (make-local-variable 'org-tags-column) -50)
+  (setq buffer-read-only t))
 
 (defun org-buffers-list (&optional refresh property frame)
   "Create an Org-mode listing of Emacs buffers.
