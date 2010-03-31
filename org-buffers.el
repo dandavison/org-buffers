@@ -36,8 +36,8 @@
 
 (defun org-buffers-store-link ()
   "Store a link to an Emacs buffer."
-  (let* ((desc (buffer-name))
-	 (target desc) link)
+  (let* ((target (buffer-name))
+	 (desc target) link)
     (org-store-link-props :type "buffer")
     (setq link (org-make-link "buffer:" target))
     (org-add-link-props :link link :description desc)
