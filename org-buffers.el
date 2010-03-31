@@ -305,9 +305,10 @@ New settings have precedence over existing ones."
    org-buffers-params)
   (setq org-buffers-params params))
 
-(defun org-buffers-map-entries (func match)
-  (org-scan-tags func (cdr (org-make-tags-matcher match))))
-
+(defun org-buffers-map-entries (func &optional match)
+  (org-scan-tags
+   func (if match (cdr (org-make-tags-matcher match)) t)))
+  
 (defmacro org-buffers-param-get (key)
   `(cdr (assoc ,key org-buffers-params)))
 
