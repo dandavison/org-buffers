@@ -7,7 +7,7 @@ are grouped by major mode. Buffers can be flagged for deletion (d) and
 pending operations executed (x), in a similar way to dired and
 buffer-menu-mode.
 
-Type "?" to see all available, and also see the variables
+Type "?" to see all available actions, and also see the variables
 
 - org-buffers-excluded-buffers
 - org-buffers-excluded-modes
@@ -16,13 +16,22 @@ Type "?" to see all available, and also see the variables
 - org-buffers-params
 
 * Tasks [5/7]
-*** STARTED Operations on buffers [2/4]
+*** Implement list ansd clean view using regexp substitution
+*** STARTED Operations on buffers [3/3]
     These work by setting tags to define pending operations, and then
     executing those operations.
-***** TODO o
-***** TODO save buffer
-***** UI: follow dired or buffer-menu-mode?
+***** Show buffer-modified
+***** Save buffer
+***** Show buffer read-only
+***** Link following behaviour
+      The philosophy is that RET should do what org would do on a link; this
+      concern overrides the fact that dired and Buffer-menu-mode use switch
+      to buffer in current window on RET. Instead we use, currently, '.' for
+      current window. Like dired and Buffer-menu-mode we use 'o' for other
+      window (which may well have the same effect as RET).
+
 ***** Implement other actions of dired or buffer-menu-mode?
+***** DONE o
 ***** DONE u
 ***** DONE kill buffer
 *** STARTED Filtering, folding and sorting
@@ -43,6 +52,7 @@ Type "?" to see all available, and also see the variables
 *** Organise by frames
 *** Deal with acting on region more correctly
     I.e. Is it right that d is for this line whereas D is for region?
+*** Is (s-e (b-o-l) (outline-level)) idiomatic?
 *** DONE Set meaningful tags as buffer-local variable
     To be offered as tag completions
 *** DONE Add hook
@@ -52,14 +62,22 @@ Type "?" to see all available, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [4/6]
-*** Tags can be hard to line up with buffers
+* Bugs [7/10]
+*** TODO d on single line causes previous one to get tag also
+*** Deleting last 4 didn't delete one
+    Can't replicate?
+*** No such buffer nil on RET to deleted
+    This error message from org-open-at-point
+*** Selects final line of region even if point at bol
+*** DONE %20 in buffer name
+*** DONE Deleting last 4 caused text screw up
+*** TODO Ungrouped mode
+*** TODO Point movement
+*** DONE Tags can be hard to line up with buffers
 *** DONE Tags for deletion [3/3]
 ***** DONE Deletes alternates
 ***** DONE Needs active region
 ***** DONE Executing pending doesn't work first time
-*** TODO Ungrouped mode
 *** DONE Stop hijacking keys in other org buffers
 *** DONE Make tags visible
 *** CANCELLED Get rid of newline at eob 
-*** TODO Point movement
