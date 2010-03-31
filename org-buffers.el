@@ -108,6 +108,11 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
   (set (make-local-variable 'org-tags-column) -50)
   (setq buffer-read-only t))
 
+(defun org-buffers-help ()
+  (interactive)
+  (describe-function 'org-buffers-mode))
+
+;;; Listing and view cycling
 (defun org-buffers-list (&optional refresh property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
@@ -143,10 +148,6 @@ buffers should be listed."
 	(org-buffers-mode)
 	(current-buffer))))))
 
-(defun org-buffers-help ()
-  (interactive)
-  (describe-function 'org-buffers-mode))
-
 (defun org-buffers-list:refresh ()
   (interactive)
   (org-buffers-list 'refresh))
@@ -181,6 +182,7 @@ buffers should be listed."
      '((:atom . line) (:properties . nil))))
   (org-buffers-list 'refresh))
 
+;;; Group by properties
 (defun org-buffers-list:toggle-properties ()
   (interactive)
   (org-buffers-set-params
