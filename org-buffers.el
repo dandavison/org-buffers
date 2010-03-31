@@ -270,14 +270,18 @@ The heading is a link to `buffer'."
 
 (defun org-buffers-mark-for-deletion ()
   (interactive)
-  (org-buffers-set-tags-in-region
-   '("delete")
-   (point-at-bol)
-   (save-excursion (outline-end-of-heading) (point))))
+  (org-buffers-set-tags '("delete")))
 
 (defun org-buffers-remove-marks (beg end)
   (interactive "r")
   (org-buffers-set-tags-in-region nil beg end))
+
+(defun org-buffers-set-tags (data)
+  (interactive)
+  (org-buffers-set-tags-in-region
+   data
+   (point-at-bol)
+   (save-excursion (outline-end-of-heading) (point))))
 
 (defun org-buffers-set-tags-in-region (data beg end)
   "Set tags to TAGS at all non top-level headings in region.
