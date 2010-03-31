@@ -265,13 +265,13 @@ The heading is a link to `buffer'."
 	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
 	   (match-string 1))))
 
-(defun org-buffers-mark-for-deletion-in-region (beg end)
-  (interactive "r")
-  (org-buffers-set-tags-in-region '("delete") beg end))
-
 (defun org-buffers-mark-for-deletion ()
   (interactive)
   (org-buffers-set-tags '("delete")))
+
+(defun org-buffers-mark-for-deletion-in-region (beg end)
+  (interactive "r")
+  (org-buffers-set-tags-in-region '("delete") beg end))
 
 (defun org-buffers-remove-marks ()
   (org-buffers-set-tags nil))
