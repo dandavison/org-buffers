@@ -51,6 +51,7 @@
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffers-mode-map "D" 'org-buffers-mark-for-deletion-in-region)
 (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
@@ -263,9 +264,16 @@ The heading is a link to `buffer'."
 	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
 	   (match-string 1))))
 
-(defun org-buffers-mark-for-deletion (beg end)
+(defun org-buffers-mark-for-deletion-in-region (beg end)
   (interactive "r")
   (org-buffers-set-tags-in-region '("delete") beg end))
+
+(defun org-buffers-mark-for-deletion ()
+  (interactive)
+  (org-buffers-set-tags-in-region
+   '("delete")
+   (point-at-bol)
+   (save-excursion (outline-end-of-heading) (point))))
 
 (defun org-buffers-remove-marks (beg end)
   (interactive "r")
@@ -276,9 +284,10 @@ The heading is a link to `buffer'."
 If TAGS is nil, remove all tags at such headings."
   (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot set tags on non-headings: type \"l\" to toggle view"))
-    (let ((buffer-read-only nil))
+    (let ((buffer-read-only nil)
+	  (eoh (save-excursion (outline-end-of-heading) (point))))
       (save-excursion
-	(narrow-to-region beg end)
+	(narrow-to-region beg (max end eoh))
 	(goto-char (point-min))
 	(org-buffers-map-entries
 	 (lambda ()
