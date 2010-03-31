@@ -274,6 +274,7 @@ The heading is a link to `buffer'."
   (org-buffers-set-tags-in-region '("delete") beg end))
 
 (defun org-buffers-remove-marks ()
+  (interactive)
   (org-buffers-set-tags nil))
 
 (defun org-buffers-remove-marks-in-region (beg end)
