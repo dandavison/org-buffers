@@ -152,8 +152,8 @@ buffers should be listed."
 	  (set-difference
 	   (delete-dups
 	    (apply 'append
-		   (org-map-entries (lambda ()
-				      (mapcar 'car (org-entry-properties))))))
+		   (org-buffers-map-entries (lambda ()
+					      (mapcar 'car (org-entry-properties))))))
 	   '("BLOCKED" "CATEGORY") :test 'string-equal))
 	(prop
 	 (org-completing-read "Property to group by: " props)))
@@ -194,13 +194,13 @@ buffers should be listed."
 	  (prog1
 	      (mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
 			(cons val (org-buffers-parse-selected-entries property val)))
-		      (delete-dups (org-map-entries (lambda () (org-entry-get nil property nil)))))
+		      (delete-dups (org-buffers-map-entries (lambda () (org-entry-get nil property nil)))))
 	    (erase-buffer)))))
 
 (defun org-buffers-parse-selected-entries (prop val)
   "Parse all entries with `property' value `val'."
   (delq nil
-	(org-map-entries
+	(org-buffers-map-entries
 	 (lambda () (when (equal (org-entry-get nil prop) val)
 		      (org-buffers-parse-entry))))))
 
@@ -327,7 +327,7 @@ If TAGS is nil, remove all tags at such headings."
 (defun org-buffers-chomp-mode-from-modes ()
   (if (org-buffers-param-eq :by "major-mode")
       (let ((buffer-read-only nil))
-	(org-map-entries
+	(org-buffers-map-entries
 	 (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
 			(replace-match "")))))))
 
