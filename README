@@ -74,6 +74,7 @@ Type "?" to see all available actions, and also see the variables
 *** How to check for current minor modes?
     Ratheer than testing buffer name
 *** TODO Ungrouped mode
+*** DONE overzealous -mode chomping hook function
 *** DONE Point movement when properties
 *** CANCELLED Stop buffer links over-riding file links
     and yet make them usable.

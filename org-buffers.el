@@ -396,8 +396,10 @@ at such headings."
   (if (org-buffers-param-eq :by "major-mode")
       (let ((buffer-read-only nil))
 	(org-buffers-map-entries
-	 (lambda () (if (re-search-forward "-mode" (point-at-eol) t)
-			(replace-match "")))))))
+	 (lambda ()
+	   (if (and (eq (org-outline-level) 1)
+		    (re-search-forward "-mode$" (point-at-eol) t))
+	       (replace-match "")))))))
 
 (defun org-buffers-set-params (params)
   "Add PARAMS to global parameter list.
