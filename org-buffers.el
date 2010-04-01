@@ -39,7 +39,6 @@
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "," 'org-buffers-cycle-presentation)
-;; (define-key org-buffers-mode-map "l" 'org-buffers-list:toggle-plain-lists)
 (define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
 (define-key org-buffers-mode-map "p" 'org-buffers-list-toggle-properties)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
