@@ -62,17 +62,25 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [7/10]
-*** TODO d on single line causes previous one to get tag also
-*** Deleting last 4 didn't delete one
-    Can't replicate?
+* Bugs [9/15]
+*** TODO Add context to buffer links
+    Can use [[file:/usr/local/src/emacs/org-mode-core/lisp/org.el::org%20make%20org%20heading%20search%20string%20txt][this]] for org buffers.
+*** TODO Stop buffer links over-riding file links
+    and yet make them usable.
+*** TODO should get rid of properties when moving to lines mode
+*** TODO Clean out unused code / undesired functionality
+*** Remove tags when leaving heading mode?
 *** No such buffer nil on RET to deleted
     This error message from org-open-at-point
-*** Selects final line of region even if point at bol
+*** Compare details of region selection with other modes
+*** TODO Ungrouped mode
+*** TODO Point movement when properties
+*** How to check for current minor modes?
+    Ratheer than testing buffer name
+*** DONE D in line mode sets on first of region only
+*** DONE d on single line causes previous one to get tag also
 *** DONE %20 in buffer name
 *** DONE Deleting last 4 caused text screw up
-*** TODO Ungrouped mode
-*** TODO Point movement
 *** DONE Tags can be hard to line up with buffers
 *** DONE Tags for deletion [3/3]
 ***** DONE Deletes alternates
