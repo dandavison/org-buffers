@@ -209,8 +209,6 @@ the drawer."
     (if (re-search-forward org-property-drawer-re end t)
 	(cons (match-beginning 1) (match-end 0)))))
 
-;;; Group by properties
-
 (defun org-buffers-group-by (property)
   "Group top level headings according to the value of PROPERTY."
   (let ((atom (org-buffers-param-get :atom)))
