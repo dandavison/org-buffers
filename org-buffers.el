@@ -167,6 +167,14 @@ buffers should be listed."
      '((:atom . line) (:properties . nil))))
   (org-buffers-list 'refresh))
 
+(defun org-buffers-list:toggle-properties ()
+  (interactive)
+  (org-buffers-set-params
+   (if (org-buffers-param-get :properties)
+       '((:properties . nil))
+     '((:atom . heading) (:properties . t))))
+  (org-buffers-list 'refresh))
+
 (defun org-buffers-cycle-presentation ()
   (interactive)
   (let ((buffer-read-only nil))
@@ -188,13 +196,6 @@ buffers should be listed."
 		 ('heading 'line))))))
 
 ;;; Group by properties
-(defun org-buffers-list:toggle-properties ()
-  (interactive)
-  (org-buffers-set-params
-   (if (org-buffers-param-get :properties)
-       '((:properties . nil))
-     '((:atom . heading) (:properties . t))))
-  (org-buffers-list 'refresh))
 
 (defun org-buffers-group-by (property)
   "Group top level headings according to the value of PROPERTY."
