@@ -1,4 +1,4 @@
-;;; org-buffers.el --- Buffer management via Org-mode
+;;; org-buffers.el --- An Org-mode tool for buffer management
 
 ;; Copyright (C) 2010  Dan Davison
 
@@ -29,8 +29,6 @@
 
 (require 'org)
 (require 'cl)
-
-;;; Buffer list
 
 (defvar org-buffers-mode-map (make-sparse-keymap)
   "The keymap for `org-buffers-mode'.")
@@ -85,7 +83,7 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
   :group 'org-buffers)
 
 (define-minor-mode org-buffers-mode
-  "Emacs buffer management via Org-mode.
+  "An Org-mode tool for buffer management.
 
   \\{org-buffers-mode-map}"
   nil " buffers" nil
