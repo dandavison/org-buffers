@@ -323,6 +323,7 @@ hard-wired."
   "Get buffer-name for current entry."
   (or (org-entry-get nil "buffer-name")
       (and (save-excursion
+	     (org-back-to-heading)
 	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
 	   (org-link-unescape (match-string 1)))))
 
