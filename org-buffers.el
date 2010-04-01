@@ -275,7 +275,7 @@ The heading is a link to BUFFER."
     (org-insert-heading t)
     (insert
      (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
-    (mapc (lambda (pair) (org-set-property (car pair) (cdr pair)))
+    (mapc (lambda (pair) (org-set-property (car pair) (format "%s" (cdr pair))))
 	  (org-buffers-get-buffer-props buffer))))
 
 (defun org-buffers-get-buffer-props (buffer)
@@ -283,7 +283,7 @@ The heading is a link to BUFFER."
     `(("major-mode" . ,major-mode)
       ("buffer-file-name" . ,(buffer-file-name))
       ("default-directory" . ,default-directory)
-      ("buffer-modified-p" . ,buffer-modified-p))))
+      ("buffer-modified-p" . ,(buffer-modified-p)))))
 
 ;;; Follow-link behaviour
 
