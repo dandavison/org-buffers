@@ -392,15 +392,6 @@ at such headings."
   (org-scan-tags
    func (if match (cdr (org-make-tags-matcher match)) t)))
   
-(defun org-buffers-chomp-mode-from-modes ()
-  (if (org-buffers-param-eq :by "major-mode")
-      (let ((buffer-read-only nil))
-	(org-buffers-map-entries
-	 (lambda ()
-	   (if (and (eq (org-outline-level) 1)
-		    (re-search-forward "-mode$" (point-at-eol) t))
-	       (replace-match "")))))))
-
 (defun org-buffers-set-params (params)
   "Add PARAMS to global parameter list.
 New settings have precedence over existing ones."
@@ -425,6 +416,17 @@ regions."
 
 (defmacro org-buffers-outline-level ()
   '(save-excursion (beginning-of-line) (org-outline-level)))
+
+;;; Default hook functions
+(defun org-buffers-chomp-mode-from-modes ()
+  (if (org-buffers-param-eq :by "major-mode")
+      (let ((buffer-read-only nil))
+	(org-buffers-map-entries
+	 (lambda ()
+	   (if (and (eq (org-outline-level) 1)
+		    (re-search-forward "-mode$" (point-at-eol) t))
+	       (replace-match "")))))))
+
 
 ;;; Links to buffers
 
