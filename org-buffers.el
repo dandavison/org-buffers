@@ -38,7 +38,6 @@
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
-(define-key org-buffers-mode-map "D" 'org-buffers-mark-for-deletion-in-region)
 ;; (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
@@ -47,7 +46,6 @@
 (define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
 ;; (define-key org-buffers-mode-map "p" 'org-buffers-list:toggle-properties)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
-(define-key org-buffers-mode-map "U" 'org-buffers-remove-marks-in-region)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 
@@ -319,43 +317,40 @@ hard-wired."
   (interactive)
   (org-buffers-set-tags '("delete")))
 
-(defun org-buffers-mark-for-deletion-in-region (beg end)
-  (interactive "r")
-  (org-buffers-set-tags-in-region '("delete") beg end))
-
 (defun org-buffers-remove-marks ()
   (interactive)
   (org-buffers-set-tags nil))
 
-(defun org-buffers-remove-marks-in-region (beg end)
-  (interactive "r")
-  (org-buffers-set-tags-in-region nil beg end))
-
 (defun org-buffers-set-tags (data)
-  (interactive)
-  (org-buffers-set-tags-in-region
-   data
-   (point-at-bol)
-   (save-excursion (outline-end-of-heading) (point))))
-
-(defun org-buffers-set-tags-in-region (data beg end)
-  "Set tags to TAGS at all non top-level headings in region.
-If TAGS is nil, remove all tags at such headings."
-  (while (not (org-buffers-param-eq :atom 'heading))
-    (org-buffers-cycle-presentation))
-    (let ((buffer-read-only nil)
-	  (eoh (save-excursion (outline-end-of-heading) (point))))
-      (save-excursion
-	(narrow-to-region beg (max end eoh))
-	(goto-char (point-min))
-	(org-buffers-map-entries
-	 (lambda ()
-	   (when (or (org-buffers-param-eq :by "none")
-		     (> (org-outline-level) 1))
-	     (org-set-tags-to
-	      (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
-	(widen)
-	(org-content))))
+  "Set tags to DATA at all non top-level headings in region.
+DATA should be a list of strings. If DATA is nil, remove all tags
+at such headings."
+  (let* ((buffer-read-only nil)
+	(region-p (org-region-active-p))
+	(beg (if region-p (region-beginning) (point)))
+	(end (if region-p (region-end) (point)))
+	(atom (org-buffers-param-eq :atom 'heading)) beg-line end-line)
+    (save-excursion
+      (if (eq atom 'heading)
+	  (setq beg (progn (org-goto-char beg) (point-at-bol))
+		end (progn (org-goto-char end) (org-end-of-subtree) (point)))
+	(setq beg-line (progn (goto-char beg) (org-current-line))
+	      end-line (progn (goto-char end) (org-current-line)))
+	(while (not (org-buffers-param-eq :atom 'heading))
+	  (org-buffers-cycle-presentation))
+	;; Headings have no contents after cycling, so eol equals e-o-subtree
+	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
+	      end (progn (org-goto-line end-line) (point-at-eol))))
+      (narrow-to-region beg end)
+      (goto-char (point-min))
+      (org-buffers-map-entries
+       (lambda ()
+	 (when (or (org-buffers-param-eq :by "none")
+		   (> (org-outline-level) 1))
+	   (org-set-tags-to
+	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
+      (widen)
+      (org-content))))
 
 (defun org-buffers-execute-pending-operations ()
   (interactive)
