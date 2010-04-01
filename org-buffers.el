@@ -167,8 +167,8 @@ buffers should be listed."
   (interactive)
   (if (org-buffers-param-get :properties)
       (progn (org-buffers-delete-properties)
-	     (org-content)
-	    (org-buffers-set-params '((:properties . nil))))
+	     (show-all)
+	     (org-buffers-set-params '((:properties . nil))))
     (org-buffers-set-params
      '((:atom . heading) (:properties . t)))
     (org-buffers-list 'refresh)))
