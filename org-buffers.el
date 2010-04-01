@@ -165,11 +165,13 @@ buffers should be listed."
 
 (defun org-buffers-list:toggle-properties ()
   (interactive)
-  (org-buffers-set-params
-   (if (org-buffers-param-get :properties)
-       '((:properties . nil))
-     '((:atom . heading) (:properties . t))))
-  (org-buffers-list 'refresh))
+  (if (org-buffers-param-get :properties)
+      (progn (org-buffers-delete-properties)
+	     (org-content)
+	    (org-buffers-set-params '((:properties . nil))))
+    (org-buffers-set-params
+     '((:atom . heading) (:properties . t)))
+    (org-buffers-list 'refresh)))
 
 (defun org-buffers-cycle-presentation ()
   (interactive)
@@ -190,6 +192,20 @@ buffers should be listed."
    `((:atom . ,(case (org-buffers-param-get :atom)
 		 ('line 'heading)
 		 ('heading 'line))))))
+
+(defun org-buffers-delete-properties ()
+  (let ((buffer-read-only nil))
+    (save-excursion
+      (goto-char (point-min))
+      (org-buffers-delete-regions
+       (nreverse
+	(org-buffers-map-entries 
+	 (lambda ()
+	   (let ((beg (point))
+		 (end (progn (outline-next-heading) (point))))
+	     (goto-char beg)
+	     (if (re-search-forward org-property-drawer-re end t)
+		 (cons (match-beginning 1) (match-end 0)))))))))))
 
 ;;; Group by properties
 
