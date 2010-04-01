@@ -233,6 +233,15 @@ the drawer."
 			(delete-dups (org-buffers-map-entries (lambda () (org-entry-get nil property nil)))))
 	      (erase-buffer))))))
 
+(defun org-buffers-exclude-p (buffer)
+  "Return non-nil if BUFFER should not be listed."
+  (let ((name (buffer-name buffer))
+	(mode (with-current-buffer buffer major-mode)))
+    (or (member mode org-buffers-excluded-modes)
+	(member name org-buffers-excluded-buffers)
+ 	(string= (substring name 0 1) " "))))
+
+;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
   "Parse all entries with property PROP value VAL."
   (delq nil
@@ -275,14 +284,6 @@ The heading is a link to BUFFER."
     (org-set-property "buffer-file-name" file)
     (org-set-property "buffer-name" buffer-name)
     (org-set-property "default-directory" dir)))
-
-(defun org-buffers-exclude-p (buffer)
-  "Return non-nil if BUFFER should not be listed."
-  (let ((name (buffer-name buffer))
-	(mode (with-current-buffer buffer major-mode)))
-    (or (member mode org-buffers-excluded-modes)
-	(member name org-buffers-excluded-buffers)
- 	(string= (substring name 0 1) " "))))
 
 ;;; Follow-link behaviour
 
