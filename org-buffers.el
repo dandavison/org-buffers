@@ -353,20 +353,28 @@ at such headings."
   (unless (org-buffers-param-eq :atom 'heading)
     (error "Cannot operate on non-headings: use \"l\" to toggle view"))
   (let ((buffer-read-only nil) buffer-name)
-    (mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
-	  (nreverse
-	   (org-buffers-map-entries
-	    (lambda ()
-	      (if (setq buffer-name (org-buffers-get-buffer-name))
-		  (if (not (kill-buffer buffer-name))
-		      (error "Failed to kill buffer %s" buffer-name)
-		    (if (and (org-first-sibling-p)
-			     (not (save-excursion (org-goto-sibling))))
-			(org-up-heading-safe)) ;; Only child so delete parent also
-		    (cons (point) (1+ (org-end-of-subtree))))))
-	    "+delete")))))
+    (org-buffers-delete-regions
+     (nreverse
+      (org-buffers-map-entries
+       (lambda ()
+	 (if (setq buffer-name (org-buffers-get-buffer-name))
+	     (if (not (kill-buffer buffer-name))
+		 (error "Failed to kill buffer %s" buffer-name)
+	       (if (and (org-first-sibling-p)
+			(not (save-excursion (org-goto-sibling))))
+		   (org-up-heading-safe)) ;; Only child so delete parent also
+	       (cons (point) (1+ (org-end-of-subtree))))))
+       "+delete")))))
 
 ;;; Utilities
+
+(defmacro org-buffers-delete-regions (regions)
+  "Delete regions in list.
+REGIONS is a list of (beg . end) cons cells specifying buffer
+regions."
+  `(mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
+	 ,regions))
+
 (defun org-buffers-map-entries (func &optional match)
   (org-scan-tags
    func (if match (cdr (org-make-tags-matcher match)) t)))
