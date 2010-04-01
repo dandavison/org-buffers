@@ -159,14 +159,6 @@ buffers should be listed."
   (org-buffers-set-params `((:by . ,prop))))
   (org-buffers-list 'refresh))
 
-(defun org-buffers-list:toggle-plain-lists ()
-  (interactive)
-  (org-buffers-set-params
-   (if (memq (org-buffers-param-get :atom) '(item line))
-       '((:atom . heading))
-     '((:atom . line) (:properties . nil))))
-  (org-buffers-list 'refresh))
-
 (defun org-buffers-list:toggle-properties ()
   (interactive)
   (org-buffers-set-params
