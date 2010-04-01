@@ -109,7 +109,8 @@ buffers should be listed."
     (let ((line-col (if (equal (buffer-name) org-buffers-buffer-name) ;; TODO how to check for current minor modes?
 			(cons (org-current-line) (current-column))))
 	  (by (or (org-buffers-param-get :by) "major-mode"))
-	  (atom (org-buffers-param-get :atom)))
+	  (atom (org-buffers-param-get :atom))
+	  (properties (org-buffers-param-get :properties)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -125,11 +126,13 @@ buffers should be listed."
 	    ('heading (org-content))
 	    ('item (show-all))
 	    ('line (show-all))))
-	(if line-col ;; TODO try searching for stored entry rather than this?
-	  (org-goto-line (car line-col)))
-	(org-beginning-of-line)
-	(mark-whole-buffer)
-	(indent-region (point-min) (point-max))
+	(if (or (not line-col) properties)
+	    (beginning-of-line)
+	  (org-goto-line (car line-col)) ;; TODO try searching for stored entry?
+	  (move-to-column (cdr line-col)))
+	(save-excursion
+	  (mark-whole-buffer)
+	  (indent-region (point-min) (point-max)))
 	(org-buffers-mode)
 	(current-buffer))))))
 
