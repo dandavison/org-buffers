@@ -96,6 +96,7 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
   (describe-function 'org-buffers-mode))
 
 ;;; Listing and view cycling
+
 (defun org-buffers-list (&optional refresh property frame)
   "Create an Org-mode listing of Emacs buffers.
 Buffers are grouped into one subtree for each major
@@ -266,6 +267,7 @@ The heading is a link to BUFFER."
  	(string= (substring name 0 1) " "))))
 
 ;;; Follow-link behaviour
+
 (defun org-buffers-follow-link ()
   "Follow link to buffer on this line.
 The buffer-switching behaviour of this function is determined by
@@ -306,6 +308,7 @@ hard-wired."
 	   (org-link-unescape (match-string 1)))))
 
 ;;; Setting tags and executing operations
+
 (defun org-buffers-mark-for-deletion ()
   (interactive)
   (org-buffers-set-tags '("delete")))
@@ -394,6 +397,7 @@ New settings have precedence over existing ones."
   '(save-excursion (beginning-of-line) (org-outline-level)))
 
 ;;; Links to buffers
+
 (org-add-link-type "buffer" 'display-buffer)
 (add-hook 'org-store-link-functions 'org-buffers-store-link)
 
