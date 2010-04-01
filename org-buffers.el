@@ -271,19 +271,19 @@ the drawer."
 (defun org-buffers-insert-entry (buffer)
   "Create an entry for BUFFER.
 The heading is a link to BUFFER."
-  (let ((buffer-name (buffer-name buffer))
-	(major-mode (with-current-buffer buffer major-mode))
-	(file (buffer-file-name buffer))
-	(dir (with-current-buffer buffer default-directory))
-	(bmp (buffer-modified-p buffer)))
+  (let ((buffer-name (buffer-name buffer)))
     (org-insert-heading t)
     (insert
      (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
-    (org-set-property "major-mode" (symbol-name major-mode))
-    (org-set-property "buffer-name" buffer-name)
-    (org-set-property "buffer-file-name" file)
-    (org-set-property "default-directory" dir)
-    (org-set-property "buffer-modified-p" (symbol-name bmp))))
+    (mapc (lambda (pair) (org-set-property (car pair) (cdr pair)))
+	  (org-buffers-get-buffer-props buffer))))
+
+(defun org-buffers-get-buffer-props (buffer)
+  (with-current-buffer buffer
+    `(("major-mode" . ,major-mode)
+      ("buffer-file-name" . ,(buffer-file-name))
+      ("default-directory" . ,default-directory)
+      ("buffer-modified-p" . ,buffer-modified-p))))
 
 ;;; Follow-link behaviour
 
