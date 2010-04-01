@@ -425,14 +425,16 @@ New settings have precedence over existing ones."
 (org-add-link-type "buffer" 'display-buffer)
 (add-hook 'org-store-link-functions 'org-buffers-store-link)
 
-(defun org-buffers-store-link ()
-  "Store a link to an Emacs buffer."
-  (let* ((target (buffer-name))
-	 (desc target) link)
-    (org-store-link-props :type "buffer")
-    (setq link (org-make-link "buffer:" target))
-    (org-add-link-props :link link :description desc)
-    link))
+(defun org-buffers-store-link (&optional force)
+  "Store a link to an Emacs buffer.
+Returns nil by default, to avoid hijacking other link types."
+  (if force
+      (let* ((target (buffer-name))
+	     (desc target) link)
+	(org-store-link-props :type "buffer")
+	(setq link (org-make-link "buffer:" target))
+	(org-add-link-props :link link :description desc)
+	link)))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
