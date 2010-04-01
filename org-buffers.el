@@ -99,10 +99,10 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
 
 (defun org-buffers-list (&optional refresh property frame)
   "Create an Org-mode listing of Emacs buffers.
-Buffers are grouped into one subtree for each major
-mode. Optional argument PROPERTY specifies a different property
-to group be. Optional argument FRAME specifies the frame whose
-buffers should be listed."
+By default, buffers are grouped by major mode. Optional argument
+PROPERTY specifies a different property to group by. Optional
+argument FRAME specifies the frame whose buffers should be
+listed."
   (interactive)
   (pop-to-buffer
    (or
