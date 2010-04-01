@@ -145,7 +145,7 @@ listed."
 (defun org-buffers-list:by ()
   (interactive)
   (unless (org-buffers-param-get :properties)
-    (org-buffers-list:toggle-properties))
+    (org-buffers-list-toggle-properties))
   (let* ((buffer-read-only nil)
 	 (props
 	  (set-difference
