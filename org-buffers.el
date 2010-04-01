@@ -56,9 +56,9 @@
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
 
-(defvar org-buffers-params
+(defvar org-buffers-state
   '((:by . "major-mode") (:atom . heading) (:properties . nil))
-  "Alist of parameters controlling org-buffers-list output.")
+  "Alist asserting the current state of org-buffers.")
 
 (defvar org-buffers-follow-link-method 'org-open-at-point
   "Method used to follow link with RET. Must be one of
@@ -108,7 +108,7 @@ listed."
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((target (if (equal (buffer-name) org-buffers-buffer-name)
 		      (org-make-org-heading-search-string)))
-	  (by (or (org-buffers-param-get :by) "major-mode")))
+	  (by (or (org-buffers-state-get :by) "major-mode")))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -122,7 +122,7 @@ listed."
 	(beginning-of-line)
 	(org-overview)
 	(unless (equal by "none")
-	  (case (org-buffers-param-get :atom)
+	  (case (org-buffers-state-get :atom)
 	    ('heading (org-content))
 	    ('item (show-all))
 	    ('line (show-all))))
@@ -138,12 +138,12 @@ listed."
 
 (defun org-buffers-list:flat ()
   (interactive)
-  (org-buffers-set-params '((:by . "none")))
+  (org-buffers-set-state '((:by . "none")))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-list:by ()
   (interactive)
-  (unless (org-buffers-param-get :properties)
+  (unless (org-buffers-state-get :properties)
     (org-buffers-toggle-properties))
   (let* ((buffer-read-only nil)
 	 (props
@@ -155,16 +155,16 @@ listed."
 	   '("BLOCKED" "CATEGORY") :test 'string-equal))
 	(prop
 	 (org-completing-read "Property to group by: " props)))
-  (org-buffers-set-params `((:by . ,prop))))
+  (org-buffers-set-state `((:by . ,prop))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-toggle-properties ()
   (interactive)
-  (if (org-buffers-param-get :properties)
+  (if (org-buffers-state-get :properties)
       (progn (org-buffers-delete-properties)
 	     (show-all)
-	     (org-buffers-set-params '((:properties . nil))))
-    (org-buffers-set-params
+	     (org-buffers-set-state '((:properties . nil))))
+    (org-buffers-set-state
      '((:atom . heading) (:properties . t)))
     (let ((target (org-make-org-heading-search-string)))
       (org-buffers-list 'refresh)
@@ -174,8 +174,8 @@ listed."
 (defun org-buffers-cycle-presentation ()
   (interactive)
   (let ((buffer-read-only nil))
-    (if (and (org-buffers-param-eq :atom 'heading)
-	     (org-buffers-param-get :properties))
+    (if (and (org-buffers-state-eq :atom 'heading)
+	     (org-buffers-state-get :properties))
 	(org-buffers-toggle-properties))
     (save-excursion
       (goto-char (point-min))
@@ -189,8 +189,8 @@ listed."
 	(pop-mark))
       (mark-whole-buffer)
       (indent-region (point-min) (point-max))))
-  (org-buffers-set-params
-   `((:atom . ,(case (org-buffers-param-get :atom)
+  (org-buffers-set-state
+   `((:atom . ,(case (org-buffers-state-get :atom)
 		 ('line 'heading)
 		 ('heading 'line))))))
 
@@ -214,7 +214,7 @@ the drawer."
 
 (defun org-buffers-group-by (property)
   "Group top level headings according to the value of PROPERTY."
-  (let ((atom (org-buffers-param-get :atom)))
+  (let ((atom (org-buffers-state-get :atom)))
     (save-excursion
       (goto-char (point-min))
       (mapc (lambda (subtree) ;; Create subtree for each value of `property'
@@ -259,13 +259,13 @@ the drawer."
   "Insert a parsed entry"
   (unless (org-at-heading-p) (org-insert-heading))
   (insert (car entry) "\n")
-  (if (org-buffers-param-get :properties)
+  (if (org-buffers-state-get :properties)
       (insert (cdr entry))))
 
 (defun org-buffers-insert-parsed-entry-as-list-item (entry)
   "Insert a parsed entry"
   (cond
-   ((org-buffers-param-eq :atom 'line)
+   ((org-buffers-state-eq :atom 'line)
     (or (eq (char-before) ?\n) (insert "\n")))
    ((org-at-item-p) (org-insert-item))
    (t (insert "- "))) ;; TODO is there a function which starts a plain list?
@@ -312,7 +312,7 @@ hard-wired."
 
 (defun org-buffers-switch-to-buffer-generic (method)
   (save-excursion
-    (let ((atom (org-buffers-param-get :atom)) buffer)
+    (let ((atom (org-buffers-state-get :atom)) buffer)
       (cond
        ((eq atom 'heading) (org-back-to-heading))
        (t (beginning-of-line)))
@@ -348,14 +348,14 @@ at such headings."
 	(region-p (org-region-active-p))
 	(beg (if region-p (region-beginning) (point)))
 	(end (if region-p (region-end) (point)))
-	(atom (org-buffers-param-eq :atom 'heading)) beg-line end-line)
+	(atom (org-buffers-state-eq :atom 'heading)) beg-line end-line)
     (save-excursion
       (if (eq atom 'heading)
 	  (setq beg (progn (org-goto-char beg) (point-at-bol))
 		end (progn (org-goto-char end) (org-end-of-subtree) (point)))
 	(setq beg-line (progn (goto-char beg) (org-current-line))
 	      end-line (progn (goto-char end) (org-current-line)))
-	(while (not (org-buffers-param-eq :atom 'heading))
+	(while (not (org-buffers-state-eq :atom 'heading))
 	  (org-buffers-cycle-presentation))
 	;; Headings have no contents after cycling, so eol equals e-o-subtree
 	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
@@ -364,7 +364,7 @@ at such headings."
       (goto-char (point-min))
       (org-buffers-map-entries
        (lambda ()
-	 (when (or (org-buffers-param-eq :by "none")
+	 (when (or (org-buffers-state-eq :by "none")
 		   (> (org-outline-level) 1))
 	   (org-set-tags-to
 	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
@@ -373,7 +373,7 @@ at such headings."
 
 (defun org-buffers-execute-pending-operations ()
   (interactive)
-  (unless (org-buffers-param-eq :atom 'heading)
+  (unless (org-buffers-state-eq :atom 'heading)
     (error "Cannot operate on non-headings: use \"l\" to toggle view"))
   (let ((buffer-read-only nil) buffer-name)
     (org-buffers-delete-regions
@@ -395,14 +395,14 @@ at such headings."
   (org-scan-tags
    func (if match (cdr (org-make-tags-matcher match)) t)))
   
-(defun org-buffers-set-params (params)
-  "Add PARAMS to global parameter list.
+(defun org-buffers-set-state (state)
+  "Add STATE to global state list.
 New settings have precedence over existing ones."
   (mapc
-   (lambda (pair) (unless (assoc (car pair) params)
-		    (add-to-list 'params pair)))
-   org-buffers-params)
-  (setq org-buffers-params params))
+   (lambda (pair) (unless (assoc (car pair) state)
+		    (add-to-list 'state pair)))
+   org-buffers-state)
+  (setq org-buffers-state state))
 
 (defmacro org-buffers-delete-regions (regions)
   "Delete regions in list.
@@ -411,18 +411,18 @@ regions."
   `(mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
 	 ,regions))
 
-(defmacro org-buffers-param-get (key)
-  `(cdr (assoc ,key org-buffers-params)))
+(defmacro org-buffers-state-get (key)
+  `(cdr (assoc ,key org-buffers-state)))
 
-(defmacro org-buffers-param-eq (key val)
-  `(equal (org-buffers-param-get ,key) ,val))
+(defmacro org-buffers-state-eq (key val)
+  `(equal (org-buffers-state-get ,key) ,val))
 
 (defmacro org-buffers-outline-level ()
   '(save-excursion (beginning-of-line) (org-outline-level)))
 
 ;;; Default hook functions
 (defun org-buffers-chomp-mode-from-modes ()
-  (if (org-buffers-param-eq :by "major-mode")
+  (if (org-buffers-state-eq :by "major-mode")
       (let ((buffer-read-only nil))
 	(org-buffers-map-entries
 	 (lambda ()
