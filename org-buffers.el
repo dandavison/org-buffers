@@ -38,7 +38,6 @@
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
-;; (define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "," 'org-buffers-cycle-presentation)
