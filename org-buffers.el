@@ -388,13 +388,6 @@ at such headings."
 
 ;;; Utilities
 
-(defmacro org-buffers-delete-regions (regions)
-  "Delete regions in list.
-REGIONS is a list of (beg . end) cons cells specifying buffer
-regions."
-  `(mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
-	 ,regions))
-
 (defun org-buffers-map-entries (func &optional match)
   (org-scan-tags
    func (if match (cdr (org-make-tags-matcher match)) t)))
@@ -414,6 +407,13 @@ New settings have precedence over existing ones."
 		    (add-to-list 'params pair)))
    org-buffers-params)
   (setq org-buffers-params params))
+
+(defmacro org-buffers-delete-regions (regions)
+  "Delete regions in list.
+REGIONS is a list of (beg . end) cons cells specifying buffer
+regions."
+  `(mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
+	 ,regions))
 
 (defmacro org-buffers-param-get (key)
   `(cdr (assoc ,key org-buffers-params)))
