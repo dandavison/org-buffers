@@ -15,8 +15,9 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-buffer-name
 - org-buffers-params
 
-* Tasks [5/7]
-*** Clean out unused code / undesired functionality
+* Tasks [5/8]
+*** TODO Clean out unused code / undesired functionality
+    Get rid of insert-as-list-item?
 *** Implement list ansd clean view using regexp substitution
 *** STARTED Operations on buffers [3/3]
     These work by setting tags to define pending operations, and then
@@ -64,6 +65,7 @@ Type "?" to see all available actions, and also see the variables
     Could do this with a speed command.
 *** DONE Macro for working with params?
 * Bugs [12/16]
+*** Don't use props for b-m-p? just tags
 *** TODO Grouping by property that can be nil screws up
 *** Should get rid of properties when moving to lines mode?
 *** No such buffer nil on RET to deleted
