@@ -174,6 +174,9 @@ listed."
 (defun org-buffers-cycle-presentation ()
   (interactive)
   (let ((buffer-read-only nil))
+    (if (and (org-buffers-param-eq :atom 'heading)
+	     (org-buffers-param-get :properties))
+	(org-buffers-list-toggle-properties))
     (save-excursion
       (goto-char (point-min))
       (unless (outline-on-heading-p)
