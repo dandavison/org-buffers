@@ -30,19 +30,6 @@
 (require 'org)
 (require 'cl)
 
-;;; Links to buffers
-(org-add-link-type "buffer" 'display-buffer)
-(add-hook 'org-store-link-functions 'org-buffers-store-link)
-
-(defun org-buffers-store-link ()
-  "Store a link to an Emacs buffer."
-  (let* ((target (buffer-name))
-	 (desc target) link)
-    (org-store-link-props :type "buffer")
-    (setq link (org-make-link "buffer:" target))
-    (org-add-link-props :link link :description desc)
-    link))
-
 ;;; Buffer list
 
 (defvar org-buffers-mode-map (make-sparse-keymap)
@@ -417,6 +404,19 @@ New settings have precedence over existing ones."
 
 (defmacro org-buffers-outline-level ()
   '(save-excursion (beginning-of-line) (org-outline-level)))
+
+;;; Links to buffers
+(org-add-link-type "buffer" 'display-buffer)
+(add-hook 'org-store-link-functions 'org-buffers-store-link)
+
+(defun org-buffers-store-link ()
+  "Store a link to an Emacs buffer."
+  (let* ((target (buffer-name))
+	 (desc target) link)
+    (org-store-link-props :type "buffer")
+    (setq link (org-make-link "buffer:" target))
+    (org-add-link-props :link link :description desc)
+    link))
 
 (provide 'org-buffers)
 ;;; org-buffers.el ends here
