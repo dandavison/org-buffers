@@ -107,11 +107,10 @@ listed."
   (pop-to-buffer
    (or
     (and (not refresh) (get-buffer org-buffers-buffer-name))
-    (let ((line-col (if (equal (buffer-name) org-buffers-buffer-name) ;; TODO how to check for current minor modes?
-			(cons (org-current-line) (current-column))))
-	  (by (or (org-buffers-param-get :by) "major-mode"))
-	  (atom (org-buffers-param-get :atom))
-	  (properties (org-buffers-param-get :properties)))
+    (let* ((in-org-buffers-buffer (equal (buffer-name) org-buffers-buffer-name))
+	   (target (if in-org-buffers-buffer (org-make-org-heading-search-string)))
+	   (by (or (org-buffers-param-get :by) "major-mode"))
+	   (atom (org-buffers-param-get :atom)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -121,16 +120,14 @@ listed."
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
 	(org-sort-entries-or-items nil ?a)
+	(org-link-search target)
+	(beginning-of-line)
 	(org-overview)
 	(unless (equal by "none")
 	  (case atom
 	    ('heading (org-content))
 	    ('item (show-all))
 	    ('line (show-all))))
-	(if (or (not line-col) properties)
-	    (beginning-of-line)
-	  (org-goto-line (car line-col)) ;; TODO try searching for stored entry?
-	  (move-to-column (cdr line-col)))
 	(save-excursion
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
