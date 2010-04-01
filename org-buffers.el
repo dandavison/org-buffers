@@ -171,7 +171,10 @@ listed."
 	     (org-buffers-set-params '((:properties . nil))))
     (org-buffers-set-params
      '((:atom . heading) (:properties . t)))
-    (org-buffers-list 'refresh)))
+    (let ((target (org-make-org-heading-search-string)))
+      (org-buffers-list 'refresh)
+      (org-link-search target)
+      (beginning-of-line))))
 
 (defun org-buffers-cycle-presentation ()
   (interactive)
