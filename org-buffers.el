@@ -107,10 +107,9 @@ listed."
   (pop-to-buffer
    (or
     (and (not refresh) (get-buffer org-buffers-buffer-name))
-    (let* ((in-org-buffers-buffer (equal (buffer-name) org-buffers-buffer-name))
-	   (target (if in-org-buffers-buffer (org-make-org-heading-search-string)))
-	   (by (or (org-buffers-param-get :by) "major-mode"))
-	   (atom (org-buffers-param-get :atom)))
+    (let ((target (if (equal (buffer-name) org-buffers-buffer-name)
+		      (org-make-org-heading-search-string)))
+	  (by (or (org-buffers-param-get :by) "major-mode")))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -120,11 +119,11 @@ listed."
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
 	(org-sort-entries-or-items nil ?a)
-	(org-link-search target)
+	(if target (org-link-search target))
 	(beginning-of-line)
 	(org-overview)
 	(unless (equal by "none")
-	  (case atom
+	  (case (org-buffers-param-get :atom)
 	    ('heading (org-content))
 	    ('item (show-all))
 	    ('line (show-all))))
