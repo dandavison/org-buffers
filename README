@@ -15,7 +15,8 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-buffer-name
 - org-buffers-params
 
-* Tasks [5/8]
+* Tasks [6/9]
+*** DONE rename s/(org-buffers-)list/$1/
 *** TODO Clean out unused code / undesired functionality
     Get rid of insert-as-list-item?
 *** Implement list ansd clean view using regexp substitution

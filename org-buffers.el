@@ -40,7 +40,7 @@
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "," 'org-buffers-cycle-presentation)
 (define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
-(define-key org-buffers-mode-map "p" 'org-buffers-list-toggle-properties)
+(define-key org-buffers-mode-map "p" 'org-buffers-toggle-properties)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
@@ -144,7 +144,7 @@ listed."
 (defun org-buffers-list:by ()
   (interactive)
   (unless (org-buffers-param-get :properties)
-    (org-buffers-list-toggle-properties))
+    (org-buffers-toggle-properties))
   (let* ((buffer-read-only nil)
 	 (props
 	  (set-difference
@@ -158,7 +158,7 @@ listed."
   (org-buffers-set-params `((:by . ,prop))))
   (org-buffers-list 'refresh))
 
-(defun org-buffers-list-toggle-properties ()
+(defun org-buffers-toggle-properties ()
   (interactive)
   (if (org-buffers-param-get :properties)
       (progn (org-buffers-delete-properties)
@@ -176,7 +176,7 @@ listed."
   (let ((buffer-read-only nil))
     (if (and (org-buffers-param-eq :atom 'heading)
 	     (org-buffers-param-get :properties))
-	(org-buffers-list-toggle-properties))
+	(org-buffers-toggle-properties))
     (save-excursion
       (goto-char (point-min))
       (unless (outline-on-heading-p)
