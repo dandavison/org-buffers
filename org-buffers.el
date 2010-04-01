@@ -199,13 +199,17 @@ listed."
       (goto-char (point-min))
       (org-buffers-delete-regions
        (nreverse
-	(org-buffers-map-entries 
-	 (lambda ()
-	   (let ((beg (point))
-		 (end (progn (outline-next-heading) (point))))
-	     (goto-char beg)
-	     (if (re-search-forward org-property-drawer-re end t)
-		 (cons (match-beginning 1) (match-end 0)))))))))))
+	(org-buffers-map-entries 'org-buffers-get-property-block))))))
+
+(defun org-buffers-get-property-block ()
+  "Return the (beg . end) range of the property drawer.
+Unlike the org version the limits include the keywords delimiting
+the drawer."
+  (let ((beg (point))
+	(end (progn (outline-next-heading) (point))))
+    (goto-char beg)
+    (if (re-search-forward org-property-drawer-re end t)
+	(cons (match-beginning 1) (match-end 0)))))
 
 ;;; Group by properties
 
