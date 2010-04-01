@@ -274,14 +274,16 @@ The heading is a link to BUFFER."
   (let ((buffer-name (buffer-name buffer))
 	(major-mode (with-current-buffer buffer major-mode))
 	(file (buffer-file-name buffer))
-	(dir (with-current-buffer buffer default-directory)))
+	(dir (with-current-buffer buffer default-directory))
+	(bmp (buffer-modified-p buffer)))
     (org-insert-heading t)
     (insert
      (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
     (org-set-property "major-mode" (symbol-name major-mode))
-    (org-set-property "buffer-file-name" file)
     (org-set-property "buffer-name" buffer-name)
-    (org-set-property "default-directory" dir)))
+    (org-set-property "buffer-file-name" file)
+    (org-set-property "default-directory" dir)
+    (org-set-property "buffer-modified-p" (symbol-name bmp))))
 
 ;;; Follow-link behaviour
 
