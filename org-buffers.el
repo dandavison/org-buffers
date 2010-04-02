@@ -36,6 +36,7 @@
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "," 'org-buffers-cycle-presentation)
@@ -115,6 +116,7 @@ listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
+	(org-buffers-mode)
 	(mapc 'org-buffers-insert-entry
 	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
 	(org-buffers-set-state '((:atom . heading)))
@@ -123,13 +125,15 @@ listed."
 	(org-sort-entries-or-items nil ?a)
 	(if target (org-link-search target))
 	(beginning-of-line)
-	(case atom
-	  ('heading (progn (org-overview) (org-content)))
-	  ('line (progn (show-all) (org-buffers-cycle-presentation))))
+	(if (equal by "none")
+	    (org-overview)
+	  (case atom
+	    ('heading (progn (org-overview) (org-content)))
+	    ('line (progn (show-all) (org-buffers-cycle-presentation)))))
 	(save-excursion
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
-	(org-buffers-mode)
+	(setq buffer-read-only t)
 	(current-buffer))))))
 
 (defun org-buffers-list:refresh ()
