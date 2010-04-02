@@ -109,13 +109,15 @@ listed."
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((target (if (equal (buffer-name) org-buffers-buffer-name)
 		      (org-make-org-heading-search-string)))
-	  (by (or (org-buffers-state-get :by) "major-mode")))
+	  (by (or (org-buffers-state-get :by) "major-mode"))
+	  (atom (org-buffers-state-get :atom)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
 	(mapc 'org-buffers-insert-entry
 	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
+	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
 	(org-sort-entries-or-items nil ?a)
@@ -123,9 +125,9 @@ listed."
 	(beginning-of-line)
 	(org-overview)
 	(unless (equal by "none")
-	  (case (org-buffers-state-get :atom)
+	  (case atom
 	    ('heading (org-content))
-	    ('line (show-all))))
+	    ('line (progn (show-all) (org-buffers-cycle-presentation)))))
 	(save-excursion
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
@@ -222,12 +224,8 @@ the drawer."
 	      (if (> (org-buffers-outline-level) 1)
 		  (org-promote))
 	      (insert (car subtree) "\n")
-	      (if (memq atom '(item line))
-		  (progn
-		    (mapc 'org-buffers-insert-parsed-entry-as-list-item (cdr subtree))
-		    (insert "\n"))
-		(org-insert-subheading t)
-		(mapc 'org-buffers-insert-parsed-entry (cdr subtree))))
+	      (org-insert-subheading t)
+	      (mapc 'org-buffers-insert-parsed-entry (cdr subtree)))
 	    (prog1
 		(mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
 			  (cons val (org-buffers-parse-selected-entries property val)))
@@ -265,15 +263,6 @@ the drawer."
   (insert (car entry) "\n")
   (if (org-buffers-state-get :properties)
       (insert (cdr entry))))
-
-(defun org-buffers-insert-parsed-entry-as-list-item (entry)
-  "Insert a parsed entry"
-  (cond
-   ((org-buffers-state-eq :atom 'line)
-    (or (eq (char-before) ?\n) (insert "\n")))
-   ((org-at-item-p) (org-insert-item))
-   (t (insert "- "))) ;; TODO is there a function which starts a plain list?
-  (insert (car entry)))
 
 (defun org-buffers-insert-entry (buffer)
   "Create an entry for BUFFER.
