@@ -88,8 +88,8 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
   nil " buffers" nil
   (org-set-local 'org-tag-alist '(("delete" . ?d)))
   (org-set-local'org-tags-column -50)
-  (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local)
   (org-set-local 'org-columns-default-format "%25ITEM %25major-mode %25default-directory")
+  (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local)
   (setq buffer-read-only t))
 
 (defun org-buffers-help ()
