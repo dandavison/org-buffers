@@ -124,11 +124,9 @@ listed."
 	(org-sort-entries-or-items nil ?a)
 	(if target (org-link-search target))
 	(beginning-of-line)
-	(org-overview)
-	(unless (equal by "none")
-	  (case atom
-	    ('heading (org-content))
-	    ('line (progn (show-all) (org-buffers-cycle-presentation)))))
+	(case atom
+	  ('heading (progn (org-overview) (org-content)))
+	  ('line (progn (show-all) (org-buffers-cycle-presentation))))
 	(save-excursion
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
