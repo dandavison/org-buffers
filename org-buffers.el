@@ -86,10 +86,10 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
 
   \\{org-buffers-mode-map}"
   nil " buffers" nil
-  (set (make-local-variable 'org-tag-alist) '(("delete" . ?d)))
-  (set (make-local-variable 'org-tags-column) -50)
+  (org-set-local 'org-tag-alist '(("delete" . ?d)))
+  (org-set-local'org-tags-column -50)
   (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local)
-  (set (make-local-variable 'org-columns-default-format "%25ITEM %25major-mode %25default-directory"))
+  (org-set-local 'org-columns-default-format "%25ITEM %25major-mode %25default-directory")
   (setq buffer-read-only t))
 
 (defun org-buffers-help ()
