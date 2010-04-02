@@ -88,6 +88,7 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
   nil " buffers" nil
   (set (make-local-variable 'org-tag-alist) '(("delete" . ?d)))
   (set (make-local-variable 'org-tags-column) -50)
+  (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local)
   (setq buffer-read-only t))
 
 (defun org-buffers-help ()
@@ -240,6 +241,10 @@ the drawer."
     (or (member mode org-buffers-excluded-modes)
 	(member name org-buffers-excluded-buffers)
  	(string= (substring name 0 1) " "))))
+
+(defun org-buffers-reset-state ()
+  (org-buffers-set-state
+   '((:by . "major-mode") (:atom . heading) (:properties . nil))))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
