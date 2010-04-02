@@ -124,7 +124,6 @@ listed."
 	(unless (equal by "none")
 	  (case (org-buffers-state-get :atom)
 	    ('heading (org-content))
-	    ('item (show-all))
 	    ('line (show-all))))
 	(save-excursion
 	  (mark-whole-buffer)
