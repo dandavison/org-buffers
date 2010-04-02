@@ -88,9 +88,8 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
   nil " buffers" nil
   (org-set-local 'org-tag-alist '(("delete" . ?d)))
   (org-set-local'org-tags-column -50)
-  (org-set-local 'org-columns-default-format "%25ITEM %25major-mode %25default-directory")
-  (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local)
-  (setq buffer-read-only t))
+  (org-set-local 'org-columns-default-format "%25buffer-name(Buffer) %25major-mode(Mode) %25default-directory(Dir) %5buffer-modified-p(Modified)")
+  (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local))
 
 (defun org-buffers-help ()
   (interactive)
@@ -275,7 +274,8 @@ The heading is a link to BUFFER."
 
 (defun org-buffers-get-buffer-props (buffer)
   (with-current-buffer buffer
-    `(("major-mode" . ,major-mode)
+    `(("buffer-name" . ,(buffer-name))
+      ("major-mode" . ,major-mode)
       ("buffer-file-name" . ,(buffer-file-name))
       ("default-directory" . ,default-directory)
       ("buffer-modified-p" . ,(buffer-modified-p)))))
