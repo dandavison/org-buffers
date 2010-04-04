@@ -116,7 +116,6 @@ listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
-	(org-buffers-mode)
 	(mapc 'org-buffers-insert-entry
 	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
 	(org-buffers-set-state '((:atom . heading)))
@@ -133,6 +132,7 @@ listed."
 	(save-excursion
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
+	(org-buffers-mode)
 	(setq buffer-read-only t)
 	(current-buffer))))))
 
