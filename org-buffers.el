@@ -82,12 +82,6 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
   by org-buffers-list."
   :group 'org-buffers)
 
-(defcustom org-buffers-default-visibility 'content
-  "How much content should be shown by default? Must be one of
-'(content overview all), corresponding to the functions
-org-content, org-overview and show-all"
-  :group 'org-buffers)
-
 (define-minor-mode org-buffers-mode
   "An Org-mode tool for buffer management.
 
