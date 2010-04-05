@@ -105,11 +105,12 @@ listed."
   (pop-to-buffer
    (or
     (and (not refresh) (get-buffer org-buffers-buffer-name))
-    (let ((by (downcase (or (org-buffers-state-get :by) "major-mode")))
+    (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
+	  (by (downcase (or (org-buffers-state-get :by) "major-mode")))
 	  (atom (org-buffers-state-get :atom)) target)
-      (if (org-before-first-heading-p) (outline-next-heading))
-      (if (equal (buffer-name) org-buffers-buffer-name)
-	  (setq target (org-make-org-heading-search-string)))
+      (when org-buffers-p
+	(if (org-before-first-heading-p) (outline-next-heading))
+	(setq target (org-make-org-heading-search-string)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
