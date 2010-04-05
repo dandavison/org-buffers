@@ -147,16 +147,17 @@ listed."
   (let ((buffer-read-only nil))
     (org-buffers-set-state
      `((:by .
-	    ,(or prop
-		 (org-completing-read
-		  "Property to group by: "
-		  (cons "NONE"
-			(set-difference
-			 (delete-dups
-			  (apply
-			   'append
-			   (org-buffers-map-entries (lambda () (mapcar 'car (org-entry-properties))))))
-			 '("BLOCKED" "CATEGORY") :test 'string-equal))))))))
+	    ,(downcase
+	      (or prop
+		  (org-completing-read
+		   "Property to group by: "
+		   (cons "NONE"
+			 (set-difference
+			  (delete-dups
+			   (apply
+			    'append
+			    (org-buffers-map-entries (lambda () (mapcar 'car (org-entry-properties))))))
+			  '("BLOCKED" "CATEGORY") :test 'string-equal)))))))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-toggle-properties ()
