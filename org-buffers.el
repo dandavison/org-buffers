@@ -164,10 +164,7 @@ listed."
 	     (org-buffers-set-state '((:properties . nil))))
     (org-buffers-set-state
      '((:atom . heading) (:properties . t)))
-    (let ((target (org-make-org-heading-search-string)))
-      (org-buffers-list 'refresh)
-      (org-link-search target)
-      (beginning-of-line))))
+    (org-buffers-list 'refresh)))
 
 (defun org-buffers-cycle-presentation ()
   (interactive)
