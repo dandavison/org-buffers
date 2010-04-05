@@ -140,22 +140,23 @@ listed."
   (interactive)
   (org-buffers-list 'refresh))
 
-(defun org-buffers-list:by ()
+(defun org-buffers-list:by (&optional prop)
   (interactive)
   (unless (org-buffers-state-get :properties)
     (org-buffers-toggle-properties))
   (let ((buffer-read-only nil))
     (org-buffers-set-state
      `((:by .
-	    ,(org-completing-read
-	      "Property to group by: "
-	      (cons "NONE"
-		    (set-difference
-		     (delete-dups
-		      (apply
-		       'append
-		       (org-buffers-map-entries (lambda () (mapcar 'car (org-entry-properties))))))
-		     '("BLOCKED" "CATEGORY") :test 'string-equal)))))))
+	    ,(or prop
+		 (org-completing-read
+		  "Property to group by: "
+		  (cons "NONE"
+			(set-difference
+			 (delete-dups
+			  (apply
+			   'append
+			   (org-buffers-map-entries (lambda () (mapcar 'car (org-entry-properties))))))
+			 '("BLOCKED" "CATEGORY") :test 'string-equal))))))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-toggle-properties ()
