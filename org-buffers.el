@@ -45,8 +45,7 @@
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 
-(defvar org-buffers-mode-hook
-  '(org-buffers-chomp-mode-from-modes)
+(defvar org-buffers-mode-hook nil
   "Hook for functions to be called after buffer listing is
   created. Note that the buffer is read-only, so if the hook
   function is to modify the buffer it use a let binding to
@@ -268,16 +267,20 @@ The heading is a link to the buffer."
   (org-insert-heading t)
   (insert
    (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
-  (mapc (lambda (pair) (org-set-property (car pair) (format "%s" (cdr pair))))
+  (mapc (lambda (pair) (org-set-property (car pair) (cdr pair)))
 	(org-buffers-get-buffer-props buffer)))
 
 (defun org-buffers-get-buffer-props (buffer)
+  "Create alist of properties of BUFFER, as strings."
   (with-current-buffer buffer
-    `(("buffer-name" . ,buffer)
-      ("major-mode" . ,major-mode)
-      ("buffer-file-name" . ,(buffer-file-name))
-      ("default-directory" . ,default-directory)
-      ("buffer-modified-p" . ,(buffer-modified-p)))))
+    (let ((mode (symbol-name major-mode)))
+      `(("buffer-name" . ,buffer)
+	("major-mode" .
+	 ,(if (string-match "-mode$" mode)
+	      (replace-match "" nil t mode) mode))
+	("buffer-file-name" . ,(buffer-file-name))
+	("default-directory" . ,default-directory)
+	("buffer-modified-p" . ,(format "%s" (buffer-modified-p)))))))
 
 ;;; Follow-link behaviour
 
@@ -410,17 +413,6 @@ regions."
 
 (defmacro org-buffers-outline-level ()
   '(save-excursion (beginning-of-line) (org-outline-level)))
-
-;;; Default hook functions
-(defun org-buffers-chomp-mode-from-modes ()
-  (if (org-buffers-state-eq :by "major-mode")
-      (let ((buffer-read-only nil))
-	(org-buffers-map-entries
-	 (lambda ()
-	   (if (and (eq (org-outline-level) 1)
-		    (re-search-forward "-mode$" (point-at-eol) t))
-	       (replace-match "")))))))
-
 
 ;;; Links to buffers
 
