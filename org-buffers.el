@@ -36,7 +36,6 @@
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
-(define-key org-buffers-mode-map "f" 'org-buffers-list:flat)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "," 'org-buffers-cycle-presentation)
@@ -110,7 +109,7 @@ listed."
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((target (if (equal (buffer-name) org-buffers-buffer-name)
 		      (org-make-org-heading-search-string)))
-	  (by (or (org-buffers-state-get :by) "major-mode"))
+	  (by (downcase (or (org-buffers-state-get :by) "major-mode")))
 	  (atom (org-buffers-state-get :atom)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
@@ -140,26 +139,22 @@ listed."
   (interactive)
   (org-buffers-list 'refresh))
 
-(defun org-buffers-list:flat ()
-  (interactive)
-  (org-buffers-set-state '((:by . "none")))
-  (org-buffers-list 'refresh))
-
 (defun org-buffers-list:by ()
   (interactive)
   (unless (org-buffers-state-get :properties)
     (org-buffers-toggle-properties))
-  (let* ((buffer-read-only nil)
-	 (props
-	  (set-difference
-	   (delete-dups
-	    (apply 'append
-		   (org-buffers-map-entries (lambda ()
-					      (mapcar 'car (org-entry-properties))))))
-	   '("BLOCKED" "CATEGORY") :test 'string-equal))
-	(prop
-	 (org-completing-read "Property to group by: " props)))
-  (org-buffers-set-state `((:by . ,prop))))
+  (let ((buffer-read-only nil))
+    (org-buffers-set-state
+     `((:by .
+	    ,(org-completing-read
+	      "Property to group by: "
+	      (cons "NONE"
+		    (set-difference
+		     (delete-dups
+		      (apply
+		       'append
+		       (org-buffers-map-entries (lambda () (mapcar 'car (org-entry-properties))))))
+		     '("BLOCKED" "CATEGORY") :test 'string-equal)))))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-toggle-properties ()
