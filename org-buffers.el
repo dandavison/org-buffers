@@ -358,8 +358,7 @@ at such headings."
 		      (progn (outline-end-of-heading) (point))))
 	(setq beg-line (progn (goto-char beg) (org-current-line))
 	      end-line (progn (goto-char end) (org-current-line)))
-	(while (not (org-buffers-state-eq :atom 'heading))
-	  (org-buffers-cycle-presentation))
+	(org-buffers-cycle-presentation)
 	;; :atom was 'line so, although we have just switched to
 	;; 'heading, there are no property drawers or other heading
 	;; contents. Therefore the line numbers are unchanged.
