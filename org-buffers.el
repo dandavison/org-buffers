@@ -35,6 +35,7 @@
 
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
+(define-key org-buffers-mode-map "c" 'org-buffers-columns-view)
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
@@ -238,6 +239,14 @@ the drawer."
 (defun org-buffers-reset-state ()
   (org-buffers-set-state
    '((:by . "major-mode") (:atom . heading) (:properties . nil))))
+
+(defun org-buffers-columns-view ()
+  "View buffers in Org-mode columns view"
+  (interactive)
+  (org-buffers-list:by "NONE")
+  (let ((buffer-read-only nil))
+    (mark-whole-buffer)
+    (org-columns)))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
