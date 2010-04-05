@@ -231,12 +231,12 @@ the drawer."
 			 'string<))
 	      (erase-buffer))))))
 
-(defun org-buffers-exclude-p (buffer-name)
+(defun org-buffers-exclude-p (buffer)
   "Return non-nil if BUFFER should not be listed."
-  (or (member (with-current-buffer buffer-name major-mode)
+  (or (member (with-current-buffer buffer major-mode)
 	      org-buffers-excluded-modes)
-      (member buffer-name org-buffers-excluded-buffers)
-      (string= (substring buffer-name 0 1) " ")))
+      (member buffer org-buffers-excluded-buffers)
+      (string= (substring buffer 0 1) " ")))
 
 (defun org-buffers-reset-state ()
   (org-buffers-set-state
@@ -262,18 +262,18 @@ the drawer."
   (if (org-buffers-state-get :properties)
       (insert (cdr entry))))
 
-(defun org-buffers-insert-entry (buffer-name)
-  "Create an entry for BUFFER-NAME.
+(defun org-buffers-insert-entry (buffer)
+  "Create an entry for BUFFER.
 The heading is a link to the buffer."
   (org-insert-heading t)
   (insert
-   (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
+   (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
   (mapc (lambda (pair) (org-set-property (car pair) (format "%s" (cdr pair))))
-	(org-buffers-get-buffer-props buffer-name)))
+	(org-buffers-get-buffer-props buffer)))
 
-(defun org-buffers-get-buffer-props (buffer-name)
-  (with-current-buffer buffer-name
-    `(("buffer-name" . ,buffer-name)
+(defun org-buffers-get-buffer-props (buffer)
+  (with-current-buffer buffer
+    `(("buffer-name" . ,buffer)
       ("major-mode" . ,major-mode)
       ("buffer-file-name" . ,(buffer-file-name))
       ("default-directory" . ,default-directory)
@@ -366,14 +366,14 @@ at such headings."
   (interactive)
   (unless (org-buffers-state-eq :atom 'heading)
     (error "Cannot operate on non-headings: use \"l\" to toggle view"))
-  (let ((buffer-read-only nil) buffer-name)
+  (let ((buffer-read-only nil) buffer)
     (org-buffers-delete-regions
      (nreverse
       (org-buffers-map-entries
        (lambda ()
-	 (if (setq buffer-name (org-buffers-get-buffer-name))
-	     (if (not (kill-buffer buffer-name))
-		 (error "Failed to kill buffer %s" buffer-name)
+	 (if (setq buffer (org-buffers-get-buffer-name))
+	     (if (not (kill-buffer buffer))
+		 (error "Failed to kill buffer %s" buffer)
 	       (if (and (org-first-sibling-p)
 			(not (save-excursion (org-goto-sibling))))
 		   (org-up-heading-safe)) ;; Only child so delete parent also
