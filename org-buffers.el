@@ -359,7 +359,9 @@ at such headings."
 	      end-line (progn (goto-char end) (org-current-line)))
 	(while (not (org-buffers-state-eq :atom 'heading))
 	  (org-buffers-cycle-presentation))
-	;; Headings have no contents after cycling, so eol equals e-o-subtree
+	;; :atom was 'line so, although we have just switched to
+	;; 'heading, there are no property drawers or other heading
+	;; contents. Therefore the line numbers are unchanged.
 	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
 	      end (progn (org-goto-line end-line) (point-at-eol))))
       (narrow-to-region beg end)
