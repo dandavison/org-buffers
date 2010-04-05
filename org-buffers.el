@@ -116,11 +116,11 @@ listed."
 	(erase-buffer)
 	(org-mode)
 	(mapc 'org-buffers-insert-entry
-	      (remove-if 'org-buffers-exclude-p (buffer-list frame)))
+	      (sort (remove-if 'org-buffers-exclude-p (buffer-list frame))
+		    (lambda (b1 b2) (string< (buffer-name b1) (buffer-name b2)))))
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
-	(org-sort-entries-or-items nil ?a)
 	(if target (org-link-search target))
 	(beginning-of-line)
 	(if (equal by "none")
@@ -226,7 +226,9 @@ the drawer."
 	    (prog1
 		(mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
 			  (cons val (org-buffers-parse-selected-entries property val)))
-			(delete-dups (org-buffers-map-entries (lambda () (org-entry-get nil property nil)))))
+			(sort
+			 (delete-dups (org-buffers-map-entries (lambda () (org-entry-get nil property nil))))
+			 'string<))
 	      (erase-buffer))))))
 
 (defun org-buffers-exclude-p (buffer)
