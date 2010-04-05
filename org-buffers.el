@@ -48,7 +48,7 @@
 (defvar org-buffers-mode-hook nil
   "Hook for functions to be called after buffer listing is
   created. Note that the buffer is read-only, so if the hook
-  function is to modify the buffer it use a let binding to
+  function is to modify the buffer it should use a let binding to
   temporarily bind buffer-read-only to nil.")
 
 (defvar org-buffers-buffer-name
