@@ -116,8 +116,8 @@ listed."
 	(erase-buffer)
 	(org-mode)
 	(mapc 'org-buffers-insert-entry
-	      (sort (remove-if 'org-buffers-exclude-p (buffer-list frame))
-		    (lambda (b1 b2) (string< (buffer-name b1) (buffer-name b2)))))
+	      (sort (remove-if 'org-buffers-exclude-p
+			       (mapcar 'buffer-name (buffer-list frame))) 'string<))
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
@@ -231,13 +231,12 @@ the drawer."
 			 'string<))
 	      (erase-buffer))))))
 
-(defun org-buffers-exclude-p (buffer)
+(defun org-buffers-exclude-p (buffer-name)
   "Return non-nil if BUFFER should not be listed."
-  (let ((name (buffer-name buffer))
-	(mode (with-current-buffer buffer major-mode)))
-    (or (member mode org-buffers-excluded-modes)
-	(member name org-buffers-excluded-buffers)
- 	(string= (substring name 0 1) " "))))
+  (or (member (with-current-buffer buffer-name major-mode)
+	      org-buffers-excluded-modes)
+      (member buffer-name org-buffers-excluded-buffers)
+      (string= (substring buffer-name 0 1) " ")))
 
 (defun org-buffers-reset-state ()
   (org-buffers-set-state
@@ -263,19 +262,18 @@ the drawer."
   (if (org-buffers-state-get :properties)
       (insert (cdr entry))))
 
-(defun org-buffers-insert-entry (buffer)
-  "Create an entry for BUFFER.
-The heading is a link to BUFFER."
-  (let ((buffer-name (buffer-name buffer)))
-    (org-insert-heading t)
-    (insert
-     (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
-    (mapc (lambda (pair) (org-set-property (car pair) (format "%s" (cdr pair))))
-	  (org-buffers-get-buffer-props buffer))))
+(defun org-buffers-insert-entry (buffer-name)
+  "Create an entry for BUFFER-NAME.
+The heading is a link to the buffer."
+  (org-insert-heading t)
+  (insert
+   (org-make-link-string (concat "buffer:" buffer-name) buffer-name) "\n")
+  (mapc (lambda (pair) (org-set-property (car pair) (format "%s" (cdr pair))))
+	(org-buffers-get-buffer-props buffer-name)))
 
-(defun org-buffers-get-buffer-props (buffer)
-  (with-current-buffer buffer
-    `(("buffer-name" . ,(buffer-name))
+(defun org-buffers-get-buffer-props (buffer-name)
+  (with-current-buffer buffer-name
+    `(("buffer-name" . ,buffer-name)
       ("major-mode" . ,major-mode)
       ("buffer-file-name" . ,(buffer-file-name))
       ("default-directory" . ,default-directory)
