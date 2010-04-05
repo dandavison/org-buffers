@@ -354,7 +354,8 @@ at such headings."
     (save-excursion
       (if (org-buffers-state-eq :atom 'heading)
 	  (setq beg (progn (goto-char beg) (point-at-bol))
-		end (progn (goto-char end) (outline-end-of-heading) (point)))
+		end (if region-p (progn (goto-char end) (org-back-to-heading) (point))
+		      (progn (outline-end-of-heading) (point))))
 	(setq beg-line (progn (goto-char beg) (org-current-line))
 	      end-line (progn (goto-char end) (org-current-line)))
 	(while (not (org-buffers-state-eq :atom 'heading))
