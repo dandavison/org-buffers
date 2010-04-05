@@ -363,7 +363,8 @@ at such headings."
 	;; 'heading, there are no property drawers or other heading
 	;; contents. Therefore the line numbers are unchanged.
 	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
-	      end (progn (org-goto-line end-line) (point-at-eol))))
+	      end (if (eq end-line beg-line) (point-at-eol)
+		    (progn (org-goto-line end-line) (point-at-bol)))))
       (narrow-to-region beg end)
       (goto-char (point-min))
       (org-buffers-map-entries
