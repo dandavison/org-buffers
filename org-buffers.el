@@ -97,10 +97,9 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
 
 ;;; Listing and view cycling
 
-(defun org-buffers-list (&optional refresh property frame)
+(defun org-buffers-list (&optional refresh frame)
   "Create an Org-mode listing of Emacs buffers.
-By default, buffers are grouped by major mode. Optional argument
-PROPERTY specifies a different property to group by. Optional
+By default, buffers are grouped by major mode. Optional
 argument FRAME specifies the frame whose buffers should be
 listed."
   (interactive)
