@@ -72,8 +72,8 @@ consistent with that of `Buffer-menu-mode' and `dired-mode'")
 
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-buffer-name)
-  "List of names of buffers (strings) that should not be listed
-  by org-buffers-list."
+  "List of names of buffers that should not be listed by
+  org-buffers-list."
   :group 'org-buffers)
 
 (defcustom org-buffers-excluded-modes nil
