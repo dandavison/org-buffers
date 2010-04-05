@@ -347,21 +347,19 @@ hard-wired."
   "Set tags to DATA at all non top-level headings in region.
 DATA should be a list of strings. If DATA is nil, remove all tags
 at such headings."
-  (let* ((buffer-read-only nil)
-	(region-p (org-region-active-p))
-	(beg (if region-p (region-beginning) (point)))
-	(end (if region-p (region-end) (point))) beg-line end-line)
-    (save-excursion
+  (save-excursion
+    (let* ((buffer-read-only nil)
+	   (region-p (org-region-active-p))
+	   (beg (if region-p (region-beginning) (point)))
+	   (end (if region-p (region-end) (point)))
+	   (beg-line (progn (goto-char beg) (org-current-line)))
+	   (end-line (progn (goto-char end) (org-current-line))))
       (if (org-buffers-state-eq :atom 'heading)
 	  (setq beg (progn (goto-char beg) (point-at-bol))
-		end (if region-p (progn (goto-char end) (org-back-to-heading) (point))
+		end (if (and region-p (not (eq end-line beg-line)))
+			(progn (goto-char end) (org-back-to-heading) (point))
 		      (progn (outline-end-of-heading) (point))))
-	(setq beg-line (progn (goto-char beg) (org-current-line))
-	      end-line (progn (goto-char end) (org-current-line)))
-	(org-buffers-cycle-presentation)
-	;; :atom was 'line so, although we have just switched to
-	;; 'heading, there are no property drawers or other heading
-	;; contents. Therefore the line numbers are unchanged.
+	(org-buffers-cycle-presentation) ;; doesn't alter line numbers
 	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
 	      end (if (eq end-line beg-line) (point-at-eol)
 		    (progn (org-goto-line end-line) (point-at-bol)))))
