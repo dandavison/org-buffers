@@ -89,31 +89,43 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [21/28]
-*** TODO all properties exposed after using :by
-    dirname -> major-mode
-*** TODO heading -> line ; g ; g
-    does it switch back to heading?
+* Bugs [25/31]
+*** TODO Need to disable things when enterin colview and reenable when exiting
+*** TODO d in columns-view deletes everything but current
+*** TODO when deleting many keep in sensible state even if back out half way
+    e.g. you might back out when alerted that modified and asked if
+    you want to save.
 *** TODO Why are all org files being opened sometimes?
 
     I.e. as if agenda had been called
     'Getting targets...'
-*** DONE Set tag if region encompasses part of one line only
-    Currently does in lines mode but not in headings mode
-*** DONE stop region taking too much
-*** DONE stop deleting whole subtrees
-*** TODO I got NONE as only property once
-    This is when use b without properties present in buffer. I believe
-    getting into this state is a bug caused by error (usually a
-    before-first-heading error) and so should be fixed.
-*** TODO Grouping by property that can be nil screws up
-*** TODO when deleting many keep in sensible state even if back out half way
-    e.g. you might back out when alerted that modified and asked if
-    you want to save.
 *** TODO Keybindings conflicts
 ***** We are over-riding speed commands
 ***** E.g. p conflicts with p in / dispatcher.
 ***** Conflicts with column-view keys
+*** TODO Point movement with g in lines mode
+    because heading search target is above point
+    Solving this would require searching for line rather than heading.
+*** DONE all properties exposed after using :by
+    C-x k *Buffers*
+    C-x C-b
+    ,
+    b
+    de RET
+
+    dirname -> major-mode
+*** DONE Set tag if region encompasses part of one line only
+    Currently does in lines mode but not in headings mode
+*** DONE stop region taking too much
+*** DONE stop deleting whole subtrees
+*** DONE I got NONE as only property once
+    This is when use b without properties present in buffer. I believe
+    getting into this state is a bug caused by error (usually a
+    before-first-heading error) and so should be fixed.
+*** DONE Grouping by property that can be nil screws up
+*** DONE point movement when inserting properties
+    when grouped by major mode, put point on first level 1 heading ,
+    p, point moves down to level 2.
 *** DONE Column view needs to get rid of buffer-read-only
 *** DONE Don't show all on flat view
 *** DONE before first heading when list:flat
