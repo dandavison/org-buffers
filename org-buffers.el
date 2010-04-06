@@ -36,13 +36,13 @@
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "b" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "c" 'org-buffers-columns-view)
-(define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
+(define-key org-buffers-mode-map "d" 'org-buffers-tag-for-deletion)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "h" 'org-buffers-toggle-headings)
 (define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
 (define-key org-buffers-mode-map "p" 'org-buffers-toggle-properties)
-(define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
+(define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 
@@ -344,7 +344,7 @@ hard-wired."
 
 ;;; Setting tags and executing operations
 
-(defun org-buffers-mark-for-deletion ()
+(defun org-buffers-tag-for-deletion ()
   "Mark buffer for deletion.
 If a region is selected, all buffers in the region are marked for
 deletion. Buffers marked for deletion can be deleted using
@@ -352,7 +352,7 @@ deletion. Buffers marked for deletion can be deleted using
   (interactive)
   (org-buffers-set-tags '("delete")))
 
-(defun org-buffers-remove-marks ()
+(defun org-buffers-remove-tags ()
   "Remove deletion marks from buffers.
 If a region is selected, marks are removed from all buffers in
 the region."
@@ -394,8 +394,8 @@ at such headings."
   "Execute all pending operations.
 Currently the only type of operation supported is
 deletion. Buffers are tagged for deletion using
-`org-buffers-mark-for-deletion'. Remove such tags from buffers
-using `org-buffers-remove-marks'."
+`org-buffers-tag-for-deletion'. Remove such tags from buffers
+using `org-buffers-remove-tags'."
   (interactive)
   (unless (org-buffers-state-eq :atom 'heading)
     (error "Cannot operate on non-headings: use \"l\" to toggle view"))
