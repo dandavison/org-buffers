@@ -110,7 +110,8 @@ listed."
 	  (by (downcase (or (org-buffers-state-get :by) "major-mode")))
 	  (atom (org-buffers-state-get :atom)) target)
       (when org-buffers-p
-	(if (org-before-first-heading-p) (outline-next-heading))
+	(if (and (org-before-first-heading-p) (not (org-on-heading-p)))
+	    (outline-next-heading))
 	(setq target (org-make-org-heading-search-string)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
