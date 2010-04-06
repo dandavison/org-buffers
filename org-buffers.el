@@ -120,7 +120,11 @@ listed."
 	    (buffer
 	     (sort (remove-if 'org-buffers-exclude-p
 			      (mapcar 'buffer-name (buffer-list frame))) 'string<))
-	  (org-buffers-insert-entry buffer))
+	  (org-insert-heading t)
+	  (insert
+	   (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
+	  (dolist (pair (org-buffers-get-buffer-props buffer))
+	    (org-set-property (car pair) (cdr pair))))
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
@@ -266,15 +270,6 @@ the drawer."
   (insert (car entry) "\n")
   (if (org-buffers-state-get :properties)
       (insert (cdr entry))))
-
-(defun org-buffers-insert-entry (buffer)
-  "Create an entry for BUFFER.
-The heading is a link to the buffer."
-  (org-insert-heading t)
-  (insert
-   (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
-  (dolist (pair (org-buffers-get-buffer-props buffer))
-    (org-set-property (car pair) (cdr pair))))
 
 (defun org-buffers-get-buffer-props (buffer)
   "Create alist of properties of BUFFER, as strings."
