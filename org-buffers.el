@@ -312,11 +312,13 @@ hard-wired."
       (cond
        ((eq atom 'heading) (org-back-to-heading))
        (t (beginning-of-line)))
-      (if (setq buffer (org-buffers-get-buffer-name))
+      (setq buffer (org-buffers-get-buffer-name))
+      (if (get-buffer buffer)
 	  (case method
 	    ('org-open-at-point (org-open-at-point))
 	    ('current-window (switch-to-buffer buffer))
-	    ('other-window (switch-to-buffer-other-window buffer)))))))
+	    ('other-window (switch-to-buffer-other-window buffer)))
+	(error "No such buffer: %s" buffer)))))
 
 (defun org-buffers-get-buffer-name ()
   "Get buffer-name for current entry."
