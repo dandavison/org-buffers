@@ -39,7 +39,7 @@
 (define-key org-buffers-mode-map "d" 'org-buffers-mark-for-deletion)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
-(define-key org-buffers-mode-map "," 'org-buffers-cycle-presentation)
+(define-key org-buffers-mode-map "h" 'org-buffers-toggle-headings)
 (define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
 (define-key org-buffers-mode-map "p" 'org-buffers-toggle-properties)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-marks)
@@ -135,7 +135,7 @@ listed."
 	    (org-overview)
 	  (case atom
 	    ('heading (progn (org-overview) (org-content)))
-	    ('line (progn (show-all) (org-buffers-cycle-presentation)))))
+	    ('line (progn (show-all) (org-buffers-toggle-headings)))))
 	(save-excursion
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
@@ -177,7 +177,12 @@ listed."
      '((:atom . heading) (:properties . t)))
     (org-buffers-list 'refresh)))
 
-(defun org-buffers-cycle-presentation ()
+(defun org-buffers-toggle-headings ()
+  "Toggle viewing of buffers as org headings.
+For certain operations, such as setting deletion tags, the
+buffers must be listed as org headings. However, for browsing and
+selecting buffers, toggling headings off removes some visually
+clutter."
   (interactive)
   (let ((buffer-read-only nil))
     (if (and (org-buffers-state-eq :atom 'heading)
@@ -355,7 +360,7 @@ at such headings."
 		end (if (and region-p (not (eq end-line beg-line)))
 			(progn (goto-char end) (org-back-to-heading) (point))
 		      (progn (outline-end-of-heading) (point))))
-	(org-buffers-cycle-presentation) ;; doesn't alter line numbers
+	(org-buffers-toggle-headings) ;; doesn't alter line numbers
 	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
 	      end (if (eq end-line beg-line) (point-at-eol)
 		    (progn (org-goto-line end-line) (point-at-bol)))))
