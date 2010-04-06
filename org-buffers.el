@@ -271,8 +271,8 @@ The heading is a link to the buffer."
   (org-insert-heading t)
   (insert
    (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
-  (mapc (lambda (pair) (org-set-property (car pair) (cdr pair)))
-	(org-buffers-get-buffer-props buffer)))
+  (dolist (pair (org-buffers-get-buffer-props buffer))
+    (org-set-property (car pair) (cdr pair))))
 
 (defun org-buffers-get-buffer-props (buffer)
   "Create alist of properties of BUFFER, as strings."
