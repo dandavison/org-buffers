@@ -128,7 +128,7 @@ listed."
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
-	(if target (condition-case nil (org-link-search target)))
+	(if target (condition-case nil (org-link-search target) (error nil)))
 	(beginning-of-line)
 	(if (equal by "none")
 	    (org-overview)
