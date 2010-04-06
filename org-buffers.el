@@ -256,12 +256,7 @@ the drawer."
   (delq nil
 	(org-buffers-map-entries
 	 (lambda () (when (equal (org-entry-get nil prop) val)
-		      (org-buffers-parse-entry))))))
-
-(defun org-buffers-parse-entry ()
-  "Parse a single entry"
-  (cons (org-get-heading)
-	(org-get-entry)))
+		      (cons (org-get-heading) (org-get-entry)))))))
 
 (defun org-buffers-insert-parsed-entry (entry)
   "Insert a parsed entry"
