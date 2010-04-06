@@ -397,8 +397,7 @@ deletion. Buffers are tagged for deletion using
 `org-buffers-tag-for-deletion'. Remove such tags from buffers
 using `org-buffers-remove-tags'."
   (interactive)
-  (unless (org-buffers-state-eq :atom 'heading)
-    (error "Cannot operate on non-headings: use \"l\" to toggle view"))
+  (if (org-buffers-state-eq :atom 'line) (org-buffers-toggle-headings))
   (let ((buffer-read-only nil) buffer)
     (org-buffers-delete-regions
      (nreverse
