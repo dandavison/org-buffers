@@ -371,10 +371,11 @@ at such headings."
 	   (beg-line (progn (goto-char beg) (org-current-line)))
 	   (end-line (progn (goto-char end) (org-current-line))))
       (if (org-buffers-state-eq :atom 'heading)
-	  (setq beg (progn (goto-char beg) (point-at-bol))
-		end (if (and region-p (not (eq end-line beg-line)))
-			(progn (goto-char end) (org-back-to-heading) (point))
-		      (progn (outline-end-of-heading) (point))))
+	  (setq
+	   end (if (and region-p (not (eq end-line beg-line)) (not (eobp)))
+		   (progn (goto-char end) (org-back-to-heading) (point))
+		 (progn (outline-end-of-heading) (point)))
+	   beg (progn (goto-char beg) (point-at-bol)))
 	(org-buffers-toggle-headings) ;; doesn't alter line numbers
 	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
 	      end (if (eq end-line beg-line) (point-at-eol)
