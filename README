@@ -89,7 +89,8 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [25/31]
+* Bugs [25/32]
+*** TODO Don't jump to non-existent buffer
 *** TODO Need to disable things when enterin colview and reenable when exiting
 *** TODO d in columns-view deletes everything but current
 *** TODO when deleting many keep in sensible state even if back out half way
