@@ -116,9 +116,11 @@ listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
-	(mapc 'org-buffers-insert-entry
-	      (sort (remove-if 'org-buffers-exclude-p
-			       (mapcar 'buffer-name (buffer-list frame))) 'string<))
+	(dolist
+	    (buffer
+	     (sort (remove-if 'org-buffers-exclude-p
+			      (mapcar 'buffer-name (buffer-list frame))) 'string<))
+	  (org-buffers-insert-entry buffer))
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(unless (equal by "none") (org-buffers-group-by by))
