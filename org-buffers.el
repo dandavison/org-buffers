@@ -322,11 +322,12 @@ hard-wired."
 
 (defun org-buffers-get-buffer-name ()
   "Get buffer-name for current entry."
-  (or (org-entry-get nil "buffer-name")
-      (and (save-excursion
-	     (org-back-to-heading)
-	     (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
-	   (org-link-unescape (match-string 1)))))
+  (let ((headings-p (org-buffers-state-eq :atom 'heading)))
+    (or (and headings-p (org-entry-get nil "buffer-name"))
+	(and (save-excursion
+	       (if headings-p (org-back-to-heading))
+	       (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
+	     (org-link-unescape (match-string 1))))))
 
 ;;; Setting tags and executing operations
 
