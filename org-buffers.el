@@ -144,10 +144,12 @@ listed."
 	(current-buffer))))))
 
 (defun org-buffers-list:refresh ()
+  "Refresh org-buffers listing."
   (interactive)
   (org-buffers-list 'refresh))
 
 (defun org-buffers-list:by (&optional prop)
+  "Group buffers according to value of property PROP."
   (interactive)
   (unless (org-buffers-state-get :properties)
     (org-buffers-toggle-properties))
@@ -168,6 +170,10 @@ listed."
   (org-buffers-list 'refresh))
 
 (defun org-buffers-toggle-properties ()
+  "Toggle entry properties in org-buffers listing buffer.
+Removing properties may provide a less cluttered appearance for
+browsing. However, in-buffer properties will be restored during
+certain operations, such as `org-buffers-list:by'."
   (interactive)
   (if (org-buffers-state-get :properties)
       (progn (org-buffers-delete-properties)
@@ -179,10 +185,9 @@ listed."
 
 (defun org-buffers-toggle-headings ()
   "Toggle viewing of buffers as org headings.
-For certain operations, such as setting deletion tags, the
-buffers must be listed as org headings. However, for browsing and
-selecting buffers, toggling headings off removes some visually
-clutter."
+While browsing, toggling headings off removes some visually
+clutter. However, headings will be restored during certain
+operations, such as setting deletion tags."
   (interactive)
   (let ((buffer-read-only nil))
     (if (and (org-buffers-state-eq :atom 'heading)
@@ -255,7 +260,10 @@ the drawer."
    '((:by . "major-mode") (:atom . heading) (:properties . nil))))
 
 (defun org-buffers-columns-view ()
-  "View buffers in Org-mode columns view"
+  "View buffers in Org-mode columns view.
+This is currently experimental. RET can be used to follow links
+in the first column, but certain other org-buffers keys conflict
+with column-view or otherwise do not work correctly."
   (interactive)
   (org-buffers-list:by "NONE")
   (let ((buffer-read-only nil))
@@ -294,7 +302,7 @@ the drawer."
 (defun org-buffers-follow-link ()
   "Follow link to buffer on this line.
 The buffer-switching behaviour of this function is determined by
-`org-buffers-follow-link-method'. See also
+the variable `org-buffers-follow-link-method'. See also
 `org-buffers-switch-to-buffer' and
 `org-buffers-switch-to-buffer-other-window', whose behaviour is
 hard-wired."
@@ -337,10 +345,17 @@ hard-wired."
 ;;; Setting tags and executing operations
 
 (defun org-buffers-mark-for-deletion ()
+  "Mark buffer for deletion.
+If a region is selected, all buffers in the region are marked for
+deletion. Buffers marked for deletion can be deleted using
+`org-buffers-execute-pending-operations'."
   (interactive)
   (org-buffers-set-tags '("delete")))
 
 (defun org-buffers-remove-marks ()
+  "Remove deletion marks from buffers.
+If a region is selected, marks are removed from all buffers in
+the region."
   (interactive)
   (org-buffers-set-tags nil))
 
@@ -376,6 +391,11 @@ at such headings."
       (org-content))))
 
 (defun org-buffers-execute-pending-operations ()
+  "Execute all pending operations.
+Currently the only type of operation supported is
+deletion. Buffers are tagged for deletion using
+`org-buffers-mark-for-deletion'. Remove such tags from buffers
+using `org-buffers-remove-marks'."
   (interactive)
   (unless (org-buffers-state-eq :atom 'heading)
     (error "Cannot operate on non-headings: use \"l\" to toggle view"))
