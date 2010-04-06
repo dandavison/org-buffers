@@ -15,7 +15,9 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-buffer-name
 - org-buffers-params
 
-* Tasks [10/20]
+* Tasks [10/22]
+*** TODO Return to lines state if start in line state
+*** TODO Move to next after d/u
 *** TODO Check whether we really need to refresh in some places?
     If current state same as new state then don't refresh?
 *** TODO Check whether already in OK state [[file:org-buffers.el::org%20buffers%20list%20by%20NONE][here]]
@@ -89,9 +91,8 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [25/32]
-*** TODO Don't jump to non-existent buffer
-*** TODO Need to disable things when enterin colview and reenable when exiting
+* Bugs [27/33]
+*** TODO Need to disable things when entering colview and reenable when exiting
 *** TODO d in columns-view deletes everything but current
 *** TODO when deleting many keep in sensible state even if back out half way
     e.g. you might back out when alerted that modified and asked if
@@ -107,6 +108,8 @@ Type "?" to see all available actions, and also see the variables
 *** TODO Point movement with g in lines mode
     because heading search target is above point
     Solving this would require searching for line rather than heading.
+*** DONE delete last entry in buffer when region active
+*** DONE Don't jump to non-existent buffer
 *** DONE all properties exposed after using :by
     C-x k *Buffers*
     C-x C-b
