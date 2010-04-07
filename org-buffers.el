@@ -189,9 +189,9 @@ While browsing, toggling headings off removes some visually
 clutter. However, headings will be restored during certain
 operations, such as setting deletion tags."
   (interactive)
-  (let ((buffer-read-only nil))
-    (if (and (org-buffers-state-eq :atom 'heading)
-	     (org-buffers-state-get :properties))
+  (let ((buffer-read-only nil)
+	(headings-p (org-buffers-state-eq :atom 'heading)))
+    (if (and headings-p (org-buffers-state-get :properties))
 	(org-buffers-toggle-properties))
     (save-excursion
       (goto-char (point-min))
@@ -199,16 +199,16 @@ operations, such as setting deletion tags."
 	(outline-next-heading))
       (while (not (eobp))
 	(push-mark
-	 (save-excursion (forward-line 1) (point)) 'nomsg 'activate)
+	 (if (org-buffers-state-eq :by "none") (point)
+	   (save-excursion (forward-line 1)))
+	 'nomsg 'activate)
 	(org-forward-same-level 1)
 	(org-ctrl-c-star)
 	(pop-mark))
       (mark-whole-buffer)
-      (indent-region (point-min) (point-max))))
-  (org-buffers-set-state
-   `((:atom . ,(case (org-buffers-state-get :atom)
-		 ('line 'heading)
-		 ('heading 'line))))))
+      (indent-region (point-min) (point-max)))
+    (org-buffers-set-state
+     `((:atom . ,(if headings-p 'line 'heading))))))
 
 (defun org-buffers-delete-properties ()
   (let ((buffer-read-only nil))
