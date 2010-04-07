@@ -189,21 +189,27 @@ Headings will be automatically restored during certain
 operations, such as setting deletion tags."
   (interactive)
   (let ((buffer-read-only nil)
-	(headings-p (org-buffers-state-eq :atom 'heading)))
+	(headings-p (org-buffers-state-eq :atom 'heading))
+	(flat-p (org-buffers-state-eq :by "none")))
     (if (and headings-p (org-buffers-state-get :properties))
 	(org-buffers-toggle-properties))
     (save-excursion
       (goto-char (point-min))
-      (unless (outline-on-heading-p)
-	(outline-next-heading))
-      (while (not (eobp))
-	(push-mark
-	 (if (org-buffers-state-eq :by "none") (point)
-	   (save-excursion (forward-line 1)))
-	 'nomsg 'activate)
-	(org-forward-same-level 1)
-	(org-ctrl-c-star)
-	(pop-mark))
+      (if (and (or headings-p (not flat-p))
+	       (not (outline-on-heading-p)))
+	  (outline-next-heading))
+      (if flat-p
+	  (progn 
+	    (push-mark (point) 'nomsg 'activate)
+	    (end-of-buffer)
+	    (org-ctrl-c-star)
+	    (pop-mark))
+	(while (not (eobp))
+	  (push-mark
+	   (save-excursion (forward-line 1) (point)) 'nomsg 'activate)
+	  (org-forward-same-level 1)	
+	  (org-ctrl-c-star)
+	  (pop-mark)))
       (mark-whole-buffer)
       (indent-region (point-min) (point-max)))
     (org-buffers-set-state
