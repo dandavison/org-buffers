@@ -280,6 +280,8 @@ with column-view or otherwise do not work correctly."
   (interactive)
   (unless (org-buffers-state-eq :by "NONE")
     (org-buffers-list:by "NONE"))
+  (unless (org-buffers-state-get :properties)
+    (org-buffers-toggle-properties))
   (let ((buffer-read-only nil))
     (mark-whole-buffer)
     (org-columns)))
