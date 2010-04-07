@@ -185,8 +185,7 @@ certain operations, such as `org-buffers-list:by'."
 
 (defun org-buffers-toggle-headings ()
   "Toggle viewing of buffers as org headings.
-While browsing, toggling headings off removes some visually
-clutter. However, headings will be restored during certain
+Headings will be automatically restored during certain
 operations, such as setting deletion tags."
   (interactive)
   (let ((buffer-read-only nil)
