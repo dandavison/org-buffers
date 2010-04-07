@@ -168,16 +168,18 @@ listed."
 (defun org-buffers-list:by (&optional prop)
   "Group buffers according to value of property PROP."
   (interactive)
-  (unless (org-buffers-state-get :properties)
-    (org-buffers-toggle-properties))
-  (let ((buffer-read-only nil))
+  (let ((buffer-read-only nil)
+	(headings-p (org-buffers-state-eq :atom 'heading)))
+    (unless (org-buffers-state-get :properties)
+      (org-buffers-toggle-properties))
     (org-buffers-set-state
      `((:by .
 	    ,(or prop
 		 (org-completing-read
 		  "Property to group by: "
-		  (cons "NONE" (mapcar 'car org-buffers-buffer-properties))))))))
-  (org-buffers-list 'refresh))
+		  (cons "NONE" (mapcar 'car org-buffers-buffer-properties)))))))
+    (org-buffers-list 'refresh)
+    (unless headings-p (org-buffers-toggle-headings))))
 
 (defun org-buffers-toggle-properties ()
   "Toggle entry properties in org-buffers listing buffer.
