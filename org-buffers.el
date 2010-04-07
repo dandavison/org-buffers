@@ -363,13 +363,13 @@ the region."
   "Set tags to DATA at all non top-level headings in region.
 DATA should be a list of strings. If DATA is nil, remove all tags
 at such headings."
-  (save-excursion
-    (let* ((buffer-read-only nil)
-	   (region-p (org-region-active-p))
-	   (beg (if region-p (region-beginning) (point)))
-	   (end (if region-p (region-end) (point)))
-	   (beg-line (progn (goto-char beg) (org-current-line)))
-	   (end-line (progn (goto-char end) (org-current-line))))
+  (let* ((buffer-read-only nil)
+	 (region-p (org-region-active-p))
+	 (beg (if region-p (region-beginning) (point)))
+	 (end (if region-p (region-end) (point))) beg-line end-line)
+    (save-excursion
+      (setq beg-line (progn (goto-char beg) (org-current-line))
+	    end-line (progn (goto-char end) (org-current-line)))
       (if (org-buffers-state-eq :atom 'heading)
 	  (setq
 	   end (if (and region-p (not (eq end-line beg-line)) (not (eobp)))
@@ -389,7 +389,8 @@ at such headings."
 	   (org-set-tags-to
 	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
       (widen)
-      (org-content))))
+      (org-content))
+    (unless region-p (outline-next-heading))))
 
 (defun org-buffers-execute-pending-operations ()
   "Execute all pending operations.
