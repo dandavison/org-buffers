@@ -282,11 +282,15 @@ This is currently experimental. RET can be used to follow links
 in the first column, but certain other org-buffers keys conflict
 with column-view or otherwise do not work correctly."
   (interactive)
-  (unless (org-buffers-state-eq :by "NONE")
-    (org-buffers-list:by "NONE"))
-  (unless (org-buffers-state-get :properties)
-    (org-buffers-toggle-properties))
-  (let ((buffer-read-only nil))
+  (let ((by (org-buffers-state-get :by))
+	(buffer-read-only nil))
+    (unless (equal by "NONE") (org-buffers-list:by "NONE"))
+    (unless (org-buffers-state-get :properties)
+      (org-buffers-toggle-properties))
+    (unless (equal by "NONE")
+      (goto-char (point-min))
+      (org-sort-entries-or-items nil ?r nil nil by)
+      (org-overview))
     (mark-whole-buffer)
     (org-columns)))
 
