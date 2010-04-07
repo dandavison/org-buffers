@@ -1,5 +1,4 @@
-
-* An Org-mode buffer management tool
+#+TITLE:An Org-mode buffer management tool
 
 The function `org-buffers-list' creates a read-only Org-mode buffer
 populated with links to currently open buffers. By default, buffers
@@ -9,13 +8,14 @@ buffer-menu-mode.
 
 Type "?" to see all available actions, and also see the variables
 
-- org-buffers-excluded-buffers
+- org-buffers-buffer-properties
 - org-buffers-excluded-modes
+- org-buffers-excluded-buffers
 - org-buffers-mode-hook
 - org-buffers-buffer-name
-- org-buffers-params
 
-* Tasks [11/23]
+* Tasks [12/25]
+*** TODO Don't get possible properties from buffer
 *** TODO Return to lines state if start in line state
 *** TODO Move to next after d/u
 *** TODO Check whether we really need to refresh in some places?
@@ -47,8 +47,8 @@ Type "?" to see all available actions, and also see the variables
 ***** DONE kill buffer
 *** STARTED Filtering, folding and sorting
 ***** TODO Add modes which should be folded by default
-***** TODO Buffer-name blacklist for filtering
-***** TODO Major mode blacklist for filtering
+***** DONE Buffer-name blacklist for filtering
+***** DONE Major mode blacklist for filtering
 ***** Sort by recency?
 ***** When grouping by file/dir, use directory hierarchy?
 ***** When grouped by dirs, make dirnames links to dired?
@@ -65,7 +65,7 @@ Type "?" to see all available actions, and also see the variables
 
     - [X] Profiling ::
 	  How did Matt Lundin do timings?
-	  
+*** PROPOSED use inhibit-read-only-p
 *** PROPOSED Display multiple visible buffers
 *** TODO order of calls
    around (org-overview) in o-b-list
@@ -91,8 +91,11 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [27/34]
-*** TODO use inhibit-read-only-p
+* Bugs [29/35]
+*** DONE Fix toggling headings in flat mode bug
+*** PROPOSED deleting last buffer in flat mode caused error
+    if: Args out of range: 864, 1118
+    can't recreate this?
 *** TODO Need to disable things when entering colview and reenable when exiting
 *** TODO d in columns-view deletes everything but current
 *** TODO when deleting many keep in sensible state even if back out half way
