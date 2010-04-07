@@ -156,9 +156,10 @@ listed."
 	(setq buffer-read-only t)
 	(current-buffer))))))
 
-(defun org-buffers-list:refresh ()
+(defun org-buffers-list:refresh (&optional arg)
   "Refresh org-buffers listing."
-  (interactive)
+  (interactive "P")
+  (if arg (org-buffers-reset-state))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-list:by (&optional prop)
@@ -276,7 +277,8 @@ This is currently experimental. RET can be used to follow links
 in the first column, but certain other org-buffers keys conflict
 with column-view or otherwise do not work correctly."
   (interactive)
-  (org-buffers-list:by "NONE")
+  (unless (org-buffers-state-eq :by "NONE")
+    (org-buffers-list:by "NONE"))
   (let ((buffer-read-only nil))
     (mark-whole-buffer)
     (org-columns)))
