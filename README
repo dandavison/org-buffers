@@ -15,7 +15,7 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-buffer-name
 - org-buffers-params
 
-* Tasks [10/22]
+* Tasks [11/23]
 *** TODO Return to lines state if start in line state
 *** TODO Move to next after d/u
 *** TODO Check whether we really need to refresh in some places?
@@ -65,8 +65,8 @@ Type "?" to see all available actions, and also see the variables
 
     - [X] Profiling ::
 	  How did Matt Lundin do timings?
-
 	  
+*** PROPOSED Display multiple visible buffers
 *** TODO order of calls
    around (org-overview) in o-b-list
 *** Message when following link to visible buffer
@@ -91,7 +91,8 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [27/33]
+* Bugs [27/34]
+*** TODO use inhibit-read-only-p
 *** TODO Need to disable things when entering colview and reenable when exiting
 *** TODO d in columns-view deletes everything but current
 *** TODO when deleting many keep in sensible state even if back out half way
@@ -462,3 +463,5 @@ org-buffers-get-buffer-props               69          0.0122460000  0.000177478
 org-buffers-exclude-p                      90          0.005709      6.343...e-05
 org-buffers-mode                           1           8.7e-05       8.7e-05
 org-buffers-set-state                      1           2.4e-05       2.4e-05
+* Org config							   :noexport:
+#+TODO: TODO STARTED | PROPOSED DONE CANCELLED
