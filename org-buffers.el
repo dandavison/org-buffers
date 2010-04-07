@@ -173,13 +173,7 @@ listed."
 	      (or prop
 		  (org-completing-read
 		   "Property to group by: "
-		   (cons "NONE"
-			 (set-difference
-			  (delete-dups
-			   (apply
-			    'append
-			    (org-buffers-map-entries (lambda () (mapcar 'car (org-entry-properties))))))
-			  '("BLOCKED" "CATEGORY") :test 'string-equal)))))))))
+		   (cons "NONE" (mapcar 'car org-buffers-buffer-properties)))))))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-toggle-properties ()
