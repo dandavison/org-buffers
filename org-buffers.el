@@ -381,11 +381,12 @@ at such headings."
   (let* ((buffer-read-only nil)
 	 (region-p (org-region-active-p))
 	 (beg (if region-p (region-beginning) (point)))
-	 (end (if region-p (region-end) (point))) beg-line end-line)
+	 (end (if region-p (region-end) (point)))
+	 (headings-p (org-buffers-state-eq :atom 'heading))beg-line end-line)
     (save-excursion
       (setq beg-line (progn (goto-char beg) (org-current-line))
 	    end-line (progn (goto-char end) (org-current-line)))
-      (if (org-buffers-state-eq :atom 'heading)
+      (if headings-p
 	  (setq
 	   end (if (and region-p (not (eq end-line beg-line)) (not (eobp)))
 		   (progn (goto-char end) (org-back-to-heading) (point))
@@ -408,7 +409,8 @@ at such headings."
     (unless region-p
       (outline-next-heading)
       (unless (or (> (org-outline-level) 1) (org-buffers-state-eq :by "NONE"))
-	(outline-next-heading)))))
+	(outline-next-heading)))
+        (unless headings-p (org-buffers-toggle-headings))))
 
 (defun org-buffers-execute-pending-operations ()
   "Execute all pending operations.
