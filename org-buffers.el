@@ -390,7 +390,10 @@ at such headings."
 	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
       (widen)
       (org-content))
-    (unless region-p (outline-next-heading))))
+    (unless region-p
+      (outline-next-heading)
+      (unless (or (> (org-outline-level) 1) (org-buffers-state-eq :by "none"))
+	(outline-next-heading)))))
 
 (defun org-buffers-execute-pending-operations ()
   "Execute all pending operations.
