@@ -70,6 +70,19 @@
 Setting this variable to 'current-window makes the behaviour more
 consistent with that of `Buffer-menu-mode' and `dired-mode'")
 
+(defvar org-buffers-buffer-properties
+  '(("buffer-name" . (buffer-name))
+    ("major-mode" . (let ((mode (symbol-name major-mode)))
+		      (if (string-match "-mode$" mode)
+			  (replace-match "" nil t mode) mode)))
+    ("buffer-file-name" . (buffer-file-name))
+    ("default-directory" . default-directory)
+    ("buffer-modified-p" . (format "%s" (buffer-modified-p))))
+  "Association list specifying properties to be stored for each
+buffer. The car of each element is the name of the property, and
+the cdr is an expression which, when evaluated in the buffer,
+yields the property value.")
+
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-buffer-name)
   "List of names of buffers that should not be listed by
@@ -293,14 +306,9 @@ with column-view or otherwise do not work correctly."
 (defun org-buffers-get-buffer-props (buffer)
   "Create alist of properties of BUFFER, as strings."
   (with-current-buffer buffer
-    (let ((mode (symbol-name major-mode)))
-      `(("buffer-name" . ,buffer)
-	("major-mode" .
-	 ,(if (string-match "-mode$" mode)
-	      (replace-match "" nil t mode) mode))
-	("buffer-file-name" . ,(buffer-file-name))
-	("default-directory" . ,default-directory)
-	("buffer-modified-p" . ,(format "%s" (buffer-modified-p)))))))
+    (mapcar 
+     (lambda (pair) (cons (car pair) (eval (cdr pair))))
+     org-buffers-buffer-properties)))
 
 ;;; Follow-link behaviour
 
