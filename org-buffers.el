@@ -30,6 +30,7 @@
 (require 'org)
 (require 'cl)
 
+;;; Keys
 (defvar org-buffers-mode-map (make-sparse-keymap)
   "The keymap for `org-buffers-mode'.")
 
@@ -46,6 +47,7 @@
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 
+;;; Variables
 (defvar org-buffers-mode-hook nil
   "Hook for functions to be called after buffer listing is
   created. Note that the buffer is read-only, so if the hook
