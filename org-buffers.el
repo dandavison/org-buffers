@@ -120,7 +120,7 @@ listed."
    (or
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
-	  (by (downcase (or (org-buffers-state-get :by) "major-mode")))
+	  (by (or (org-buffers-state-get :by) "major-mode"))
 	  (atom (org-buffers-state-get :atom)) target)
       (when org-buffers-p
 	(if (and (org-before-first-heading-p) (not (org-on-heading-p)))
@@ -141,10 +141,10 @@ listed."
 	    (org-set-property (car pair) (cdr pair))))
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
-	(unless (equal by "none") (org-buffers-group-by by))
+	(unless (equal by "NONE") (org-buffers-group-by by))
 	(if target (condition-case nil (org-link-search target) (error nil)))
 	(beginning-of-line)
-	(if (equal by "none")
+	(if (equal by "NONE")
 	    (org-overview)
 	  (case atom
 	    ('heading (progn (org-overview) (org-content)))
@@ -169,11 +169,10 @@ listed."
   (let ((buffer-read-only nil))
     (org-buffers-set-state
      `((:by .
-	    ,(downcase
-	      (or prop
-		  (org-completing-read
-		   "Property to group by: "
-		   (cons "NONE" (mapcar 'car org-buffers-buffer-properties)))))))))
+	    ,(or prop
+		 (org-completing-read
+		  "Property to group by: "
+		  (cons "NONE" (mapcar 'car org-buffers-buffer-properties))))))))
   (org-buffers-list 'refresh))
 
 (defun org-buffers-toggle-properties ()
@@ -197,7 +196,7 @@ operations, such as setting deletion tags."
   (interactive)
   (let ((buffer-read-only nil)
 	(headings-p (org-buffers-state-eq :atom 'heading))
-	(flat-p (org-buffers-state-eq :by "none")))
+	(flat-p (org-buffers-state-eq :by "NONE")))
     (if (and headings-p (org-buffers-state-get :properties))
 	(org-buffers-toggle-properties))
     (save-excursion
@@ -391,7 +390,7 @@ at such headings."
       (goto-char (point-min))
       (org-buffers-map-entries
        (lambda ()
-	 (when (or (org-buffers-state-eq :by "none")
+	 (when (or (org-buffers-state-eq :by "NONE")
 		   (> (org-outline-level) 1))
 	   (org-set-tags-to
 	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
@@ -399,7 +398,7 @@ at such headings."
       (org-content))
     (unless region-p
       (outline-next-heading)
-      (unless (or (> (org-outline-level) 1) (org-buffers-state-eq :by "none"))
+      (unless (or (> (org-outline-level) 1) (org-buffers-state-eq :by "NONE"))
 	(outline-next-heading)))))
 
 (defun org-buffers-execute-pending-operations ()
