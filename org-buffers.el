@@ -419,8 +419,9 @@ deletion. Buffers are tagged for deletion using
 `org-buffers-tag-for-deletion'. Remove such tags from buffers
 using `org-buffers-remove-tags'."
   (interactive)
-  (if (org-buffers-state-eq :atom 'line) (org-buffers-toggle-headings))
-  (let ((buffer-read-only nil) buffer)
+  (let ((buffer-read-only nil)
+	(headings-p (org-buffers-state-eq :atom 'heading)) buffer)
+    (unless headings-p (org-buffers-toggle-headings))
     (org-buffers-delete-regions
      (nreverse
       (org-buffers-map-entries
@@ -432,7 +433,8 @@ using `org-buffers-remove-tags'."
 			(not (save-excursion (org-goto-sibling))))
 		   (org-up-heading-safe)) ;; Only child so delete parent also
 	       (cons (point) (1+ (org-end-of-subtree))))))
-       "+delete")))))
+       "+delete")))
+    (unless headings-p (org-buffers-toggle-headings))))
 
 ;;; Utilities
 
