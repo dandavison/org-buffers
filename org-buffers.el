@@ -125,7 +125,8 @@ listed."
       (when org-buffers-p
 	(if (and (org-before-first-heading-p) (not (org-on-heading-p)))
 	    (outline-next-heading))
-	(setq target (org-make-org-heading-search-string)))
+	(setq target
+	      (condition-case nil (org-make-org-heading-search-string) (error nil))))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
