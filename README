@@ -11,6 +11,7 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-buffer-properties
 - org-buffers-excluded-modes
 - org-buffers-excluded-buffers
+- org-buffers-follow-link-method
 - org-buffers-mode-hook
 - org-buffers-buffer-name
 
