@@ -30,30 +30,7 @@
 (require 'org)
 (require 'cl)
 
-;;; Keys
-(defvar org-buffers-mode-map (make-sparse-keymap)
-  "The keymap for `org-buffers-mode'.")
-
-(define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
-(define-key org-buffers-mode-map "b" 'org-buffers-list:by)
-(define-key org-buffers-mode-map "c" 'org-buffers-columns-view)
-(define-key org-buffers-mode-map "d" 'org-buffers-tag-for-deletion)
-(define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
-(define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
-(define-key org-buffers-mode-map "h" 'org-buffers-toggle-headings)
-(define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
-(define-key org-buffers-mode-map "p" 'org-buffers-toggle-properties)
-(define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
-(define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
-(define-key org-buffers-mode-map "?" 'org-buffers-help)
-
 ;;; Variables
-(defvar org-buffers-mode-hook nil
-  "Hook for functions to be called after buffer listing is
-  created. Note that the buffer is read-only, so if the hook
-  function is to modify the buffer it should use a let binding to
-  temporarily bind buffer-read-only to nil.")
-
 (defvar org-buffers-buffer-name
   "*Buffers*"
   "Name of buffer in which buffer list is displayed")
@@ -96,10 +73,18 @@ yields the property value.")
   by org-buffers-list."
   :group 'org-buffers)
 
+;;; Mode
+(defvar org-buffers-mode-map (make-sparse-keymap))
+
+(defvar org-buffers-mode-hook nil
+  "Hook for functions to be called after buffer listing is
+  created. Note that the buffer is read-only, so if the hook
+  function is to modify the buffer it should use a let binding to
+  temporarily bind buffer-read-only to nil.")
+
 (define-minor-mode org-buffers-mode
   "An Org-mode tool for buffer management.
-
-  \\{org-buffers-mode-map}"
+\\{org-buffers-mode-map}"
   nil " buffers" nil
   (org-set-local 'org-tag-alist '(("delete" . ?d)))
   (org-set-local'org-tags-column -50)
@@ -110,6 +95,19 @@ yields the property value.")
   (interactive)
   (describe-function 'org-buffers-mode))
 
+;;; Keys
+(define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
+(define-key org-buffers-mode-map "b" 'org-buffers-list:by)
+(define-key org-buffers-mode-map "c" 'org-buffers-columns-view)
+(define-key org-buffers-mode-map "d" 'org-buffers-tag-for-deletion)
+(define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
+(define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
+(define-key org-buffers-mode-map "h" 'org-buffers-toggle-headings)
+(define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
+(define-key org-buffers-mode-map "p" 'org-buffers-toggle-properties)
+(define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
+(define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
+(define-key org-buffers-mode-map "?" 'org-buffers-help)
 ;;; Listing and view cycling
 
 (defun org-buffers-list (&optional refresh frame)
