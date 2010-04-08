@@ -14,7 +14,12 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-mode-hook
 - org-buffers-buffer-name
 
-* Tasks [12/25]
+* Tasks [14/27]
+*** Add follow link to TAB (in personal config)?
+*** PROPOSED Use org-buffer-property-keys
+*** PROPOSED Make commands behave as if issued from the buffer at point?
+    I.e. When in org-buffers, and issue C-x d, default-directory set
+    to d-d of buffer at point.
 *** TODO Don't get possible properties from buffer
 *** TODO Return to lines state if start in line state
 *** TODO Move to next after d/u
@@ -91,7 +96,8 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [29/35]
+* Bugs [30/36]
+*** DONE Before first heading mode when flat view -> colview
 *** DONE Fix toggling headings in flat mode bug
 *** PROPOSED deleting last buffer in flat mode caused error
     if: Args out of range: 864, 1118
