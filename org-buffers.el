@@ -37,7 +37,7 @@
 
 (defvar org-buffers-state
   '((:by . "major-mode") (:atom . heading) (:properties . nil))
-  "Association list specifiying the current state of org-buffers.")
+  "Association list specifying the current state of org-buffers.")
 
 (defvar org-buffers-follow-link-method 'org-open-at-point
   "Method used to follow link with RET. Must be one of
