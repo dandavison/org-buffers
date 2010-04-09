@@ -15,15 +15,15 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-mode-hook
 - org-buffers-buffer-name
 
-* Tasks [14/27]
+* Tasks [17/27]
 *** Add follow link to TAB (in personal config)?
 *** PROPOSED Use org-buffer-property-keys
 *** PROPOSED Make commands behave as if issued from the buffer at point?
     I.e. When in org-buffers, and issue C-x d, default-directory set
     to d-d of buffer at point.
 *** TODO Don't get possible properties from buffer
-*** TODO Return to lines state if start in line state
-*** TODO Move to next after d/u
+*** DONE Return to lines state if start in line state
+*** DONE Move to next after d/u
 *** TODO Check whether we really need to refresh in some places?
     If current state same as new state then don't refresh?
 *** TODO Check whether already in OK state [[file:org-buffers.el::org%20buffers%20list%20by%20NONE][here]]
@@ -31,7 +31,7 @@ Type "?" to see all available actions, and also see the variables
     Don't code defaults twice
 *** TODO Only offer sensible grouping properties, with shortcut keys
 *** DONE Keybindings for flat and column view
-*** TODO Clean out unused code / undesired functionality
+*** DONE Clean out unused code / undesired functionality
     - Get rid of insert-as-list-item?
     - Get rid of [[file:org-buffers.el::while%20not%20org%20buffers%20state%20eq%20atom%20heading][this]] while loop
 *** STARTED Operations on buffers [3/3]
@@ -474,4 +474,4 @@ org-buffers-exclude-p                      90          0.005709      6.343...e-0
 org-buffers-mode                           1           8.7e-05       8.7e-05
 org-buffers-set-state                      1           2.4e-05       2.4e-05
 * Org config							   :noexport:
-#+TODO: TODO STARTED | PROPOSED DONE CANCELLED
+#+TODO: TODO(t) STARTED(s) | PROPOSED(p) DONE(d) CANCELLED(c)
