@@ -213,7 +213,7 @@ operations, such as setting deletion tags."
       (if flat-p
 	  (progn 
 	    (push-mark (point) 'nomsg 'activate)
-	    (end-of-buffer)
+	    (goto-char (point-max))
 	    (org-ctrl-c-star)
 	    (pop-mark))
 	(while (not (eobp))
