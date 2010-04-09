@@ -108,6 +108,8 @@ yields the property value.")
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
+(define-key org-buffers-mode-map "q" 'bury-buffer)
+
 ;;; Listing and view cycling
 
 (defun org-buffers-list (&optional refresh frame)
