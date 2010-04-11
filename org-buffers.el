@@ -433,11 +433,14 @@ using `org-buffers-remove-tags'."
 	 (if (setq buffer (org-buffers-get-buffer-name))
 	     (if (not (kill-buffer buffer))
 		 (error "Failed to kill buffer %s" buffer)
-	       (if (and (org-first-sibling-p)
-			(not (save-excursion (org-goto-sibling))))
-		   (org-up-heading-safe)) ;; Only child so delete parent also
 	       (cons (point) (1+ (org-end-of-subtree))))))
        "+delete")))
+    (org-buffers-delete-regions
+     (nreverse
+      (org-buffers-map-entries
+       (lambda () (if (and (eq (org-outline-level) 1)
+			   (eq (point-at-eol) (org-end-of-subtree)))
+		      (cons (point-at-bol) (1+ (point))))))))
     (unless headings-p (org-buffers-toggle-headings))))
 
 ;;; Utilities
