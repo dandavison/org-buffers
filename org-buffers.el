@@ -62,6 +62,15 @@ buffer. The car of each element is the name of the property, and
 the cdr is an expression which, when evaluated in the buffer,
 yields the property value.")
 
+(defcustom org-buffers-columns-format
+  (mapconcat '("%25buffer-name(Buffer)"
+	       "%25major-mode(Mode)"
+	       "%25default-directory(Dir)"
+	       "%5buffer-modified-p(Modified)") " ")
+  "Format for columns when viewing buffers listing in columns
+view. See `org-columns-default-format'."
+  :group 'org-buffers)
+
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-buffer-name)
   "List of names of buffers that should not be listed by
@@ -88,7 +97,7 @@ yields the property value.")
   nil " buffers" nil
   (org-set-local 'org-tag-alist '(("delete" . ?d)))
   (org-set-local'org-tags-column -50)
-  (org-set-local 'org-columns-default-format "%25buffer-name(Buffer) %25major-mode(Mode) %25default-directory(Dir) %5buffer-modified-p(Modified)")
+  (org-set-local 'org-columns-default-format org-buffers-columns-format)
   (org-set-local 'org-use-speed-commands (lambda () t))
   (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local))
 
