@@ -269,7 +269,7 @@ the drawer."
       (goto-char (point-min))
       (mapc (lambda (subtree) ;; Create subtree for each value of `property'
 	      (org-insert-heading t)
-	      (if (> (org-buffers-outline-level) 1)
+	      (if (> (save-excursion (beginning-of-line) (org-outline-level)) 1)
 		  (org-promote))
 	      (insert (car subtree) "\n")
 	      (org-insert-subheading t)
@@ -483,9 +483,6 @@ regions."
 
 (defun org-buffers-state-eq (key val)
   (equal (org-buffers-state-get key) val))
-
-(defmacro org-buffers-outline-level ()
-  '(save-excursion (beginning-of-line) (org-outline-level)))
 
 ;;; Links to buffers
 
