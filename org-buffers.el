@@ -99,6 +99,10 @@ view. See `org-columns-default-format'."
 
 (define-minor-mode org-buffers-mode
   "An Org-mode tool for buffer management.
+
+In addition to the following org-buffers commands, all the
+commands listed in `org-speed-commands-default' are available.
+
 \\{org-buffers-mode-map}"
   nil " buffers" nil
   (org-set-local 'org-tag-alist '(("delete" . ?d)))
