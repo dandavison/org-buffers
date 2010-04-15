@@ -424,10 +424,10 @@ at such headings."
       (widen)
       (org-content))
     (unless region-p
-      (outline-next-heading)
-      (unless (or (> (org-outline-level) 1) (org-buffers-state-eq :by "NONE"))
-	(outline-next-heading)))
-        (unless headings-p (org-buffers-toggle-headings))))
+      (while (progn
+	       (outline-next-heading)
+	       (not (or (> (org-outline-level) 1) (org-buffers-state-eq :by "NONE"))))))
+    (unless headings-p (org-buffers-toggle-headings))))
 
 (defun org-buffers-execute-pending-operations ()
   "Execute all pending operations.
