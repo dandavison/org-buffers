@@ -89,6 +89,7 @@ yields the property value.")
   (org-set-local 'org-tag-alist '(("delete" . ?d)))
   (org-set-local'org-tags-column -50)
   (org-set-local 'org-columns-default-format "%25buffer-name(Buffer) %25major-mode(Mode) %25default-directory(Dir) %5buffer-modified-p(Modified)")
+  (org-set-local 'org-use-speed-commands (lambda () t))
   (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local))
 
 (defun org-buffers-help ()
