@@ -299,9 +299,9 @@ with column-view or otherwise do not work correctly."
   (let ((buffer-read-only nil))
     (unless (org-buffers-state-get :properties)
       (org-buffers-toggle-properties))
-    (mark-whole-buffer)
-    (org-columns)
-    (deactivate-mark)))
+    (save-excursion
+      (goto-char (point-min))
+      (org-columns))))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
