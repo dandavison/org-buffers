@@ -69,9 +69,9 @@ yields the property value.")
 
 (defcustom org-buffers-columns-format
   (mapconcat 'identity
-	     '("%25buffer-name(Buffer)"
-	       "%25major-mode(Mode)"
-	       "%25default-directory(Dir)"
+	     '("%15buffer-name(Buffer)"
+	       "%15major-mode(Mode)"
+	       "%20default-directory(Dir)"
 	       "%5buffer-modified-p(Modified)") " ")
   "Format for columns when viewing buffers listing in columns
 view. See `org-columns-default-format'."
