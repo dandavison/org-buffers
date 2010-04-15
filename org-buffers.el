@@ -386,16 +386,17 @@ at such headings."
 	 (region-p (org-region-active-p))
 	 (beg (if region-p (region-beginning) (point)))
 	 (end (if region-p (region-end) (point)))
-	 (headings-p (org-buffers-state-eq :atom 'heading))beg-line end-line)
+	 (headings-p (org-buffers-state-eq :atom 'heading))
+	 beg-line end-line end-of-last-heading)
     (save-excursion
       (setq beg-line (progn (goto-char beg) (org-current-line))
-	    end-line (progn (goto-char end) (org-current-line)))
+	    end-line (progn (goto-char end) (org-current-line))
+	    end-of-last-heading (progn (outline-end-of-heading) (point)))
       (if headings-p
-	  (setq
-	   end (if (and region-p (not (eq end-line beg-line)) (not (eobp)))
-		   (progn (goto-char end) (org-back-to-heading) (point))
-		 (progn (outline-end-of-heading) (point)))
-	   beg (progn (goto-char beg) (point-at-bol)))
+	  (setq end (if (and region-p (not (eq end-line beg-line)) (not (eq end end-of-last-heading)))
+			(progn (goto-char end) (org-back-to-heading) (point))
+		      end-of-last-heading)
+		beg (progn (goto-char beg) (point-at-bol)))
 	(org-buffers-toggle-headings) ;; doesn't alter line numbers
 	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
 	      end (if (eq end-line beg-line) (point-at-eol)
