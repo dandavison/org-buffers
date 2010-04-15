@@ -125,6 +125,7 @@ commands listed in `org-speed-commands-default' are available.
 (define-key org-buffers-mode-map "q" 'bury-buffer)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
+(define-key org-buffers-mode-map " " 'org-buffers-display-buffer)
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 ;;; Listing and view cycling
@@ -350,19 +351,24 @@ hard-wired."
   (interactive)
   (org-buffers-switch-to-buffer-generic 'other-window))
 
+(defun org-buffers-display-buffer ()
+  (interactive)
+  (org-buffers-switch-to-buffer-generic 'display))
+
 (defun org-buffers-switch-to-buffer-generic (method)
   (save-excursion
     (let ((atom (org-buffers-state-get :atom)) buffer)
       (cond
        ((eq atom 'heading) (org-back-to-heading))
        (t (beginning-of-line)))
-      (setq buffer (org-buffers-get-buffer-name))
-      (if (get-buffer buffer)
-	  (case method
-	    ('org-open-at-point (org-open-at-point))
-	    ('current-window (switch-to-buffer buffer))
-	    ('other-window (switch-to-buffer-other-window buffer)))
-	(error "No such buffer: %s" buffer)))))
+      (if (setq buffer (org-buffers-get-buffer-name))
+	  (if (get-buffer buffer)
+	      (case method
+		('org-open-at-point (org-open-at-point))
+		('current-window (switch-to-buffer buffer))
+		('other-window (switch-to-buffer-other-window buffer))
+		('display (display-buffer buffer)))
+	    (error "No such buffer: %s" buffer))))))
 
 (defun org-buffers-get-buffer-name ()
   "Get buffer-name for current entry."
