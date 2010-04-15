@@ -62,6 +62,11 @@ buffer. The car of each element is the name of the property, and
 the cdr is an expression which, when evaluated in the buffer,
 yields the property value.")
 
+(defgroup org-buffers nil
+  "Options for customising `org-buffers-mode'"
+  :tag "Org-buffers Mode"
+  :group 'org)
+
 (defcustom org-buffers-columns-format
   (mapconcat '("%25buffer-name(Buffer)"
 	       "%25major-mode(Mode)"
