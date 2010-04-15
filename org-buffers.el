@@ -95,7 +95,7 @@ view. See `org-columns-default-format'."
   "Hook for functions to be called after buffer listing is
   created. Note that the buffer is read-only, so if the hook
   function is to modify the buffer it should use a let binding to
-  temporarily bind buffer-read-only to nil.")
+  temporarily bind inhibit-read-only to a non-nil value.")
 
 (define-minor-mode org-buffers-mode
   "An Org-mode tool for buffer management.
@@ -182,7 +182,7 @@ listed."
 (defun org-buffers-list:by (&optional prop)
   "Group buffers according to value of property PROP."
   (interactive)
-  (let ((buffer-read-only nil)
+  (let ((inhibit-read-only t)
 	(headings-p (org-buffers-state-eq :atom 'heading)))
     (unless (org-buffers-state-get :properties)
       (org-buffers-toggle-properties))
@@ -214,7 +214,7 @@ certain operations, such as `org-buffers-list:by'."
 Headings will be automatically restored during certain
 operations, such as setting deletion tags."
   (interactive)
-  (let ((buffer-read-only nil)
+  (let ((inhibit-read-only t)
 	(headings-p (org-buffers-state-eq :atom 'heading))
 	(flat-p (org-buffers-state-eq :by "NONE")))
     (if (and headings-p (org-buffers-state-get :properties))
@@ -242,7 +242,7 @@ operations, such as setting deletion tags."
      `((:atom . ,(if headings-p 'line 'heading))))))
 
 (defun org-buffers-delete-properties ()
-  (let ((buffer-read-only nil))
+  (let ((inhibit-read-only t))
     (save-excursion
       (goto-char (point-min))
       (org-buffers-delete-regions
@@ -296,7 +296,7 @@ This is currently experimental. RET can be used to follow links
 in the first column, but certain other org-buffers keys conflict
 with column-view or otherwise do not work correctly."
   (interactive)
-  (let ((buffer-read-only nil))
+  (let ((inhibit-read-only t))
     (unless (org-buffers-state-get :properties)
       (org-buffers-toggle-properties))
     (save-excursion
@@ -391,7 +391,7 @@ the region."
   "Set tags to DATA at all non top-level headings in region.
 DATA should be a list of strings. If DATA is nil, remove all tags
 at such headings."
-  (let* ((buffer-read-only nil)
+  (let* ((inhibit-read-only t)
 	 (region-p (org-region-active-p))
 	 (beg (if region-p (region-beginning) (point)))
 	 (end (if region-p (region-end) (point)))
@@ -433,7 +433,7 @@ deletion. Buffers are tagged for deletion using
 `org-buffers-tag-for-deletion'. Remove such tags from buffers
 using `org-buffers-remove-tags'."
   (interactive)
-  (let ((buffer-read-only nil)
+  (let ((inhibit-read-only t)
 	(headings-p (org-buffers-state-eq :atom 'heading)) buffer)
     (unless headings-p (org-buffers-toggle-headings))
     (org-buffers-delete-regions
