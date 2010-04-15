@@ -108,7 +108,7 @@ commands listed in `org-speed-commands-default' are available.
   (org-set-local 'org-tag-alist '(("delete" . ?d)))
   (org-set-local'org-tags-column -50)
   (org-set-local 'org-columns-default-format org-buffers-columns-format)
-  (org-set-local 'org-use-speed-commands (lambda () t))
+  (org-set-local 'org-use-speed-commands (lambda () buffer-read-only))
   (add-hook 'kill-buffer-hook 'org-buffers-reset-state nil 'local))
 
 (defun org-buffers-help ()
