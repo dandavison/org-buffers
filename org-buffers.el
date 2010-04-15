@@ -68,7 +68,8 @@ yields the property value.")
   :group 'org)
 
 (defcustom org-buffers-columns-format
-  (mapconcat '("%25buffer-name(Buffer)"
+  (mapconcat 'identity
+	     '("%25buffer-name(Buffer)"
 	       "%25major-mode(Mode)"
 	       "%25default-directory(Dir)"
 	       "%5buffer-modified-p(Modified)") " ")
