@@ -353,7 +353,8 @@ hard-wired."
 
 (defun org-buffers-display-buffer ()
   (interactive)
-  (org-buffers-switch-to-buffer-generic 'display))
+  (org-buffers-switch-to-buffer-generic 'display)
+  (org-buffers-next-buffer))
 
 (defun org-buffers-switch-to-buffer-generic (method)
   (save-excursion
