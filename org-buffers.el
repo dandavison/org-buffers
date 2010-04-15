@@ -117,7 +117,7 @@ commands listed in `org-speed-commands-default' are available.
 
 ;;; Keys
 (define-key org-buffers-mode-map "B" 'org-buffers-list:by)
-(define-key org-buffers-mode-map "c" 'org-buffers-columns-view)
+(define-key org-buffers-mode-map "T" 'org-buffers-columns-view)
 (define-key org-buffers-mode-map "d" 'org-buffers-tag-for-deletion)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
 (define-key org-buffers-mode-map "H" 'org-buffers-toggle-headings)
