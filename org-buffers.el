@@ -300,7 +300,8 @@ with column-view or otherwise do not work correctly."
     (unless (org-buffers-state-get :properties)
       (org-buffers-toggle-properties))
     (mark-whole-buffer)
-    (org-columns)))
+    (org-columns)
+    (deactivate-mark)))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
