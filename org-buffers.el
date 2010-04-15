@@ -471,18 +471,18 @@ New settings have precedence over existing ones."
    org-buffers-state)
   (setq org-buffers-state state))
 
-(defmacro org-buffers-delete-regions (regions)
+(defun org-buffers-delete-regions (regions)
   "Delete regions in list.
 REGIONS is a list of (beg . end) cons cells specifying buffer
 regions."
-  `(mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
-	 ,regions))
+  (mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
+	regions))
 
-(defmacro org-buffers-state-get (key)
-  `(cdr (assoc ,key org-buffers-state)))
+(defun org-buffers-state-get (key)
+  (cdr (assoc key org-buffers-state)))
 
-(defmacro org-buffers-state-eq (key val)
-  `(equal (org-buffers-state-get ,key) ,val))
+(defun org-buffers-state-eq (key val)
+  (equal (org-buffers-state-get key) val))
 
 (defmacro org-buffers-outline-level ()
   '(save-excursion (beginning-of-line) (org-outline-level)))
