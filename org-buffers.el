@@ -429,10 +429,7 @@ at such headings."
 	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
       (widen)
       (org-content))
-    (unless region-p
-      (while (progn
-	       (outline-next-heading)
-	       (not (or (> (org-outline-level) 1) (org-buffers-state-eq :by "NONE"))))))
+    (unless region-p (org-buffers-next-buffer))
     (unless headings-p (org-buffers-toggle-headings))))
 
 (defun org-buffers-execute-pending-operations ()
@@ -490,6 +487,12 @@ regions."
 (defun org-buffers-state-eq (key val)
   (equal (org-buffers-state-get key) val))
 
+(defun org-buffers-next-buffer ()
+  "Advance to next line with buffer link"
+  (while
+      (and (outline-next-heading)
+	   (not (or (> (org-outline-level) 1)
+		    (org-buffers-state-eq :by "NONE"))))))
 ;;; Links to buffers
 
 (org-add-link-type "buffer" 'display-buffer)
