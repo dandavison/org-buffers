@@ -97,7 +97,7 @@ yields the property value.")
 
 ;;; Keys
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
-(define-key org-buffers-mode-map "b" 'org-buffers-list:by)
+(define-key org-buffers-mode-map "B" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "c" 'org-buffers-columns-view)
 (define-key org-buffers-mode-map "d" 'org-buffers-tag-for-deletion)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
