@@ -16,6 +16,7 @@ Type "?" to see all available actions, and also see the variables
 - org-buffers-buffer-name
 
 * Tasks [17/27]
+*** Use use-empty-active-region?
 *** Add follow link to TAB (in personal config)?
 *** PROPOSED Use org-buffer-property-keys
 *** PROPOSED Make commands behave as if issued from the buffer at point?
@@ -97,7 +98,8 @@ Type "?" to see all available actions, and also see the variables
 *** DONE Make RET work elsewhere on header line to follow link?
     Could do this with a speed command.
 *** DONE Macro for working with params?
-* Bugs [30/36]
+* Bugs [30/37]
+*** TODO selected all buffers in subtree, d, x and heading didn't go
 *** DONE Before first heading mode when flat view -> colview
 *** DONE Fix toggling headings in flat mode bug
 *** PROPOSED deleting last buffer in flat mode caused error
@@ -181,6 +183,31 @@ Type "?" to see all available actions, and also see the variables
     (org-buffers-list:by "major-mode"))
   (elp-results)
 #+end_src
+*** uncompiled
+org-buffers-list:by                        10          17.556924     1.7556923999
+org-buffers-list                           10          17.554197000  1.7554197000
+org-buffers-group-by                       10          7.043676      0.7043676
+org-buffers-map-entries                    160         5.8240440000  0.036400275
+org-buffers-parse-selected-entries         150         5.6013409999  0.0373422733
+org-buffers-insert-parsed-entry            450         0.6689990000  0.0014866644
+org-buffers-get-buffer-props               450         0.0522920000  0.0001162044
+org-buffers-exclude-p                      690         0.027557      3.993...e-05
+org-buffers-mode                           10          0.000925      9.25e-05
+org-buffers-set-state                      20          0.000686      3.43e-05
+
+*** compiled
+org-buffers-list:by                        10          16.296418000  1.6296418000
+org-buffers-list                           10          16.295753     1.6295753000
+org-buffers-group-by                       10          6.633566      0.6633566
+org-buffers-map-entries                    160         5.7454820000  0.0359092625
+org-buffers-parse-selected-entries         150         5.285194      0.0352346266
+org-buffers-insert-parsed-entry            440         0.3481630000  0.0007912795
+org-buffers-get-buffer-props               440         0.0485260000  0.0001102863
+org-buffers-exclude-p                      680         0.0235800000  3.467...e-05
+org-buffers-mode                           10          0.0008060000  8.060...e-05
+org-buffers-set-state                      20          0.000356      1.78e-05
+
+
 
 *** before map headings macro
 org-buffers-list:by                        10          40.482967     4.0482967
