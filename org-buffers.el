@@ -97,20 +97,18 @@ yields the property value.")
   (describe-function 'org-buffers-mode))
 
 ;;; Keys
-(define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "B" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "c" 'org-buffers-columns-view)
 (define-key org-buffers-mode-map "d" 'org-buffers-tag-for-deletion)
 (define-key org-buffers-mode-map "g" 'org-buffers-list:refresh)
-;; (define-key org-buffers-mode-map "." 'org-buffers-switch-to-buffer)
 (define-key org-buffers-mode-map "h" 'org-buffers-toggle-headings)
 (define-key org-buffers-mode-map "o" 'org-buffers-switch-to-buffer-other-window)
 (define-key org-buffers-mode-map "P" 'org-buffers-toggle-properties)
+(define-key org-buffers-mode-map "q" 'bury-buffer)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
+(define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
-(define-key org-buffers-mode-map "q" 'bury-buffer)
-
 ;;; Listing and view cycling
 
 (defun org-buffers-list (&optional refresh frame)
