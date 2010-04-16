@@ -125,7 +125,7 @@ commands listed in `org-speed-commands-default' are available.
 (define-key org-buffers-mode-map "q" 'bury-buffer)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
-(define-key org-buffers-mode-map " " 'org-buffers-display-buffer)
+(define-key org-buffers-mode-map " " 'org-buffers-show-and-scroll-up)
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
 ;;; Listing and view cycling
@@ -351,10 +351,23 @@ hard-wired."
   (interactive)
   (org-buffers-switch-to-buffer-generic 'other-window))
 
-(defun org-buffers-display-buffer ()
+(defvar org-buffers-show-window nil)
+
+(defun org-buffers-show-and-scroll-up ()
+  "Display the buffer linked to on the current line.
+When called repeatedly, scroll the window that is displaying the
+buffer."
+  ; Code descended from `org-agenda-show-and-scroll-up'
   (interactive)
-  (org-buffers-switch-to-buffer-generic 'display)
-  (org-buffers-next-buffer))
+  (let ((win (selected-window)))
+    (if (and (window-live-p org-buffers-show-window)
+	     (eq this-command last-command))
+	(progn
+	  (select-window org-buffers-show-window)
+	  (ignore-errors (scroll-up)))
+      (org-buffers-switch-to-buffer-generic 'other-window)
+      (setq org-buffers-show-window (selected-window)))
+    (select-window win)))
 
 (defun org-buffers-switch-to-buffer-generic (method)
   (save-excursion
