@@ -405,9 +405,9 @@ buffer, advancing to next on reaching end."
 ;;; Remote commands
 (defun org-buffers-call-from-buffer-directory (fun)
   (let* ((buffer (get-buffer (org-buffers-get-buffer-name)))
-	 (buffer-file-name (and buffer (buffer-file-name buffer)))
 	 (default-directory
-	   (if buffer-file-name (file-name-directory buffer-file-name)
+	   (if buffer
+	       (progn (set-buffer buffer) default-directory)
 	     default-directory)))
     (call-interactively fun)))
 
