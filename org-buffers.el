@@ -356,15 +356,22 @@ hard-wired."
 (defun org-buffers-show-and-scroll-up ()
   "Display the buffer linked to on the current line.
 When called repeatedly, scroll the window that is displaying the
-buffer."
-  ; Code descended from `org-agenda-show-and-scroll-up'
+buffer, advancing to next on reaching end."
+  ;; Code descended from `org-agenda-show-and-scroll-up'
   (interactive)
-  (let ((win (selected-window)))
+  (let ((win (selected-window)) window-end)
     (if (and (window-live-p org-buffers-show-window)
 	     (eq this-command last-command))
 	(progn
 	  (select-window org-buffers-show-window)
-	  (ignore-errors (scroll-up)))
+	  (setq window-end (window-end))
+	  (ignore-errors (scroll-up))
+	  (redisplay)
+	  (when (eq (window-end) window-end)
+	    (select-window win)
+	    (org-buffers-next-buffer)
+	    (setq this-command 'emulate-first-call)
+	    (org-buffers-show-and-scroll-up)))
       (org-buffers-switch-to-buffer-generic 'other-window)
       (setq org-buffers-show-window (selected-window)))
     (select-window win)))
