@@ -116,6 +116,8 @@ commands listed in `org-speed-commands-default' are available.
   (describe-function 'org-buffers-mode))
 
 ;;; Keys
+(define-key org-buffers-mode-map "\C-x\C-f" 'org-buffers-find-file)
+(define-key org-buffers-mode-map "\C-xd" 'org-buffers-dired)
 (define-key org-buffers-mode-map "B" 'org-buffers-list:by)
 (define-key org-buffers-mode-map "T" 'org-buffers-columns-view)
 (define-key org-buffers-mode-map "d" 'org-buffers-tag-for-deletion)
@@ -399,6 +401,23 @@ buffer, advancing to next on reaching end."
 	       (if headings-p (org-back-to-heading))
 	       (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
 	     (org-link-unescape (match-string 1))))))
+
+;;; Remote commands
+(defun org-buffers-call-from-buffer-directory (fun)
+  (let* ((buffer (get-buffer (org-buffers-get-buffer-name)))
+	 (buffer-file-name (and buffer (buffer-file-name buffer)))
+	 (default-directory
+	   (if buffer-file-name (file-name-directory buffer-file-name)
+	     default-directory)))
+    (call-interactively fun)))
+
+(defun org-buffers-find-file ()
+  (interactive)
+  (org-buffers-call-from-buffer-directory 'find-file))
+
+(defun org-buffers-dired ()
+  (interactive)
+  (org-buffers-call-from-buffer-directory 'dired))
 
 ;;; Setting tags and executing operations
 
