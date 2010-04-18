@@ -496,22 +496,24 @@ at such headings."
 Buffers are tagged for deletion using
 `org-buffers-tag-for-deletion'. Remove such tags from buffers
 using `org-buffers-remove-tags'."
-  (org-buffers-delete-regions
-   (nreverse
-    (org-buffers-map-entries
-     (lambda ()
-       (and (setq buffer (org-buffers-get-buffer-name))
-	    (or (kill-buffer buffer)
-		(progn (message "Did not kill buffer %s" buffer)
-		       nil))
-	    (cons (point) (1+ (org-end-of-subtree)))))
-     "+delete")))
-  (org-buffers-delete-regions
-   (nreverse
-    (org-buffers-map-entries
-     (lambda () (if (and (eq (org-outline-level) 1)
-			 (eq (point-at-eol) (org-end-of-subtree)))
-		    (cons (point-at-bol) (1+ (point)))))))))
+  (if (org-buffers-delete-regions
+       (nreverse
+	(delq nil
+	      (org-buffers-map-entries
+	       (lambda ()
+		 (and (setq buffer (org-buffers-get-buffer-name))
+		      (or (kill-buffer buffer)
+			  (progn (message "Did not kill buffer %s" buffer)
+				 nil))
+		      (cons (point) (1+ (org-end-of-subtree)))))
+	       "+delete"))))
+      (org-buffers-delete-regions ;; Clear out any headings left without children.
+       (nreverse
+	(delq nil
+	      (org-buffers-map-entries
+	       (lambda () (if (and (eq (org-outline-level) 1)
+				   (eq (point-at-eol) (org-end-of-subtree)))
+			      (cons (point-at-bol) (1+ (point)))))))))))
 
 (defun org-buffers-execute-pending-reversions ()
   "Revert buffers marked for reversion.
@@ -545,7 +547,7 @@ New settings have precedence over existing ones."
   "Delete regions in list.
 REGIONS is a list of (beg . end) cons cells specifying buffer
 regions."
-  (mapc (lambda (pair) (if pair (delete-region (car pair) (cdr pair))))
+  (mapc (lambda (pair) (delete-region (car pair) (cdr pair)))
 	regions))
 
 (defun org-buffers-state-get (key)
