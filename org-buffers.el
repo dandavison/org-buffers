@@ -482,31 +482,49 @@ at such headings."
     (unless headings-p (org-buffers-toggle-headings))))
 
 (defun org-buffers-execute-pending-operations ()
-  "Execute all pending operations.
-Currently the only type of operation supported is
-deletion. Buffers are tagged for deletion using
-`org-buffers-tag-for-deletion'. Remove such tags from buffers
-using `org-buffers-remove-tags'."
+  "Execute all pending operations."
   (interactive)
   (let ((inhibit-read-only t)
 	(headings-p (org-buffers-state-eq :atom 'heading)) buffer)
     (unless headings-p (org-buffers-toggle-headings))
-    (org-buffers-delete-regions
-     (nreverse
-      (org-buffers-map-entries
-       (lambda ()
-	 (if (setq buffer (org-buffers-get-buffer-name))
-	     (if (not (kill-buffer buffer))
-		 (error "Failed to kill buffer %s" buffer)
-	       (cons (point) (1+ (org-end-of-subtree))))))
-       "+delete")))
-    (org-buffers-delete-regions
-     (nreverse
-      (org-buffers-map-entries
-       (lambda () (if (and (eq (org-outline-level) 1)
-			   (eq (point-at-eol) (org-end-of-subtree)))
-		      (cons (point-at-bol) (1+ (point))))))))
+    (org-buffers-execute-pending-reversions)
+    (org-buffers-execute-pending-deletions)
     (unless headings-p (org-buffers-toggle-headings))))
+
+(defun org-buffers-execute-pending-deletions ()
+  "Delete buffers marked for deletion.
+Buffers are tagged for deletion using
+`org-buffers-tag-for-deletion'. Remove such tags from buffers
+using `org-buffers-remove-tags'."
+  (org-buffers-delete-regions
+   (nreverse
+    (org-buffers-map-entries
+     (lambda ()
+       (and (setq buffer (org-buffers-get-buffer-name))
+	    (or (kill-buffer buffer)
+		(progn (message "Did not kill buffer %s" buffer)
+		       nil))
+	    (cons (point) (1+ (org-end-of-subtree)))))
+     "+delete")))
+  (org-buffers-delete-regions
+   (nreverse
+    (org-buffers-map-entries
+     (lambda () (if (and (eq (org-outline-level) 1)
+			 (eq (point-at-eol) (org-end-of-subtree)))
+		    (cons (point-at-bol) (1+ (point)))))))))
+
+(defun org-buffers-execute-pending-reversions ()
+  "Revert buffers marked for reversion.
+Buffers are tagged for reversion using
+`org-buffers-tag-for-reversion'. Tags can be removed using
+`org-buffers-remove-tags'."
+  (let (buffer)
+    (org-buffers-map-entries
+     (lambda ()
+       (when (setq buffer (get-buffer (org-buffers-get-buffer-name)))
+	 (if (with-current-buffer buffer (revert-buffer))
+	     (org-set-tags-to nil))))
+     "+revert")))
 
 ;;; Utilities
 
