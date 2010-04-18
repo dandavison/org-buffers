@@ -407,9 +407,10 @@ buffer, advancing to next on reaching end."
 ;;; Remote commands
 (defun org-buffers-call-remotely (fun)
   "Call FUN from the directory of the current line's buffer."
-  (let* ((buffer (get-buffer (org-buffers-get-buffer-name)))
+  (let* ((buffer (org-buffers-get-buffer-name))
 	 (default-directory
-	   (if buffer (with-current-buffer buffer default-directory)
+	   (if buffer
+	       (with-current-buffer (get-buffer buffer) default-directory)
 	     default-directory)))
     (call-interactively (or (command-remapping fun) fun))))
 
