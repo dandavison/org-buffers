@@ -125,6 +125,7 @@ commands listed in `org-speed-commands-default' are available.
 (define-key org-buffers-mode-map "H" 'org-buffers-toggle-headings)
 (define-key org-buffers-mode-map "P" 'org-buffers-toggle-properties)
 (define-key org-buffers-mode-map "q" 'bury-buffer)
+(define-key org-buffers-mode-map "r" 'org-buffers-tag-for-reversion)
 (define-key org-buffers-mode-map "u" 'org-buffers-remove-tags)
 (define-key org-buffers-mode-map "x" 'org-buffers-execute-pending-operations)
 (define-key org-buffers-mode-map " " 'org-buffers-show-and-scroll-up)
@@ -427,6 +428,14 @@ deletion. Buffers marked for deletion can be deleted using
 `org-buffers-execute-pending-operations'."
   (interactive)
   (org-buffers-set-tags '("delete")))
+
+(defun org-buffers-tag-for-reversion ()
+  "Mark buffer to be reverted to the underlying file.
+If a region is selected, all buffers in the region are
+marked. Buffers marked for reversioon can be reverted using
+`org-buffers-execute-pending-operations'."
+  (interactive)
+  (org-buffers-set-tags '("revert")))
 
 (defun org-buffers-remove-tags ()
   "Remove deletion marks from buffers.
