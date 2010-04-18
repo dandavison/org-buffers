@@ -409,7 +409,7 @@ buffer, advancing to next on reaching end."
 	   (if buffer
 	       (progn (set-buffer buffer) default-directory)
 	     default-directory)))
-    (call-interactively fun)))
+    (call-interactively (or (command-remapping fun) fun))))
 
 (defun org-buffers-find-file ()
   (interactive)
