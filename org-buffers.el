@@ -401,7 +401,8 @@ buffer, advancing to next on reaching end."
 	(and (save-excursion
 	       (if headings-p (org-back-to-heading))
 	       (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
-	     (org-link-unescape (match-string 1))))))
+	     (org-buffers-clean-text-properties
+	      (org-link-unescape (match-string 1)))))))
 
 ;;; Remote commands
 (defun org-buffers-call-remotely (fun)
@@ -562,6 +563,9 @@ regions."
       (and (outline-next-heading)
 	   (not (or (> (org-outline-level) 1)
 		    (org-buffers-state-eq :by "NONE"))))))
+(defun org-buffers-clean-text-properties (text)
+  (set-text-properties 0 (length text) nil text) text)
+
 ;;; Links to buffers
 
 (org-add-link-type "buffer" 'display-buffer)
