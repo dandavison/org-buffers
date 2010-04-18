@@ -404,7 +404,8 @@ buffer, advancing to next on reaching end."
 	     (org-link-unescape (match-string 1))))))
 
 ;;; Remote commands
-(defun org-buffers-call-from-buffer-directory (fun)
+(defun org-buffers-call-remotely (fun)
+  "Call FUN from the directory of the current line's buffer."
   (let* ((buffer (get-buffer (org-buffers-get-buffer-name)))
 	 (default-directory
 	   (if buffer (with-current-buffer buffer default-directory)
@@ -413,11 +414,11 @@ buffer, advancing to next on reaching end."
 
 (defun org-buffers-find-file ()
   (interactive)
-  (org-buffers-call-from-buffer-directory 'find-file))
+  (org-buffers-call-remotely 'find-file))
 
 (defun org-buffers-dired ()
   (interactive)
-  (org-buffers-call-from-buffer-directory 'dired))
+  (org-buffers-call-remotely 'dired))
 
 ;;; Setting tags and executing operations
 
