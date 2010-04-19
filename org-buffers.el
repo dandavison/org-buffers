@@ -145,10 +145,10 @@ commands listed in `org-speed-commands-default' are available.
 
 (defun org-buffers-list (&optional refresh frame)
   "Create an Org-mode listing of Emacs buffers.
-By default, buffers are grouped by major mode. Optional
-argument FRAME specifies the frame whose buffers should be
-listed."
-  (interactive)
+By default, buffers are grouped by major mode. With a prefix
+argument, update the listing before display.  Optional argument
+FRAME specifies the frame whose buffers should be listed."
+  (interactive "P")
   (funcall
    org-buffers-switch-to-buffer-function
    (or
