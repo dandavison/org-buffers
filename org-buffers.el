@@ -156,11 +156,12 @@ FRAME specifies the frame whose buffers should be listed."
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
 	  (by (or (org-buffers-state-get :by) "major-mode"))
 	  (atom (org-buffers-state-get :atom)) target)
-      (when org-buffers-p
-	(if (and (org-before-first-heading-p) (not (org-on-heading-p)))
-	    (outline-next-heading))
-	(setq target
-	      (condition-case nil (org-make-org-heading-search-string) (error nil))))
+      (if (and org-buffers-p (org-before-first-heading-p) (not (org-on-heading-p)))
+	  (outline-next-heading))
+      (setq target
+	    (condition-case nil
+		(org-make-org-heading-search-string (if (not org-buffers-p) (buffer-name)))
+	      (error nil)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -177,8 +178,10 @@ FRAME specifies the frame whose buffers should be listed."
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(unless (equal by "NONE") (org-buffers-group-by by))
-	(if target (condition-case nil (org-link-search target) (error nil)))
-	(beginning-of-line)
+	(if (and target (condition-case nil (org-link-search target) (error nil)))
+	    (beginning-of-line)
+	  (goto-char (point-min))
+	  (outline-next-heading))
 	(if (equal by "NONE")
 	    (org-overview)
 	  (case atom
@@ -188,8 +191,6 @@ FRAME specifies the frame whose buffers should be listed."
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
 	(org-buffers-mode)
-	(goto-char (point-min))
-	(outline-next-heading)
 	(setq buffer-read-only t)
 	(current-buffer))))))
 
