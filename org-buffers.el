@@ -268,7 +268,8 @@ operations, such as setting deletion tags."
       (goto-char (point-min))
       (org-buffers-delete-regions
        (nreverse
-	(org-buffers-map-entries 'org-buffers-get-property-block))))))
+	(delq nil
+	      (org-buffers-map-entries 'org-buffers-get-property-block)))))))
 
 (defun org-buffers-get-property-block ()
   "Return the (beg . end) range of the property drawer.
