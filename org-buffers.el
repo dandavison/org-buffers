@@ -188,6 +188,8 @@ FRAME specifies the frame whose buffers should be listed."
 	  (mark-whole-buffer)
 	  (indent-region (point-min) (point-max)))
 	(org-buffers-mode)
+	(goto-char (point-min))
+	(outline-next-heading)
 	(setq buffer-read-only t)
 	(current-buffer))))))
 
