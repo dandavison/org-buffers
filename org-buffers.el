@@ -140,7 +140,7 @@ By default, buffers are grouped by major mode. Optional
 argument FRAME specifies the frame whose buffers should be
 listed."
   (interactive)
-  (pop-to-buffer
+  (switch-to-buffer
    (or
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
