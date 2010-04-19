@@ -83,13 +83,15 @@ pop-to-buffer."
 	       "%5buffer-modified-p(Modified)") " ")
   "Format for columns when viewing buffers listing in columns
 view. See `org-columns-default-format'."
-  :group 'org-buffers)
+  :group 'org-buffers
+  :type 'string)
 
 (defcustom org-buffers-excluded-buffers
   `("*Completions*" ,org-buffers-buffer-name)
   "List of names of buffers that should not be listed by
   org-buffers-list."
-  :group 'org-buffers)
+  :group 'org-buffers
+  :type 'sexp)
 
 (defcustom org-buffers-excluded-modes nil
   "List of names of major-modes (strings) that should not be listed
