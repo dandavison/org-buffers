@@ -39,15 +39,16 @@
   '((:by . "major-mode") (:atom . heading) (:properties . nil))
   "Association list specifying the current state of org-buffers.")
 
-(defvar org-buffers-follow-link-method 'org-open-at-point
+(defvar org-buffers-follow-link-method 'current-window
   "Method used to follow link with RET. Must be one of
 
-'org-open-at-point :: use `org-open-at-point' to follow link.
-'current-window    :: use switch-to-buffer
+'current-window    :: use switch-to-buffer, as with dired,
+                      list-buffers, ibuffer, etc
+'org-open-at-point :: use `org-open-at-point', as with other links in org-mode
 'other-window      :: use switch-to-buffer-other-window
 
-Setting this variable to 'current-window makes the behaviour more
-consistent with that of `Buffer-menu-mode' and `dired-mode'")
+See also the functions `org-buffers-switch-to-buffer' and
+`org-buffers-switch-to-buffer-other-window'.")
 
 (defvar org-buffers-buffer-properties
   '(("buffer-name" . (buffer-name))
