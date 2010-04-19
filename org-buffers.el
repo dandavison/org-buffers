@@ -75,24 +75,6 @@ pop-to-buffer."
   :group 'org-buffers
   :type 'function)
 
-(defcustom org-buffers-pop-up-windows nil
-  "The value of `pop-up-windows' that is in effect when the
-listing buffer is displayed. Set to a non-nil value to cause the
-listing buffer to be displayed in a new window. This variable only has an
-effect if `org-buffers-switch-to-buffer-function' is set to
-`pop-to-buffer'."
-  :group 'org-buffers
-  :type 'boolean)
-
-(defcustom org-buffers-pop-up-frames nil
-  "The value of `pop-up-frames' that is in effect when the
-listing buffer is displayed.  Set to a non-nil value to cause the
-listing buffer to be displayed in a new frame.  This variable
-only has an effect if `org-buffers-switch-to-buffer-function' is
-set to `pop-to-buffer'."
-  :group 'org-buffers
-  :type 'boolean)
-
 (defcustom org-buffers-columns-format
   (mapconcat 'identity
 	     '("%15buffer-name(Buffer)"
@@ -165,48 +147,47 @@ By default, buffers are grouped by major mode. Optional
 argument FRAME specifies the frame whose buffers should be
 listed."
   (interactive)
-  (let ((pop-up-windows org-buffers-pop-up-windows)
-	(pop-up-frames org-buffers-pop-up-frames))
-    (funcall org-buffers-switch-to-buffer-function
-     (or
-      (and (not refresh) (get-buffer org-buffers-buffer-name))
-      (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
-	    (by (or (org-buffers-state-get :by) "major-mode"))
-	    (atom (org-buffers-state-get :atom)) target)
-	(when org-buffers-p
-	  (if (and (org-before-first-heading-p) (not (org-on-heading-p)))
-	      (outline-next-heading))
-	  (setq target
-		(condition-case nil (org-make-org-heading-search-string) (error nil))))
-	(with-current-buffer (get-buffer-create org-buffers-buffer-name)
-	  (setq buffer-read-only nil)
-	  (erase-buffer)
-	  (org-mode)
-	  (dolist
-	      (buffer
-	       (sort (remove-if 'org-buffers-exclude-p
-				(mapcar 'buffer-name (buffer-list frame))) 'string<))
-	    (org-insert-heading t)
-	    (insert
-	     (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
-	    (dolist (pair (org-buffers-get-buffer-props buffer))
-	      (org-set-property (car pair) (cdr pair))))
-	  (org-buffers-set-state '((:atom . heading)))
-	  (goto-char (point-min))
-	  (unless (equal by "NONE") (org-buffers-group-by by))
-	  (if target (condition-case nil (org-link-search target) (error nil)))
-	  (beginning-of-line)
-	  (if (equal by "NONE")
-	      (org-overview)
-	    (case atom
-	      ('heading (progn (org-overview) (org-content)))
-	      ('line (progn (show-all) (org-buffers-toggle-headings)))))
-	  (save-excursion
-	    (mark-whole-buffer)
-	    (indent-region (point-min) (point-max)))
-	  (org-buffers-mode)
-	  (setq buffer-read-only t)
-	  (current-buffer)))))))
+  (funcall
+   org-buffers-switch-to-buffer-function
+   (or
+    (and (not refresh) (get-buffer org-buffers-buffer-name))
+    (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
+	  (by (or (org-buffers-state-get :by) "major-mode"))
+	  (atom (org-buffers-state-get :atom)) target)
+      (when org-buffers-p
+	(if (and (org-before-first-heading-p) (not (org-on-heading-p)))
+	    (outline-next-heading))
+	(setq target
+	      (condition-case nil (org-make-org-heading-search-string) (error nil))))
+      (with-current-buffer (get-buffer-create org-buffers-buffer-name)
+	(setq buffer-read-only nil)
+	(erase-buffer)
+	(org-mode)
+	(dolist
+	    (buffer
+	     (sort (remove-if 'org-buffers-exclude-p
+			      (mapcar 'buffer-name (buffer-list frame))) 'string<))
+	  (org-insert-heading t)
+	  (insert
+	   (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
+	  (dolist (pair (org-buffers-get-buffer-props buffer))
+	    (org-set-property (car pair) (cdr pair))))
+	(org-buffers-set-state '((:atom . heading)))
+	(goto-char (point-min))
+	(unless (equal by "NONE") (org-buffers-group-by by))
+	(if target (condition-case nil (org-link-search target) (error nil)))
+	(beginning-of-line)
+	(if (equal by "NONE")
+	    (org-overview)
+	  (case atom
+	    ('heading (progn (org-overview) (org-content)))
+	    ('line (progn (show-all) (org-buffers-toggle-headings)))))
+	(save-excursion
+	  (mark-whole-buffer)
+	  (indent-region (point-min) (point-max)))
+	(org-buffers-mode)
+	(setq buffer-read-only t)
+	(current-buffer))))))
 
 (defun org-buffers-list:refresh (&optional arg)
   "Refresh org-buffers listing."
