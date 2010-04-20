@@ -17,7 +17,8 @@ Customize group "org-buffers". Some variables that can be configured are
 - org-buffers-buffer-name
 - org-buffers-switch-to-buffer-function
 
-* Bugs [32/37]
+* Bugs [32/38]
+*** TODO recentf: delq file-names
 *** TODO Come on github, turn me into html!
 *** TODO when deleting many keep in sensible state even if back out half way
     e.g. you might back out when alerted that modified and asked if
