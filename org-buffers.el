@@ -29,6 +29,7 @@
 
 (require 'org)
 (require 'cl)
+(require 'recentf)
 
 ;;; Variables
 (defvar org-buffers-buffer-name
@@ -155,7 +156,7 @@ FRAME specifies the frame whose buffers should be listed."
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
 	  (by (or (org-buffers-state-get :by) "major-mode"))
-	  (atom (org-buffers-state-get :atom)) target)
+	  (atom (org-buffers-state-get :atom)) target places file-names buffer-p)
       (if (and org-buffers-p (org-before-first-heading-p) (not (org-on-heading-p)))
 	  (outline-next-heading))
       (setq target
@@ -166,14 +167,23 @@ FRAME specifies the frame whose buffers should be listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
-	(dolist
-	    (buffer
-	     (sort (remove-if 'org-buffers-exclude-p
-			      (mapcar 'buffer-name (buffer-list frame))) 'string<))
+	(setq places
+	      (sort (remove-if 'org-buffers-exclude-p
+			       (append (mapcar 'buffer-name (buffer-list frame)) recentf-list))
+		    'string<)
+	      file-names
+	      (mapcar
+	       (lambda (place) (if (org-buffers-buffer-p place) (buffer-file-name (get-buffer place))))
+	       places))
+	(dolist (place places)
+	  (setq buffer-p (org-buffers-buffer-p place file-names))
 	  (org-insert-heading t)
 	  (insert
-	   (org-make-link-string (concat "buffer:" buffer) buffer) "\n")
-	  (dolist (pair (org-buffers-get-buffer-props buffer))
+	   (org-make-link-string
+	    (concat (if buffer-p "buffer:" "file:") place)
+	    (if buffer-p place (file-name-nondirectory place) "\n")))
+	  (dolist (pair (if buffer-p (org-buffers-get-buffer-props place)
+			  (org-buffers-get-file-props place)))
 	    (org-set-property (car pair) (cdr pair))))
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
@@ -297,16 +307,18 @@ the drawer."
 		(mapcar (lambda (val) ;; Form list of parsed entries for each unique value of `property'
 			  (cons val (org-buffers-parse-selected-entries property val)))
 			(sort
-			 (delete-dups (org-buffers-map-entries (lambda () (org-entry-get nil property nil))))
+			 (delete-dups (org-buffers-map-entries (lambda () (format "%s" (org-entry-get nil property nil)))))
 			 'string<))
 	      (erase-buffer))))))
 
-(defun org-buffers-exclude-p (buffer)
-  "Return non-nil if BUFFER should not be listed."
-  (or (member (with-current-buffer buffer major-mode)
-	      org-buffers-excluded-modes)
-      (member buffer org-buffers-excluded-buffers)
-      (string= (substring buffer 0 1) " ")))
+(defun org-buffers-exclude-p (place)
+  "Return non-nil if PLACE should not be listed."
+  (let ((buffer-p (org-buffers-buffer-p place)))
+    (or (and buffer-p
+	     (member (with-current-buffer place major-mode)
+		     org-buffers-excluded-modes))
+	(member place org-buffers-excluded-buffers)
+	(string= (substring place 0 1) " "))))
 
 (defun org-buffers-reset-state ()
   (org-buffers-set-state
@@ -341,11 +353,14 @@ with column-view or otherwise do not work correctly."
       (insert (cdr entry))))
 
 (defun org-buffers-get-buffer-props (buffer)
-  "Create alist of properties of BUFFER, as strings."
+  "Create an alist of properties of BUFFER, as strings."
   (with-current-buffer buffer
     (mapcar 
      (lambda (pair) (cons (car pair) (eval (cdr pair))))
      org-buffers-buffer-properties)))
+
+(defun org-buffers-get-file-props (file)
+  `(("path" . ,file)))
 
 ;;; Follow-link behaviour
 
@@ -581,6 +596,14 @@ regions."
 		    (org-buffers-state-eq :by "NONE"))))))
 (defun org-buffers-clean-text-properties (text)
   (set-text-properties 0 (length text) nil text) text)
+
+(defun org-buffers-buffer-p (place &optional file-names)
+  (cond
+   ((bufferp place) t)
+   ((stringp place)
+    (not (string= (substring place 0 1) "/"))
+    ;; (member place (or file-names (mapcar 'buffer-file-name (buffer-list)))))))
+    )))
 
 ;;; Links to buffers
 
