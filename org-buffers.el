@@ -156,7 +156,8 @@ FRAME specifies the frame whose buffers should be listed."
     (and (not refresh) (get-buffer org-buffers-buffer-name))
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
 	  (by (or (org-buffers-state-get :by) "major-mode"))
-	  (atom (org-buffers-state-get :atom)) target places file-names buffer-p)
+	  (atom (org-buffers-state-get :atom))
+	  target places buffers recent-files buffer-file-names buffer-p)
       (if (and org-buffers-p (org-before-first-heading-p) (not (org-on-heading-p)))
 	  (outline-next-heading))
       (setq target
@@ -167,21 +168,23 @@ FRAME specifies the frame whose buffers should be listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
-	(setq places
-	      (sort (remove-if 'org-buffers-exclude-p
-			       (append (mapcar 'buffer-name (buffer-list frame)) recentf-list))
-		    'string<)
-	      file-names
-	      (mapcar
-	       (lambda (place) (if (org-buffers-buffer-p place) (buffer-file-name (get-buffer place))))
-	       places))
+	(setq buffers (buffer-list frame)
+	      buffer-file-names (mapcar 'buffer-file-name buffers)
+	      buffers (mapcar 'buffer-name buffers)
+	      recent-files (remove-if
+			    (lambda (file) (member file buffer-file-names))
+			    recentf-list)
+	      places (sort
+		      (remove-if 'org-buffers-exclude-p
+				 (append buffers recent-files))
+		      'string<))
 	(dolist (place places)
-	  (setq buffer-p (org-buffers-buffer-p place file-names))
+	  (setq buffer-p (org-buffers-buffer-p place buffer-file-names))
 	  (org-insert-heading t)
 	  (insert
 	   (org-make-link-string
 	    (concat (if buffer-p "buffer:" "file:") place)
-	    (if buffer-p place (file-name-nondirectory place) "\n")))
+	    (if buffer-p place (file-name-nondirectory place))) "\n")
 	  (dolist (pair (if buffer-p (org-buffers-get-buffer-props place)
 			  (org-buffers-get-file-props place)))
 	    (org-set-property (car pair) (cdr pair))))
@@ -342,7 +345,7 @@ with column-view or otherwise do not work correctly."
   "Parse all entries with property PROP value VAL."
   (delq nil
 	(org-buffers-map-entries
-	 (lambda () (when (equal (org-entry-get nil prop) val)
+	 (lambda () (when (equal (format "%s" (org-entry-get nil prop)) val)
 		      (cons (org-get-heading) (org-get-entry)))))))
 
 (defun org-buffers-insert-parsed-entry (entry)
