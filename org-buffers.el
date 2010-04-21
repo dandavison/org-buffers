@@ -108,6 +108,18 @@ view. See `org-columns-default-format'."
   function is to modify the buffer it should use a let binding to
   temporarily bind inhibit-read-only to a non-nil value.")
 
+(defvar org-buffers-exclude-buffers-hook nil
+  "Hook for buffer exclusion functions. The functions in this
+hook will be passed a single argument: the name of a buffer. If
+any function returns a non-nil value that buffer will be excluded
+from the listing.")
+
+(defvar org-buffers-exclude-files-hook nil
+  "Hook for file exclusion functions. The functions in this hook
+will be passed a single argument: the path of a file. If any
+function returns a non-nil value that file will be excluded from
+the listing.")
+
 (define-minor-mode org-buffers-mode
   "An Org-mode tool for buffer management.
 
@@ -321,7 +333,10 @@ the drawer."
 	     (member (with-current-buffer place major-mode)
 		     org-buffers-excluded-modes))
 	(member place org-buffers-excluded-buffers)
-	(string= (substring place 0 1) " "))))
+	(string= (substring place 0 1) " ")
+	(run-hook-with-args-until-success
+	 (if buffer-p 'org-buffers-exclude-buffers-hook
+	   'org-buffers-exclude-files-hook) place))))
 
 (defun org-buffers-reset-state ()
   (org-buffers-set-state
