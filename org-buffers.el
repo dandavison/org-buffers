@@ -387,8 +387,13 @@ with column-view or otherwise do not work correctly."
 		   ibuffer-display-maybe-show-predicates))
 	   (ext-loaded (featurep 'ibuf-ext)) bgroups)
       (if org-buffers-include-recent-files
-	  (setq org-buffers-pseudobuffers 
-		(mapcar 'org-buffers-make-pseudobuffer recentf-list)
+	  (setq current-files (delq nil (mapcar 'buffer-file-name bufs))
+		org-buffers-pseudobuffers 
+		(mapcar
+		 'org-buffers-make-pseudobuffer
+		 (org-buffers-filter
+		  (lambda (file) (not (member file current-files)))
+		  recentf-list))
 		blist
 		(append blist
 			(mapcar (lambda (buf) (cons buf nil))
