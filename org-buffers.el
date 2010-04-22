@@ -169,7 +169,7 @@ FRAME specifies the frame whose buffers should be listed."
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
 	  (by (or (org-buffers-state-get :by) "major-mode"))
 	  (atom (org-buffers-state-get :atom))
-	  (groups (org-buffers-ibuffers-list))
+	  (groups (org-buffers-ibuffer-list))
 	  target buffers recent-files buffer-file-names buffer-p)
       (if (and org-buffers-p (org-before-first-heading-p) (not (org-on-heading-p)))
 	  (outline-next-heading))
@@ -354,12 +354,12 @@ with column-view or otherwise do not work correctly."
 
 ;;; ibuffer
 
-(defun org-buffers-ibuffers-list ()
-  "Get list of grouped buffers from ibuffers"
+(defun org-buffers-ibuffer-list ()
+  "Get list of grouped buffers from ibuffer"
   ;; ibuffer-update and ibuffer-redisplay-ending are responsible for
   ;; generating the data structure specifying the grouped list of
-  ;; buffers, and for displaying it. This function is based on those
-  ;; two functions, extracting the data structure code from the
+  ;; buffers, and for displaying it. This function is derived from
+  ;; those two functions, extracting the data structure code from the
   ;; display code.
   (save-window-excursion
     (ibuffer)
