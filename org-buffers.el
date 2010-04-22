@@ -30,7 +30,7 @@
 (require 'org)
 (require 'cl)
 (require 'recentf)
-
+(require 'ibuffer)
 ;;; Variables
 (defvar org-buffers-buffer-name
   "*Buffers*"
@@ -169,7 +169,8 @@ FRAME specifies the frame whose buffers should be listed."
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
 	  (by (or (org-buffers-state-get :by) "major-mode"))
 	  (atom (org-buffers-state-get :atom))
-	  target places buffers recent-files buffer-file-names buffer-p)
+	  (groups (org-buffers-ibuffers-list))
+	  target buffers recent-files buffer-file-names buffer-p)
       (if (and org-buffers-p (org-before-first-heading-p) (not (org-on-heading-p)))
 	  (outline-next-heading))
       (setq target
@@ -180,29 +181,25 @@ FRAME specifies the frame whose buffers should be listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
-	(setq buffers (buffer-list frame)
-	      buffer-file-names (mapcar 'buffer-file-name buffers)
-	      buffers (mapcar 'buffer-name buffers)
-	      recent-files (remove-if
-			    (lambda (file) (member file buffer-file-names))
-			    recentf-list)
-	      places (sort
-		      (remove-if 'org-buffers-exclude-p
-				 (append buffers recent-files))
-		      'string<))
-	(dolist (place places)
-	  (setq buffer-p (org-buffers-buffer-p place buffer-file-names))
-	  (org-insert-heading t)
-	  (insert
-	   (org-make-link-string
-	    (concat (if buffer-p "buffer:" "file:") place)
-	    (if buffer-p place (file-name-nondirectory place))) "\n")
-	  (dolist (pair (if buffer-p (org-buffers-get-buffer-props place)
-			  (org-buffers-get-file-props place)))
-	    (org-set-property (car pair) (cdr pair))))
+	(let ((after-change-functions nil))
+	  (dolist (group groups)
+	    (org-insert-heading t)
+	    (if (> (save-excursion (beginning-of-line) (org-outline-level)) 1)
+		(org-promote))
+	    (insert (car group) "\n")
+	    (org-insert-subheading t)
+	    (dolist (place (mapcar (org-buffers-compose buffer-name car) (cdr group)))
+	      (setq buffer-p t)
+	      (unless (org-at-heading-p) (org-insert-heading t))
+	      (insert
+	       (org-make-link-string
+		(concat (if buffer-p "buffer:" "file:") place)
+		(if buffer-p place (file-name-nondirectory place))) "\n")
+	      (dolist (pair (if buffer-p (org-buffers-get-buffer-props place)
+			      (org-buffers-get-file-props place)))
+		(org-set-property (car pair) (cdr pair))))))
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
-	(unless (equal by "NONE") (org-buffers-group-by by))
 	(if (and target (condition-case nil (org-link-search target) (error nil)))
 	    (beginning-of-line)
 	  (goto-char (point-min))
@@ -354,6 +351,40 @@ with column-view or otherwise do not work correctly."
     (save-excursion
       (goto-char (point-min))
       (org-columns))))
+
+;;; ibuffer
+
+(defun org-buffers-ibuffers-list ()
+  "Get list of grouped buffers from ibuffers"
+  ;; ibuffer-update and ibuffer-redisplay-ending are responsible for
+  ;; generating the data structure specifying the grouped list of
+  ;; buffers, and for displaying it. This function is based on those
+  ;; two functions, extracting the data structure code from the
+  ;; display code.
+  (save-window-excursion
+    (ibuffer)
+    ;; From ibuffer-update
+    (let* ((bufs (buffer-list))
+	   (blist (ibuffer-filter-buffers
+		   (current-buffer)
+		   (if (and
+			(cadr bufs)
+			(eq ibuffer-always-show-last-buffer
+			    :nomini)
+			(minibufferp (cadr bufs)))
+		       (caddr bufs)
+		     (cadr bufs))
+		   (ibuffer-current-buffers-with-marks bufs)
+		   ibuffer-display-maybe-show-predicates))
+	   (ext-loaded (featurep 'ibuf-ext)) bgroups)
+      (when (null blist)
+	(if (and ext-loaded ibuffer-filtering-qualifiers)
+	    (message "No buffers! (note: filtering in effect)")
+	  (error "No buffers!")))
+      ;; From ibuffer-redisplay-engine
+      (if ext-loaded
+	  (ibuffer-generate-filter-groups blist)
+	(list (cons "Default" blist))))))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
@@ -622,6 +653,9 @@ regions."
     (not (string= (substring place 0 1) "/"))
     ;; (member place (or file-names (mapcar 'buffer-file-name (buffer-list)))))))
     )))
+
+(defmacro org-buffers-compose (f g)
+  `(lambda (arg) (,f (,g arg))))
 
 ;;; Links to buffers
 
