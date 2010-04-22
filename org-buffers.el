@@ -608,7 +608,7 @@ using `org-buffers-remove-tags'."
 	      (org-buffers-map-entries
 	       (lambda ()
 		 (and (setq buffer (org-buffers-get-buffer-name))
-		      (or (kill-buffer buffer)
+		      (or (ignore-errors (kill-buffer buffer))
 			  (progn (message "Did not kill buffer %s" buffer)
 				 nil))
 		      (cons (point) (1+ (org-end-of-subtree)))))
