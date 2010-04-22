@@ -613,13 +613,7 @@ using `org-buffers-remove-tags'."
 				 nil))
 		      (cons (point) (1+ (org-end-of-subtree)))))
 	       "+delete"))))
-      (org-buffers-delete-regions ;; Clear out any headings left without children.
-       (nreverse
-	(delq nil
-	      (org-buffers-map-entries
-	       (lambda () (if (and (eq (org-outline-level) 1)
-				   (eq (point-at-eol) (org-end-of-subtree)))
-			      (cons (point-at-bol) (1+ (point)))))))))))
+      (org-buffers-clear-out-empty-toplevel-headings)))
 
 (defun org-buffers-execute-pending-reversions ()
   "Revert buffers marked for reversion.
@@ -655,6 +649,15 @@ REGIONS is a list of (beg . end) cons cells specifying buffer
 regions."
   (mapc (lambda (pair) (delete-region (car pair) (cdr pair)))
 	regions))
+
+(defun org-buffers-clear-out-empty-toplevel-headings ()
+  (org-buffers-delete-regions
+   (nreverse
+    (delq nil
+	  (org-buffers-map-entries
+	   (lambda () (if (and (eq (org-outline-level) 1)
+			       (eq (point-at-eol) (org-end-of-subtree)))
+			  (cons (point-at-bol) (1+ (point))))))))))
 
 (defun org-buffers-state-get (key)
   (cdr (assoc key org-buffers-state)))
