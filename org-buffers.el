@@ -64,6 +64,7 @@ buffer. The car of each element is the name of the property, and
 the cdr is an expression which, when evaluated in the buffer,
 yields the property value.")
 
+(defvar org-buffers-pseudobuffers nil)
 (defgroup org-buffers nil
   "Options for customising `org-buffers-mode'"
   :tag "Org-buffers Mode"
@@ -98,6 +99,11 @@ view. See `org-columns-default-format'."
   "List of names of major-modes (strings) that should not be listed
   by org-buffers-list."
   :group 'org-buffers)
+
+(defcustom org-buffers-include-recent-files t
+  "Should the listing include recent files in addition to live buffers?"
+  :group 'org-buffers
+  :type 'boolean)
 
 ;;; Mode
 (defvar org-buffers-mode-map (make-sparse-keymap))
@@ -198,6 +204,7 @@ FRAME specifies the frame whose buffers should be listed."
 	      (dolist (pair (if buffer-p (org-buffers-get-buffer-props place)
 			      (org-buffers-get-file-props place)))
 		(org-set-property (car pair) (cdr pair))))))
+	(mapc 'kill-buffer org-buffers-pseudobuffers)
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(if (and target (condition-case nil (org-link-search target) (error nil)))
@@ -377,6 +384,13 @@ with column-view or otherwise do not work correctly."
 		   (ibuffer-current-buffers-with-marks bufs)
 		   ibuffer-display-maybe-show-predicates))
 	   (ext-loaded (featurep 'ibuf-ext)) bgroups)
+      (if org-buffers-include-recent-files
+	  (setq org-buffers-pseudobuffers 
+		(mapcar 'org-buffers-make-pseudobuffer recentf-list)
+		blist
+		(append blist
+			(mapcar (lambda (buf) (cons buf nil))
+				org-buffers-pseudobuffers))))
       (when (null blist)
 	(if (and ext-loaded ibuffer-filtering-qualifiers)
 	    (message "No buffers! (note: filtering in effect)")
@@ -385,6 +399,17 @@ with column-view or otherwise do not work correctly."
       (if ext-loaded
 	  (ibuffer-generate-filter-groups blist)
 	(list (cons "Default" blist))))))
+
+;;; Recent files
+
+(defun org-buffers-make-pseudobuffer (file)
+  "Create pseudobuffer object for FILE.
+Creates a buffer that has some features of a buffer visiting
+FILE, but does not contain the contents of FILE"
+  (with-current-buffer (generate-new-buffer file)
+    (setq buffer-file-name file)
+    (set-auto-mode)
+    (current-buffer)))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
