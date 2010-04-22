@@ -183,6 +183,8 @@ FRAME specifies the frame whose buffers should be listed."
 	    (condition-case nil
 		(org-make-org-heading-search-string (if (not org-buffers-p) (buffer-name)))
 	      (error nil)))
+      (unless ibuffer-show-empty-filter-groups
+	(setq groups (org-buffers-filter (lambda (group) (> (length (cdr group)) 0)) groups)))
       (with-current-buffer (get-buffer-create org-buffers-buffer-name)
 	(setq buffer-read-only nil)
 	(erase-buffer)
@@ -684,6 +686,9 @@ regions."
 
 (defmacro org-buffers-compose (f g)
   `(lambda (arg) (,f (,g arg))))
+
+(defmacro org-buffers-filter (predicate list)
+  `(delq nil (mapcar (lambda (el) (and (,predicate el) el)) ,list)))
 
 ;;; Links to buffers
 
