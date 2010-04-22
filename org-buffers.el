@@ -190,7 +190,7 @@ FRAME specifies the frame whose buffers should be listed."
 	(erase-buffer)
 	(org-mode)
 	(let ((after-change-functions nil))
-	  (dolist (group groups)
+	  (dolist (group (nreverse groups))
 	    (org-insert-heading t)
 	    (if (> (save-excursion (beginning-of-line) (org-outline-level)) 1)
 		(org-promote))
