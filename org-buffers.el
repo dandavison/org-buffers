@@ -176,7 +176,7 @@ FRAME specifies the frame whose buffers should be listed."
 	  (by (or (org-buffers-state-get :by) "major-mode"))
 	  (atom (org-buffers-state-get :atom))
 	  (groups (org-buffers-ibuffer-list))
-	  target buffers recent-files buffer-file-names buffer-p)
+	  target pseudo-p buffer-file)
       (if (and org-buffers-p (org-before-first-heading-p) (not (org-on-heading-p)))
 	  (outline-next-heading))
       (setq target
@@ -189,22 +189,28 @@ FRAME specifies the frame whose buffers should be listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
-	(let ((after-change-functions nil))
+	(let () ;; ((after-change-functions nil)) ;; Does this do anything helpful?
 	  (dolist (group (nreverse groups))
 	    (org-insert-heading t)
 	    (if (> (save-excursion (beginning-of-line) (org-outline-level)) 1)
 		(org-promote))
 	    (insert (car group) "\n")
 	    (org-insert-subheading t)
-	    (dolist (place (mapcar (org-buffers-compose buffer-name car) (cdr group)))
-	      (setq buffer-p t)
+	    (dolist (buffer-name (mapcar (org-buffers-compose buffer-name car) (cdr group)))
+	      (with-current-buffer (get-buffer buffer-name)
+		(setq pseudo-p (and (local-variable-p 'org-buffers-pseudobuffer)
+				    org-buffers-pseudobuffer)
+		      buffer-file buffer-file-name))
+	      (message buffer-file)
 	      (unless (org-at-heading-p) (org-insert-heading t))
+	      (setq beg (point))
 	      (insert
 	       (org-make-link-string
-		(concat (if buffer-p "buffer:" "file:") place)
-		(if buffer-p place (file-name-nondirectory place))) "\n")
-	      (dolist (pair (if buffer-p (org-buffers-get-buffer-props place)
-			      (org-buffers-get-file-props place)))
+		(if pseudo-p (format "file:%s" buffer-file)
+		  (format "buffer:%s" buffer-name))
+		(if pseudo-p (file-name-nondirectory buffer-file) buffer-name)) "\n")
+	      (set-text-properties beg (point) (list 'face 'shadow))
+	      (dolist (pair (org-buffers-get-buffer-props buffer-name))
 		(org-set-property (car pair) (cdr pair))))))
 	(mapc 'kill-buffer org-buffers-pseudobuffers)
 	(org-buffers-set-state '((:atom . heading)))
@@ -393,7 +399,7 @@ with column-view or otherwise do not work correctly."
 		 'org-buffers-make-pseudobuffer
 		 (org-buffers-filter
 		  (lambda (file) (not (member file current-files)))
-		  recentf-list))
+		  `(,(first recentf-list))))
 		blist
 		(append blist
 			(mapcar (lambda (buf) (cons buf nil))
@@ -414,7 +420,9 @@ with column-view or otherwise do not work correctly."
 Creates a buffer that has some features of a buffer visiting
 FILE, but does not contain the contents of FILE"
   (with-current-buffer (generate-new-buffer file)
-    (setq buffer-file-name file)
+    (setq buffer-file-name file
+	  default-directory (file-name-directory file))
+    (set (make-local-variable 'org-buffers-pseudobuffer) t)
     (set-auto-mode)
     (current-buffer)))
 
