@@ -349,7 +349,7 @@ the drawer."
 
 (defun org-buffers-exclude-p (place)
   "Return non-nil if PLACE should not be listed."
-  (let ((buffer-p (org-buffers-buffer-p place)))
+  (let ((buffer-p (eq (org-buffers-class place) 'buffer)))
     (or (and buffer-p
 	     (member (with-current-buffer place major-mode)
 		     org-buffers-excluded-modes))
@@ -545,10 +545,10 @@ buffer, advancing to next on reaching end."
 (defun org-buffers-get-directory ()
   "Directory associated with place on current line."
   (let ((place (org-buffers-get-place)))
-    (cond
-     ((cdr (assoc place org-buffers-places)) ;; it's a file
+    (case (org-buffers-class place)
+     ('file
       (file-name-directory place))
-     (t
+     ('buffer
       (with-current-buffer (get-buffer place) default-directory)))))
 
 (defun org-buffers-call-remotely (fun)
@@ -712,13 +712,12 @@ regions."
 (defun org-buffers-clean-text-properties (text)
   (set-text-properties 0 (length text) nil text) text)
 
-(defun org-buffers-buffer-p (place &optional file-names)
-  (cond
-   ((bufferp place) t)
-   ((stringp place)
-    (not (string= (substring place 0 1) "/"))
-    ;; (member place (or file-names (mapcar 'buffer-file-name (buffer-list)))))))
-    )))
+(defun org-buffers-class (place &optional file-names)
+  (if (bufferp place) 'buffer
+    (cond
+     ((assq (intern place) org-buffers-places) 'file)
+     ((get-buffer place) 'buffer)
+     (t (error "Failed to determine class for %s" place)))))
 
 (defmacro org-buffers-compose (f g)
   `(lambda (arg) (,f (,g arg))))
