@@ -426,6 +426,13 @@ with column-view or otherwise do not work correctly."
 	(list (cons "Default" blist))))))
 
 ;;; Recent files
+(defun org-buffers-class (place &optional file-names)
+  (if (bufferp place) 'buffer
+    (cond
+     ((assq (intern place) org-buffers-places) 'file)
+     ((get-buffer place) 'buffer)
+     (t (error "Failed to determine class for %s" place)))))
+
 (defun org-buffers-make-pseudobuffer (file)
   "Create pseudobuffer object for FILE.
 Creates a buffer that has some features of a buffer visiting
@@ -711,13 +718,6 @@ regions."
 		    (org-buffers-state-eq :by "NONE"))))))
 (defun org-buffers-clean-text-properties (text)
   (set-text-properties 0 (length text) nil text) text)
-
-(defun org-buffers-class (place &optional file-names)
-  (if (bufferp place) 'buffer
-    (cond
-     ((assq (intern place) org-buffers-places) 'file)
-     ((get-buffer place) 'buffer)
-     (t (error "Failed to determine class for %s" place)))))
 
 (defmacro org-buffers-compose (f g)
   `(lambda (arg) (,f (,g arg))))
