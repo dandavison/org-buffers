@@ -67,8 +67,8 @@ yields the property value.")
 (defvar org-buffers-places nil
   "Association list of non-buffer places that org-buffers knows
 about. Each entry has form (key . alist), where key is a unique
-styring identifying the place and alist is an association list
-of data characterising the type of place")
+symbol identifying the place and alist is an association list of
+data characterising the type of place")
 
 (defvar org-buffers-pseudobuffers nil
   "Association list of buffers representing recent files. Each
@@ -447,7 +447,7 @@ to represent recent files in ibuffer."
 
 (defun org-buffers-register-place (place)
   (setq org-buffers-places
-	(cons (cons place nil)
+	(cons (cons (intern place) nil)
 	      (assq-delete-all place org-buffers-places))))
 
 ;;; Parsing and inserting entries
