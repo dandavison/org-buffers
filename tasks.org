@@ -1,4 +1,6 @@
-* Tasks [19/34]
+* Tasks [19/36]
+*** TODO Why doesn't display include recentf at start-up?
+*** TODO allow "pinned" files
 *** TODO Sort out links
 *** TODO Different faces for recent files versus buffers 
 *** TODO Use short display name for files

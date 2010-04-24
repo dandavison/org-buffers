@@ -64,7 +64,9 @@ buffer. The car of each element is the name of the property, and
 the cdr is an expression which, when evaluated in the buffer,
 yields the property value.")
 
-(defvar org-buffers-pseudobuffers nil)
+(defvar org-buffers-pseudobuffers nil
+  "Association list of buffers representing recent files. Each
+  element has the form (filename . pseudobuffer).")
 (defgroup org-buffers nil
   "Options for customising `org-buffers-mode'"
   :tag "Org-buffers Mode"
@@ -212,7 +214,7 @@ FRAME specifies the frame whose buffers should be listed."
 	      (set-text-properties beg (point) (list 'face 'shadow))
 	      (dolist (pair (org-buffers-get-buffer-props buffer-name))
 		(org-set-property (car pair) (cdr pair))))))
-	(mapc 'kill-buffer org-buffers-pseudobuffers)
+	(org-buffers-mapcdar 'kill-buffer org-buffers-pseudobuffers)
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
 	(if (and target (condition-case nil (org-link-search target) (error nil)))
@@ -396,13 +398,14 @@ with column-view or otherwise do not work correctly."
 	  (setq current-files (delq nil (mapcar 'buffer-file-name bufs))
 		org-buffers-pseudobuffers 
 		(mapcar
-		 'org-buffers-make-pseudobuffer
+		 (lambda (file)
+		   (cons file (org-buffers-make-pseudobuffer file)))
 		 (org-buffers-filter
 		  (lambda (file) (not (member file current-files)))
 		  `(,(first recentf-list))))
 		blist
 		(append blist
-			(mapcar (lambda (buf) (cons buf nil))
+			(mapcar (lambda (pair) (cons (cdr pair) nil))
 				org-buffers-pseudobuffers))))
       (when (null blist)
 	(if (and ext-loaded ibuffer-filtering-qualifiers)
@@ -515,13 +518,20 @@ buffer, advancing to next on reaching end."
 
 (defun org-buffers-get-buffer-name ()
   "Get buffer-name for current entry."
-  (let ((headings-p (org-buffers-state-eq :atom 'heading)))
-    (or (and headings-p (org-entry-get nil "buffer-name"))
-	(and (save-excursion
-	       (if headings-p (org-back-to-heading))
-	       (re-search-forward "\\[\\[buffer:\\([^\]]*\\)" (point-at-eol) t))
-	     (org-buffers-clean-text-properties
-	      (org-link-unescape (match-string 1)))))))
+  (let* ((headings-p (org-buffers-state-eq :atom 'heading))
+	(entry
+	 (or (and headings-p (org-entry-get nil "buffer-name"))
+	     (and (save-excursion
+		    (if headings-p (org-back-to-heading))
+		    (re-search-forward
+		     "\\[\\[\\(buffer\\|file\\):\\([^\]]*\\)" (point-at-eol) t))
+		  (org-buffers-clean-text-properties
+		   (org-link-unescape (match-string 2))))))
+	(cond
+	 ((string= (match-string 1) "buffer") entry)
+	 ((string= (match-string 1) "file")
+	  
+	
 
 ;;; Remote commands
 (defun org-buffers-call-remotely (fun)
@@ -702,6 +712,12 @@ regions."
 
 (defmacro org-buffers-filter (predicate list)
   `(delq nil (mapcar (lambda (el) (and (,predicate el) el)) ,list)))
+
+(defun org-buffers-mapcaar (function sequence)
+  (mapcar (lambda (el) (funcall function (car el))) sequence))
+
+(defun org-buffers-mapcdar (function sequence)
+  (mapcar (lambda (el) (funcall function (cdr el))) sequence))
 
 ;;; Links to buffers
 
