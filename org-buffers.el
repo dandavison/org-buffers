@@ -524,18 +524,19 @@ buffer, advancing to next on reaching end."
 
 (defun org-buffers-switch-to-buffer-generic (method)
   (save-excursion
-    (let ((atom (org-buffers-state-get :atom)) buffer)
+    (let ((atom (org-buffers-state-get :atom)) place)
       (cond
        ((eq atom 'heading) (org-back-to-heading))
        (t (beginning-of-line)))
-      (if (setq buffer (org-buffers-get-place-id))
-	  (if (get-buffer buffer)
-	      (case method
-		('org-open-at-point (org-open-at-point))
-		('current-window (switch-to-buffer buffer))
-		('other-window (switch-to-buffer-other-window buffer))
-		('display (display-buffer buffer)))
-	    (error "No such buffer: %s" buffer))))))
+      (if (setq place (org-buffers-get-place-id))
+	  (case (org-buffers-class place)
+	    ('buffer
+	     (case method
+	       ('org-open-at-point (org-open-at-point))
+	       ('current-window (switch-to-buffer place))
+	       ('other-window (switch-to-buffer-other-window place))
+	       ('display (display-buffer place))))
+	    ('file (org-open-at-point)))))))
 
 (defun org-buffers-get-place-id ()
   "Get buffer-name for current entry."
