@@ -406,7 +406,9 @@ with column-view or otherwise do not work correctly."
 		org-buffers-pseudobuffers 
 		(mapcar
 		 (lambda (file)
-		   (cons file (org-buffers-make-pseudobuffer file)))
+		   (progn
+		     (org-buffers-register-place file)
+		     (cons file (org-buffers-make-pseudobuffer file))))
 		 (org-buffers-filter
 		  (lambda (file) (not (member file current-files)))
 		  `(,(first recentf-list))))
@@ -436,6 +438,11 @@ to represent recent files in ibuffer."
     (set (make-local-variable 'org-buffers-pseudobuffer) t)
     (set-auto-mode)
     (current-buffer)))
+
+(defun org-buffers-register-place (place)
+  (setq org-buffers-places
+	(cons (cons place nil)
+	      (assq-delete-all place org-buffers-places))))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
