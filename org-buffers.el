@@ -426,7 +426,6 @@ with column-view or otherwise do not work correctly."
 	(list (cons "Default" blist))))))
 
 ;;; Recent files
-
 (defun org-buffers-make-pseudobuffer (file)
   "Create pseudobuffer object for FILE.
 Creates a buffer that has some features of a buffer visiting
