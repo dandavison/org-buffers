@@ -64,9 +64,16 @@ buffer. The car of each element is the name of the property, and
 the cdr is an expression which, when evaluated in the buffer,
 yields the property value.")
 
+(defvar org-buffers-places nil
+  "Association list of non-buffer places that org-buffers knows
+about. Each entry has form (key . alist), where key is a unique
+styring identifying the place and alist is an association list
+of data characterising the type of place")
+
 (defvar org-buffers-pseudobuffers nil
   "Association list of buffers representing recent files. Each
-  element has the form (filename . pseudobuffer).")
+  element has form (filename . pseudobuffer).")
+
 (defgroup org-buffers nil
   "Options for customising `org-buffers-mode'"
   :tag "Org-buffers Mode"
@@ -421,7 +428,8 @@ with column-view or otherwise do not work correctly."
 (defun org-buffers-make-pseudobuffer (file)
   "Create pseudobuffer object for FILE.
 Creates a buffer that has some features of a buffer visiting
-FILE, but does not contain the contents of FILE"
+FILE, but does not contain the contents of FILE. These are used
+to represent recent files in ibuffer."
   (with-current-buffer (generate-new-buffer file)
     (setq buffer-file-name file
 	  default-directory (file-name-directory file))
@@ -507,7 +515,7 @@ buffer, advancing to next on reaching end."
       (cond
        ((eq atom 'heading) (org-back-to-heading))
        (t (beginning-of-line)))
-      (if (setq buffer (org-buffers-get-buffer-name))
+      (if (setq buffer (org-buffers-get-place-id))
 	  (if (get-buffer buffer)
 	      (case method
 		('org-open-at-point (org-open-at-point))
@@ -516,31 +524,30 @@ buffer, advancing to next on reaching end."
 		('display (display-buffer buffer)))
 	    (error "No such buffer: %s" buffer))))))
 
-(defun org-buffers-get-buffer-name ()
+(defun org-buffers-get-place-id ()
   "Get buffer-name for current entry."
-  (let* ((headings-p (org-buffers-state-eq :atom 'heading))
-	(entry
-	 (or (and headings-p (org-entry-get nil "buffer-name"))
-	     (and (save-excursion
-		    (if headings-p (org-back-to-heading))
-		    (re-search-forward
-		     "\\[\\[\\(buffer\\|file\\):\\([^\]]*\\)" (point-at-eol) t))
-		  (org-buffers-clean-text-properties
-		   (org-link-unescape (match-string 2))))))
-	(cond
-	 ((string= (match-string 1) "buffer") entry)
-	 ((string= (match-string 1) "file")
-	  
-	
+  (let* ((headings-p (org-buffers-state-eq :atom 'heading)))
+    (or (and headings-p (org-entry-get nil "buffer-name"))
+	(and (save-excursion
+	       (if headings-p (org-back-to-heading))
+	       (re-search-forward
+		"\\[\\[\\(buffer\\|file\\):\\([^\]]*\\)" (point-at-eol) t))
+	     (org-buffers-clean-text-properties
+	      (org-link-unescape (match-string 2)))))))
 
 ;;; Remote commands
+(defun org-buffers-get-directory ()
+  "Directory associated with place on current line."
+  (let ((place (org-buffers-get-place)))
+    (cond
+     ((cdr (assoc place org-buffers-places)) ;; it's a file
+      (file-name-directory place))
+     (t
+      (with-current-buffer (get-buffer place) default-directory)))))
+
 (defun org-buffers-call-remotely (fun)
   "Call FUN from the directory of the current line's buffer."
-  (let* ((buffer (org-buffers-get-buffer-name))
-	 (default-directory
-	   (if buffer
-	       (with-current-buffer (get-buffer buffer) default-directory)
-	     default-directory)))
+  (let* ((default-directory (org-buffers-get-directory)))
     (call-interactively (or (command-remapping fun) fun))))
 
 (defun org-buffers-find-file ()
@@ -632,7 +639,7 @@ using `org-buffers-remove-tags'."
 	(delq nil
 	      (org-buffers-map-entries
 	       (lambda ()
-		 (and (setq buffer (org-buffers-get-buffer-name))
+		 (and (setq buffer (org-buffers-get-place-id))
 		      (or (ignore-errors (kill-buffer buffer))
 			  (progn (message "Did not kill buffer %s" buffer)
 				 nil))
@@ -648,7 +655,7 @@ Buffers are tagged for reversion using
   (let (buffer)
     (org-buffers-map-entries
      (lambda ()
-       (when (setq buffer (get-buffer (org-buffers-get-buffer-name)))
+       (when (setq buffer (get-buffer (org-buffers-get-place-id)))
 	 (if (with-current-buffer buffer (revert-buffer))
 	     (org-set-tags-to nil))))
      "+revert")))
@@ -710,8 +717,8 @@ regions."
 (defmacro org-buffers-compose (f g)
   `(lambda (arg) (,f (,g arg))))
 
-(defmacro org-buffers-filter (predicate list)
-  `(delq nil (mapcar (lambda (el) (and (,predicate el) el)) ,list)))
+(defun org-buffers-filter (predicate list)
+  (delq nil (mapcar (lambda (el) (and (funcall predicate el) el)) list)))
 
 (defun org-buffers-mapcaar (function sequence)
   (mapcar (lambda (el) (funcall function (car el))) sequence))
