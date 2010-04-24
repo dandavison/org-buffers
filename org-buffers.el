@@ -411,7 +411,7 @@ with column-view or otherwise do not work correctly."
 		     (cons file (org-buffers-make-pseudobuffer file))))
 		 (org-buffers-filter
 		  (lambda (file) (not (member file current-files)))
-		  `(,(first recentf-list))))
+		  recentf-list))
 		blist
 		(append blist
 			(mapcar (lambda (pair) (cons (cdr pair) nil))
