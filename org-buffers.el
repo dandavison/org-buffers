@@ -114,6 +114,12 @@ view. See `org-columns-default-format'."
   :group 'org-buffers
   :type 'boolean)
 
+(defcustom org-buffers-include-hidden-buffers nil
+  "Should the listing include buffers whose names begin with a
+space character?"
+  :group 'org-buffers
+  :type 'boolean)
+
 ;;; Mode
 (defvar org-buffers-mode-map (make-sparse-keymap))
 
@@ -169,8 +175,7 @@ commands listed in `org-speed-commands-default' are available.
 (define-key org-buffers-mode-map " " 'org-buffers-show-and-scroll-up)
 (define-key org-buffers-mode-map [(return)] 'org-buffers-follow-link)
 (define-key org-buffers-mode-map "?" 'org-buffers-help)
-;;; Listing and view cycling
-
+;;; Core functions
 (defun org-buffers-list (&optional refresh frame)
   "Create an Org-mode listing of Emacs buffers.
 By default, buffers are grouped by major mode. With a prefix
@@ -184,8 +189,7 @@ FRAME specifies the frame whose buffers should be listed."
     (let ((org-buffers-p (equal (buffer-name) org-buffers-buffer-name))
 	  (by (or (org-buffers-state-get :by) "major-mode"))
 	  (atom (org-buffers-state-get :atom))
-	  (groups (org-buffers-ibuffer-list))
-	  target pseudo-p buffer-file)
+	  (groups (org-buffers-ibuffer-list)) target)
       (if (and org-buffers-p (org-before-first-heading-p) (not (org-on-heading-p)))
 	  (outline-next-heading))
       (setq target
@@ -198,29 +202,7 @@ FRAME specifies the frame whose buffers should be listed."
 	(setq buffer-read-only nil)
 	(erase-buffer)
 	(org-mode)
-	(let () ;; ((after-change-functions nil)) ;; Does this do anything helpful?
-	  (dolist (group (nreverse groups))
-	    (org-insert-heading t)
-	    (if (> (save-excursion (beginning-of-line) (org-outline-level)) 1)
-		(org-promote))
-	    (insert (car group) "\n")
-	    (org-insert-subheading t)
-	    (dolist (buffer-name (mapcar (org-buffers-compose buffer-name car) (cdr group)))
-	      (with-current-buffer (get-buffer buffer-name)
-		(setq pseudo-p (and (local-variable-p 'org-buffers-pseudobuffer)
-				    org-buffers-pseudobuffer)
-		      buffer-file buffer-file-name))
-	      (message buffer-file)
-	      (unless (org-at-heading-p) (org-insert-heading t))
-	      (setq beg (point))
-	      (insert
-	       (org-make-link-string
-		(if pseudo-p (format "file:%s" buffer-file)
-		  (format "buffer:%s" buffer-name))
-		(if pseudo-p (file-name-nondirectory buffer-file) buffer-name)) "\n")
-	      (set-text-properties beg (point) (list 'face 'shadow))
-	      (dolist (pair (org-buffers-get-buffer-props buffer-name))
-		(org-set-property (car pair) (cdr pair))))))
+	(org-buffers-insert-groups groups)
 	(org-buffers-mapcdar 'kill-buffer org-buffers-pseudobuffers)
 	(org-buffers-set-state '((:atom . heading)))
 	(goto-char (point-min))
@@ -240,6 +222,327 @@ FRAME specifies the frame whose buffers should be listed."
 	(setq buffer-read-only t)
 	(current-buffer))))))
 
+(defun org-buffers-insert-groups (groups)
+  "Create org-buffers listings"
+  (let (pseudo-p buffer-file) ;; (after-change-functions nil) ;; Does this do anything helpful?
+    (dolist (group (nreverse groups))
+      (org-insert-heading t)
+      (if (> (save-excursion (beginning-of-line) (org-outline-level)) 1)
+	  (org-promote))
+      (insert (car group) "\n")
+      (org-insert-subheading t)
+      (dolist (buffer-name (mapcar (org-buffers-compose buffer-name car) (cdr group)))
+	(with-current-buffer (get-buffer buffer-name)
+	  (setq pseudo-p (and (local-variable-p 'org-buffers-pseudobuffer)
+			      org-buffers-pseudobuffer)
+		buffer-file buffer-file-name))
+	(message buffer-file)
+	(unless (org-at-heading-p) (org-insert-heading t))
+	(setq beg (point))
+	(insert
+	 (org-make-link-string
+	  (if pseudo-p (format "file:%s" buffer-file)
+	    (format "buffer:%s" buffer-name))
+	  (if pseudo-p (file-name-nondirectory buffer-file) buffer-name)) "\n")
+	(set-text-properties beg (point) (list 'face 'shadow))
+	(dolist (pair (org-buffers-get-buffer-props buffer-name))
+	  (org-set-property (car pair) (cdr pair)))))))
+
+(defun org-buffers-ibuffer-list ()
+  "Get list of grouped buffers from ibuffer"
+  ;; ibuffer-update and ibuffer-redisplay-ending are responsible for
+  ;; generating the data structure specifying the grouped list of
+  ;; buffers, and for displaying it. This function is derived from
+  ;; those two functions, extracting the data structure code from the
+  ;; display code.
+  (save-window-excursion
+    (ibuffer)
+    ;; From ibuffer-update
+    (let* ((bufs (buffer-list))
+	   (blist (ibuffer-filter-buffers
+		   (current-buffer)
+		   (if (and
+			(cadr bufs)
+			(eq ibuffer-always-show-last-buffer
+			    :nomini)
+			(minibufferp (cadr bufs)))
+		       (caddr bufs)
+		     (cadr bufs))
+		   (ibuffer-current-buffers-with-marks bufs)
+		   ibuffer-display-maybe-show-predicates))
+	   (ext-loaded (featurep 'ibuf-ext)) bgroups)
+      (if org-buffers-include-recent-files
+	  (setq current-files (delq nil (mapcar 'buffer-file-name bufs))
+		org-buffers-pseudobuffers 
+		(mapcar
+		 (lambda (file)
+		   (progn
+		     (org-buffers-register-place file)
+		     (cons file (org-buffers-make-pseudobuffer file))))
+		 (org-buffers-filter
+		  (lambda (file) (not (member file current-files)))
+		  recentf-list))
+		blist
+		(append blist
+			(mapcar (lambda (pair) (cons (cdr pair) nil))
+				org-buffers-pseudobuffers))))
+      (when (null blist)
+	(if (and ext-loaded ibuffer-filtering-qualifiers)
+	    (message "No buffers! (note: filtering in effect)")
+	  (error "No buffers!")))
+      ;; From ibuffer-redisplay-engine
+      (if ext-loaded
+	  (ibuffer-generate-filter-groups blist)
+	(list (cons "Default" blist))))))
+
+(defun org-buffers-class (place &optional file-names)
+  (if (bufferp place) 'buffer
+    (cond
+     ((assq (intern place) org-buffers-places) 'file)
+     ((get-buffer place) 'buffer)
+     (t (error "Failed to determine class for %s" place)))))
+
+(defun org-buffers-make-pseudobuffer (file)
+  "Create pseudobuffer object for FILE.
+Creates a buffer that has some features of a buffer visiting
+FILE, but does not contain the contents of FILE. These are used
+to represent recent files in ibuffer."
+  (with-current-buffer (generate-new-buffer file)
+    (setq buffer-file-name file
+	  default-directory (file-name-directory file))
+    (set (make-local-variable 'org-buffers-pseudobuffer) t)
+    (set-auto-mode)
+    (current-buffer)))
+
+(defun org-buffers-register-place (place)
+  (setq org-buffers-places
+	(cons (cons (intern place) nil)
+	      (assq-delete-all place org-buffers-places))))
+
+(defun org-buffers-get-place ()
+  "Get buffer-name for current entry."
+  (let* ((headings-p (org-buffers-state-eq :atom 'heading)))
+    (or (and headings-p (org-entry-get nil "buffer-name"))
+	(and (save-excursion
+	       (if headings-p (org-back-to-heading))
+	       (re-search-forward
+		"\\[\\[\\(buffer\\|file\\):\\([^\]]*\\)" (point-at-eol) t))
+	     (org-buffers-clean-text-properties
+	      (org-link-unescape (match-string 2)))))))
+
+;;; Parsing and inserting entries
+(defun org-buffers-parse-selected-entries (prop val)
+  "Parse all entries with property PROP value VAL."
+  (delq nil
+	(org-buffers-map-entries
+	 (lambda () (when (equal (format "%s" (org-entry-get nil prop)) val)
+		      (cons (org-get-heading) (org-get-entry)))))))
+
+(defun org-buffers-insert-parsed-entry (entry)
+  "Insert a parsed entry"
+  (unless (org-at-heading-p) (org-insert-heading))
+  (insert (car entry) "\n")
+  (if (org-buffers-state-get :properties)
+      (insert (cdr entry))))
+
+(defun org-buffers-get-buffer-props (buffer)
+  "Create an alist of properties of BUFFER, as strings."
+  (with-current-buffer buffer
+    (mapcar 
+     (lambda (pair) (cons (car pair) (eval (cdr pair))))
+     org-buffers-buffer-properties)))
+
+(defun org-buffers-get-file-props (file)
+  `(("path" . ,file)))
+
+;;; Follow-link behaviour
+(defun org-buffers-follow-link ()
+  "Follow link to buffer on this line.
+The buffer-switching behaviour of this function is determined by
+the variable `org-buffers-follow-link-method'. See also
+`org-buffers-switch-to-buffer' and
+`org-buffers-switch-to-buffer-other-window', whose behaviour is
+hard-wired."
+  (interactive)
+  (org-buffers-switch-to-buffer-generic org-buffers-follow-link-method))
+
+(defun org-buffers-switch-to-buffer ()
+"Switch to this entry's buffer in current window."
+  (interactive)
+  (org-buffers-switch-to-buffer-generic 'current-window))
+
+(defun org-buffers-switch-to-buffer-other-window ()
+  "Switch to this entry's buffer in other window."
+  (interactive)
+  (org-buffers-switch-to-buffer-generic 'other-window))
+
+(defvar org-buffers-show-window nil)
+
+(defun org-buffers-show-and-scroll-up ()
+  "Display the buffer linked to on the current line.
+When called repeatedly, scroll the window that is displaying the
+buffer, advancing to next on reaching end."
+  ;; Code descended from `org-agenda-show-and-scroll-up'
+  (interactive)
+  (let ((win (selected-window)) window-end)
+    (if (and (window-live-p org-buffers-show-window)
+	     (eq this-command last-command))
+	(progn
+	  (select-window org-buffers-show-window)
+	  (setq window-end (window-end))
+	  (ignore-errors (scroll-up))
+	  (redisplay)
+	  (when (eq (window-end) window-end)
+	    (select-window win)
+	    (org-buffers-next-buffer)
+	    (setq this-command 'emulate-first-call)
+	    (org-buffers-show-and-scroll-up)))
+      (org-buffers-switch-to-buffer-generic 'other-window)
+      (setq org-buffers-show-window (selected-window)))
+    (select-window win)))
+
+(defun org-buffers-switch-to-buffer-generic (method)
+  (save-excursion
+    (let ((atom (org-buffers-state-get :atom)) place)
+      (cond
+       ((eq atom 'heading) (org-back-to-heading))
+       (t (beginning-of-line)))
+      (if (setq place (org-buffers-get-place))
+	  (case (org-buffers-class place)
+	    ('buffer
+	     (case method
+	       ('org-open-at-point (org-open-at-point))
+	       ('current-window (switch-to-buffer place))
+	       ('other-window (switch-to-buffer-other-window place))
+	       ('display (display-buffer place))))
+	    ('file (org-open-at-point)))))))
+
+;;; Remote commands
+(defun org-buffers-get-directory ()
+  "Directory associated with place on current line."
+  (let ((place (org-buffers-get-place)))
+    (case (org-buffers-class place)
+     ('file
+      (file-name-directory place))
+     ('buffer
+      (with-current-buffer (get-buffer place) default-directory)))))
+
+(defun org-buffers-call-remotely (fun)
+  "Call FUN from the directory of the current line's buffer."
+  (let* ((default-directory (org-buffers-get-directory)))
+    (call-interactively (or (command-remapping fun) fun))))
+
+(defun org-buffers-find-file ()
+  (interactive)
+  (org-buffers-call-remotely 'find-file))
+
+(defun org-buffers-dired ()
+  (interactive)
+  (org-buffers-call-remotely 'dired))
+
+;;; Setting tags and executing operations
+
+(defun org-buffers-tag-for-deletion ()
+  "Mark buffer for deletion.
+If a region is selected, all buffers in the region are marked for
+deletion. Buffers marked for deletion can be deleted using
+`org-buffers-execute-pending-operations'."
+  (interactive)
+  (org-buffers-set-tags '("delete")))
+
+(defun org-buffers-tag-for-reversion ()
+  "Mark buffer to be reverted to the underlying file.
+If a region is selected, all buffers in the region are
+marked. Buffers marked for reversioon can be reverted using
+`org-buffers-execute-pending-operations'."
+  (interactive)
+  (org-buffers-set-tags '("revert")))
+
+(defun org-buffers-remove-tags ()
+  "Remove deletion marks from buffers.
+If a region is selected, marks are removed from all buffers in
+the region."
+  (interactive)
+  (org-buffers-set-tags nil))
+
+(defun org-buffers-set-tags (data)
+  "Set tags to DATA at all non top-level headings in region.
+DATA should be a list of strings. If DATA is nil, remove all tags
+at such headings."
+  (let* ((inhibit-read-only t)
+	 (region-p (org-region-active-p))
+	 (beg (if region-p (region-beginning) (point)))
+	 (end (if region-p (region-end) (point)))
+	 (headings-p (org-buffers-state-eq :atom 'heading))
+	 beg-line end-line end-of-last-heading)
+    (save-excursion
+      (setq beg-line (progn (goto-char beg) (org-current-line))
+	    end-line (progn (goto-char end) (org-current-line))
+	    end-of-last-heading (progn (outline-end-of-heading) (point)))
+      (if headings-p
+	  (setq end (if (and region-p (not (eq end-line beg-line)) (not (eq end end-of-last-heading)))
+			(progn (goto-char end) (org-back-to-heading) (point))
+		      end-of-last-heading)
+		beg (progn (goto-char beg) (point-at-bol)))
+	(org-buffers-toggle-headings) ;; doesn't alter line numbers
+	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
+	      end (if (eq end-line beg-line) (point-at-eol)
+		    (progn (org-goto-line end-line) (point-at-bol)))))
+      (narrow-to-region beg end)
+      (goto-char (point-min))
+      (org-buffers-map-entries
+       (lambda ()
+	 (when (or (org-buffers-state-eq :by "NONE")
+		   (> (org-outline-level) 1))
+	   (org-set-tags-to
+	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
+      (widen)
+      (org-content))
+    (unless region-p (org-buffers-next-buffer))
+    (unless headings-p (org-buffers-toggle-headings))))
+
+(defun org-buffers-execute-pending-operations ()
+  "Execute all pending operations."
+  (interactive)
+  (let ((inhibit-read-only t)
+	(headings-p (org-buffers-state-eq :atom 'heading)) buffer)
+    (unless headings-p (org-buffers-toggle-headings))
+    (org-buffers-execute-pending-reversions)
+    (org-buffers-execute-pending-deletions)
+    (unless headings-p (org-buffers-toggle-headings))))
+
+(defun org-buffers-execute-pending-deletions ()
+  "Delete buffers marked for deletion.
+Buffers are tagged for deletion using
+`org-buffers-tag-for-deletion'. Remove such tags from buffers
+using `org-buffers-remove-tags'."
+  (if (org-buffers-delete-regions
+       (nreverse
+	(delq nil
+	      (org-buffers-map-entries
+	       (lambda ()
+		 (and (setq buffer (org-buffers-get-place))
+		      (or (ignore-errors (kill-buffer buffer))
+			  (progn (message "Did not kill buffer %s" buffer)
+				 nil))
+		      (cons (point) (1+ (org-end-of-subtree)))))
+	       "+delete"))))
+      (org-buffers-clear-out-empty-toplevel-headings)))
+
+(defun org-buffers-execute-pending-reversions ()
+  "Revert buffers marked for reversion.
+Buffers are tagged for reversion using
+`org-buffers-tag-for-reversion'. Tags can be removed using
+`org-buffers-remove-tags'."
+  (let (buffer)
+    (org-buffers-map-entries
+     (lambda ()
+       (when (setq buffer (get-buffer (org-buffers-get-place)))
+	 (if (with-current-buffer buffer (revert-buffer))
+	     (org-set-tags-to nil))))
+     "+revert")))
+
+;;; Original mechanisms
 (defun org-buffers-list:refresh (&optional arg)
   "Refresh org-buffers listing."
   (interactive "P")
@@ -354,7 +657,8 @@ the drawer."
 	     (member (with-current-buffer place major-mode)
 		     org-buffers-excluded-modes))
 	(member place org-buffers-excluded-buffers)
-	(string= (substring place 0 1) " ")
+	(unless org-buffers-include-hidden-buffers
+	  (string= (substring place 0 1) " "))
 	(run-hook-with-args-until-success
 	 (if buffer-p 'org-buffers-exclude-buffers-hook
 	   'org-buffers-exclude-files-hook) place))))
@@ -375,304 +679,6 @@ with column-view or otherwise do not work correctly."
     (save-excursion
       (goto-char (point-min))
       (org-columns))))
-
-;;; ibuffer
-
-(defun org-buffers-ibuffer-list ()
-  "Get list of grouped buffers from ibuffer"
-  ;; ibuffer-update and ibuffer-redisplay-ending are responsible for
-  ;; generating the data structure specifying the grouped list of
-  ;; buffers, and for displaying it. This function is derived from
-  ;; those two functions, extracting the data structure code from the
-  ;; display code.
-  (save-window-excursion
-    (ibuffer)
-    ;; From ibuffer-update
-    (let* ((bufs (buffer-list))
-	   (blist (ibuffer-filter-buffers
-		   (current-buffer)
-		   (if (and
-			(cadr bufs)
-			(eq ibuffer-always-show-last-buffer
-			    :nomini)
-			(minibufferp (cadr bufs)))
-		       (caddr bufs)
-		     (cadr bufs))
-		   (ibuffer-current-buffers-with-marks bufs)
-		   ibuffer-display-maybe-show-predicates))
-	   (ext-loaded (featurep 'ibuf-ext)) bgroups)
-      (if org-buffers-include-recent-files
-	  (setq current-files (delq nil (mapcar 'buffer-file-name bufs))
-		org-buffers-pseudobuffers 
-		(mapcar
-		 (lambda (file)
-		   (progn
-		     (org-buffers-register-place file)
-		     (cons file (org-buffers-make-pseudobuffer file))))
-		 (org-buffers-filter
-		  (lambda (file) (not (member file current-files)))
-		  recentf-list))
-		blist
-		(append blist
-			(mapcar (lambda (pair) (cons (cdr pair) nil))
-				org-buffers-pseudobuffers))))
-      (when (null blist)
-	(if (and ext-loaded ibuffer-filtering-qualifiers)
-	    (message "No buffers! (note: filtering in effect)")
-	  (error "No buffers!")))
-      ;; From ibuffer-redisplay-engine
-      (if ext-loaded
-	  (ibuffer-generate-filter-groups blist)
-	(list (cons "Default" blist))))))
-
-;;; Recent files
-(defun org-buffers-class (place &optional file-names)
-  (if (bufferp place) 'buffer
-    (cond
-     ((assq (intern place) org-buffers-places) 'file)
-     ((get-buffer place) 'buffer)
-     (t (error "Failed to determine class for %s" place)))))
-
-(defun org-buffers-make-pseudobuffer (file)
-  "Create pseudobuffer object for FILE.
-Creates a buffer that has some features of a buffer visiting
-FILE, but does not contain the contents of FILE. These are used
-to represent recent files in ibuffer."
-  (with-current-buffer (generate-new-buffer file)
-    (setq buffer-file-name file
-	  default-directory (file-name-directory file))
-    (set (make-local-variable 'org-buffers-pseudobuffer) t)
-    (set-auto-mode)
-    (current-buffer)))
-
-(defun org-buffers-register-place (place)
-  (setq org-buffers-places
-	(cons (cons (intern place) nil)
-	      (assq-delete-all place org-buffers-places))))
-
-;;; Parsing and inserting entries
-(defun org-buffers-parse-selected-entries (prop val)
-  "Parse all entries with property PROP value VAL."
-  (delq nil
-	(org-buffers-map-entries
-	 (lambda () (when (equal (format "%s" (org-entry-get nil prop)) val)
-		      (cons (org-get-heading) (org-get-entry)))))))
-
-(defun org-buffers-insert-parsed-entry (entry)
-  "Insert a parsed entry"
-  (unless (org-at-heading-p) (org-insert-heading))
-  (insert (car entry) "\n")
-  (if (org-buffers-state-get :properties)
-      (insert (cdr entry))))
-
-(defun org-buffers-get-buffer-props (buffer)
-  "Create an alist of properties of BUFFER, as strings."
-  (with-current-buffer buffer
-    (mapcar 
-     (lambda (pair) (cons (car pair) (eval (cdr pair))))
-     org-buffers-buffer-properties)))
-
-(defun org-buffers-get-file-props (file)
-  `(("path" . ,file)))
-
-;;; Follow-link behaviour
-
-(defun org-buffers-follow-link ()
-  "Follow link to buffer on this line.
-The buffer-switching behaviour of this function is determined by
-the variable `org-buffers-follow-link-method'. See also
-`org-buffers-switch-to-buffer' and
-`org-buffers-switch-to-buffer-other-window', whose behaviour is
-hard-wired."
-  (interactive)
-  (org-buffers-switch-to-buffer-generic org-buffers-follow-link-method))
-
-(defun org-buffers-switch-to-buffer ()
-"Switch to this entry's buffer in current window."
-  (interactive)
-  (org-buffers-switch-to-buffer-generic 'current-window))
-
-(defun org-buffers-switch-to-buffer-other-window ()
-  "Switch to this entry's buffer in other window."
-  (interactive)
-  (org-buffers-switch-to-buffer-generic 'other-window))
-
-(defvar org-buffers-show-window nil)
-
-(defun org-buffers-show-and-scroll-up ()
-  "Display the buffer linked to on the current line.
-When called repeatedly, scroll the window that is displaying the
-buffer, advancing to next on reaching end."
-  ;; Code descended from `org-agenda-show-and-scroll-up'
-  (interactive)
-  (let ((win (selected-window)) window-end)
-    (if (and (window-live-p org-buffers-show-window)
-	     (eq this-command last-command))
-	(progn
-	  (select-window org-buffers-show-window)
-	  (setq window-end (window-end))
-	  (ignore-errors (scroll-up))
-	  (redisplay)
-	  (when (eq (window-end) window-end)
-	    (select-window win)
-	    (org-buffers-next-buffer)
-	    (setq this-command 'emulate-first-call)
-	    (org-buffers-show-and-scroll-up)))
-      (org-buffers-switch-to-buffer-generic 'other-window)
-      (setq org-buffers-show-window (selected-window)))
-    (select-window win)))
-
-(defun org-buffers-switch-to-buffer-generic (method)
-  (save-excursion
-    (let ((atom (org-buffers-state-get :atom)) place)
-      (cond
-       ((eq atom 'heading) (org-back-to-heading))
-       (t (beginning-of-line)))
-      (if (setq place (org-buffers-get-place-id))
-	  (case (org-buffers-class place)
-	    ('buffer
-	     (case method
-	       ('org-open-at-point (org-open-at-point))
-	       ('current-window (switch-to-buffer place))
-	       ('other-window (switch-to-buffer-other-window place))
-	       ('display (display-buffer place))))
-	    ('file (org-open-at-point)))))))
-
-(defun org-buffers-get-place-id ()
-  "Get buffer-name for current entry."
-  (let* ((headings-p (org-buffers-state-eq :atom 'heading)))
-    (or (and headings-p (org-entry-get nil "buffer-name"))
-	(and (save-excursion
-	       (if headings-p (org-back-to-heading))
-	       (re-search-forward
-		"\\[\\[\\(buffer\\|file\\):\\([^\]]*\\)" (point-at-eol) t))
-	     (org-buffers-clean-text-properties
-	      (org-link-unescape (match-string 2)))))))
-
-;;; Remote commands
-(defun org-buffers-get-directory ()
-  "Directory associated with place on current line."
-  (let ((place (org-buffers-get-place)))
-    (case (org-buffers-class place)
-     ('file
-      (file-name-directory place))
-     ('buffer
-      (with-current-buffer (get-buffer place) default-directory)))))
-
-(defun org-buffers-call-remotely (fun)
-  "Call FUN from the directory of the current line's buffer."
-  (let* ((default-directory (org-buffers-get-directory)))
-    (call-interactively (or (command-remapping fun) fun))))
-
-(defun org-buffers-find-file ()
-  (interactive)
-  (org-buffers-call-remotely 'find-file))
-
-(defun org-buffers-dired ()
-  (interactive)
-  (org-buffers-call-remotely 'dired))
-
-;;; Setting tags and executing operations
-
-(defun org-buffers-tag-for-deletion ()
-  "Mark buffer for deletion.
-If a region is selected, all buffers in the region are marked for
-deletion. Buffers marked for deletion can be deleted using
-`org-buffers-execute-pending-operations'."
-  (interactive)
-  (org-buffers-set-tags '("delete")))
-
-(defun org-buffers-tag-for-reversion ()
-  "Mark buffer to be reverted to the underlying file.
-If a region is selected, all buffers in the region are
-marked. Buffers marked for reversioon can be reverted using
-`org-buffers-execute-pending-operations'."
-  (interactive)
-  (org-buffers-set-tags '("revert")))
-
-(defun org-buffers-remove-tags ()
-  "Remove deletion marks from buffers.
-If a region is selected, marks are removed from all buffers in
-the region."
-  (interactive)
-  (org-buffers-set-tags nil))
-
-(defun org-buffers-set-tags (data)
-  "Set tags to DATA at all non top-level headings in region.
-DATA should be a list of strings. If DATA is nil, remove all tags
-at such headings."
-  (let* ((inhibit-read-only t)
-	 (region-p (org-region-active-p))
-	 (beg (if region-p (region-beginning) (point)))
-	 (end (if region-p (region-end) (point)))
-	 (headings-p (org-buffers-state-eq :atom 'heading))
-	 beg-line end-line end-of-last-heading)
-    (save-excursion
-      (setq beg-line (progn (goto-char beg) (org-current-line))
-	    end-line (progn (goto-char end) (org-current-line))
-	    end-of-last-heading (progn (outline-end-of-heading) (point)))
-      (if headings-p
-	  (setq end (if (and region-p (not (eq end-line beg-line)) (not (eq end end-of-last-heading)))
-			(progn (goto-char end) (org-back-to-heading) (point))
-		      end-of-last-heading)
-		beg (progn (goto-char beg) (point-at-bol)))
-	(org-buffers-toggle-headings) ;; doesn't alter line numbers
-	(setq beg (progn (org-goto-line beg-line) (point-at-bol))
-	      end (if (eq end-line beg-line) (point-at-eol)
-		    (progn (org-goto-line end-line) (point-at-bol)))))
-      (narrow-to-region beg end)
-      (goto-char (point-min))
-      (org-buffers-map-entries
-       (lambda ()
-	 (when (or (org-buffers-state-eq :by "NONE")
-		   (> (org-outline-level) 1))
-	   (org-set-tags-to
-	    (if data (delete-duplicates (append data (org-get-tags)) :test 'string-equal))))))
-      (widen)
-      (org-content))
-    (unless region-p (org-buffers-next-buffer))
-    (unless headings-p (org-buffers-toggle-headings))))
-
-(defun org-buffers-execute-pending-operations ()
-  "Execute all pending operations."
-  (interactive)
-  (let ((inhibit-read-only t)
-	(headings-p (org-buffers-state-eq :atom 'heading)) buffer)
-    (unless headings-p (org-buffers-toggle-headings))
-    (org-buffers-execute-pending-reversions)
-    (org-buffers-execute-pending-deletions)
-    (unless headings-p (org-buffers-toggle-headings))))
-
-(defun org-buffers-execute-pending-deletions ()
-  "Delete buffers marked for deletion.
-Buffers are tagged for deletion using
-`org-buffers-tag-for-deletion'. Remove such tags from buffers
-using `org-buffers-remove-tags'."
-  (if (org-buffers-delete-regions
-       (nreverse
-	(delq nil
-	      (org-buffers-map-entries
-	       (lambda ()
-		 (and (setq buffer (org-buffers-get-place-id))
-		      (or (ignore-errors (kill-buffer buffer))
-			  (progn (message "Did not kill buffer %s" buffer)
-				 nil))
-		      (cons (point) (1+ (org-end-of-subtree)))))
-	       "+delete"))))
-      (org-buffers-clear-out-empty-toplevel-headings)))
-
-(defun org-buffers-execute-pending-reversions ()
-  "Revert buffers marked for reversion.
-Buffers are tagged for reversion using
-`org-buffers-tag-for-reversion'. Tags can be removed using
-`org-buffers-remove-tags'."
-  (let (buffer)
-    (org-buffers-map-entries
-     (lambda ()
-       (when (setq buffer (get-buffer (org-buffers-get-place-id)))
-	 (if (with-current-buffer buffer (revert-buffer))
-	     (org-set-tags-to nil))))
-     "+revert")))
 
 ;;; Utilities
 
