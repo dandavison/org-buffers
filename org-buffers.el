@@ -743,12 +743,10 @@ regions."
   `(lambda (arg) (,f (,g arg))))
 
 (defun org-buffers-mapcaar (function sequence)
-  "Like `mapcar' but apply function to `car' of each element."
-  (mapcar (org-buffers-compose function car) sequence))
+  (mapcar (lambda (el) (funcall function (car el))) sequence))
 
 (defun org-buffers-mapcdar (function sequence)
-  "Like `mapcar' but apply function to `cdr' of each element."
-  (mapcar (org-buffers-compose function cdr) sequence))
+  (mapcar (lambda (el) (funcall function (cdr el))) sequence))
 
 (defun org-buffers-filter (predicate list)
   (delq nil (mapcar (lambda (el) (and (funcall predicate el) el)) list)))
