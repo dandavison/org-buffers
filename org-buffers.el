@@ -312,18 +312,9 @@ to represent recent files in ibuffer."
   (with-current-buffer (generate-new-buffer file)
     (setq buffer-file-name file
 	  default-directory (file-name-directory file))
-
     (set (if (featurep 'xemacs) 'write-contents-hooks 'write-contents-functions)
 	 (list (lambda () (message "You do not want to save this buffer.") t)))
-
     (set (make-local-variable 'org-buffers-pseudobuffer) t)
-
-    (dolist (expr '(buffer-file-name
-		    default-directory
-		    org-buffers-pseudobuffer
-		    (local-variable-p 'org-buffers-pseudobuffer)))
-      (insert (format "%S\t%s\n" expr (eval expr))))
-
     (set-auto-mode)
     (current-buffer)))
 
