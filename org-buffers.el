@@ -239,7 +239,6 @@ FRAME specifies the frame whose buffers should be listed."
 	(setq pseudo-p (and (local-variable-p 'org-buffers-pseudobuffer)
 			    org-buffers-pseudobuffer)
 	      buffer-file buffer-file-name))
-      (message buffer-file)
       (unless (org-at-heading-p) (org-insert-heading t))
       (setq beg (point))
       (insert
