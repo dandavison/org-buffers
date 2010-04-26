@@ -226,7 +226,9 @@ FRAME specifies the frame whose buffers should be listed."
 
 (defun org-buffers-insert-group (group)
   "Create org-buffers listings"
-  (let (pseudo-p buffer-file) ;; (after-change-functions nil) ;; Does this do anything helpful?
+  (let ((after-change-functions nil)
+	(org-font-lock-hook '(org-buffers-org-font-lock))
+	pseudo-p buffer-file )
     (org-insert-heading t)
     (if (> (save-excursion (beginning-of-line) (org-outline-level)) 1)
 	(org-promote))
@@ -246,7 +248,7 @@ FRAME specifies the frame whose buffers should be listed."
 	  (format "buffer:%s" buffer-name))
 	(if pseudo-p (file-name-nondirectory buffer-file)
 	  buffer-name)) "\n")
-      (set-text-properties beg (point) (list 'face 'shadow))
+      (if pseudo-p (set-text-properties beg (point) (list 'face 'shadow)))
       (dolist (pair (org-buffers-get-buffer-props buffer-name))
 	(org-set-property (car pair) (format "%s" (cdr pair)))))))
 
@@ -333,6 +335,11 @@ to represent recent files in ibuffer."
 		"\\[\\[\\(buffer\\|file\\):\\([^\]]*\\)" (point-at-eol) t))
 	     (org-buffers-clean-text-properties
 	      (org-link-unescape (match-string 2)))))))
+
+(defun org-buffers-org-font-lock (limit)
+  (when (re-search-forward "\\[\\[file:\\([^\]]*\\)" limit t)
+    (set-text-properties (match-beginning 0) (match-end 0) nil)
+    (add-text-properties (match-beginning 0) (match-end 0) (list 'face 'font-lock-comment-face))))
 
 ;;; Parsing and inserting entries
 (defun org-buffers-parse-selected-entries (prop val)
