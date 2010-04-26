@@ -729,9 +729,6 @@ regions."
 (defmacro org-buffers-compose (f g)
   `(lambda (arg) (,f (,g arg))))
 
-(defun org-buffers-filter (predicate list)
-  (delq nil (mapcar (lambda (el) (and (funcall predicate el) el)) list)))
-
 (defun org-buffers-mapcaar (function sequence)
   "Like `mapcar' but apply function to `car' of each element."
   (mapcar (org-buffers-compose function car) sequence))
@@ -739,6 +736,9 @@ regions."
 (defun org-buffers-mapcdar (function sequence)
   "Like `mapcar' but apply function to `cdr' of each element."
   (mapcar (org-buffers-compose function cdr) sequence))
+
+(defun org-buffers-filter (predicate list)
+  (delq nil (mapcar (lambda (el) (and (funcall predicate el) el)) list)))
 
 ;;; Links to buffers
 
