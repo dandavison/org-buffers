@@ -314,8 +314,8 @@ to represent recent files in ibuffer."
 	  default-directory (file-name-directory file))
     (set (if (featurep 'xemacs) 'write-contents-hooks 'write-contents-functions)
 	 (list (lambda () (message "You do not want to save this buffer.") t)))
-    (set (make-local-variable 'org-buffers-pseudobuffer) t)
     (set-auto-mode)
+    (set (make-local-variable 'org-buffers-pseudobuffer) t)
     (current-buffer)))
 
 (defun org-buffers-register-place (place)
