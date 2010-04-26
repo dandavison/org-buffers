@@ -3,7 +3,7 @@
 ;; Copyright (C) 2010  Dan Davison
 
 ;; Author: Dan Davison <dandavison0 at gmail dot com>
-;; Keywords: outlines, hypermedia, calendar, wp
+;; Keywords: buffers, files, outlines
 ;; Homepage: http://orgmode.org
 
 ;;; License:
