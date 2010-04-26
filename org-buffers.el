@@ -58,7 +58,9 @@ See also the functions `org-buffers-switch-to-buffer' and
 			  (replace-match "" nil t mode) mode)))
     ("buffer-file-name" . (buffer-file-name))
     ("default-directory" . default-directory)
-    ("buffer-modified-p" . (format "%s" (buffer-modified-p))))
+    ("buffer-modified-p" . (buffer-modified-p))
+    ("pseudobuffer-p" . (and (local-variable-p 'org-buffers-pseudobuffer)
+			     org-buffers-pseudobuffer)))
   "Association list specifying properties to be stored for each
 buffer. The car of each element is the name of the property, and
 the cdr is an expression which, when evaluated in the buffer,
@@ -242,10 +244,11 @@ FRAME specifies the frame whose buffers should be listed."
        (org-make-link-string
 	(if pseudo-p (format "file:%s" buffer-file)
 	  (format "buffer:%s" buffer-name))
-	(if pseudo-p (file-name-nondirectory buffer-file) buffer-name)) "\n")
+	(if pseudo-p (file-name-nondirectory buffer-file)
+	  buffer-name)) "\n")
       (set-text-properties beg (point) (list 'face 'shadow))
       (dolist (pair (org-buffers-get-buffer-props buffer-name))
-	(org-set-property (car pair) (cdr pair))))))
+	(org-set-property (car pair) (format "%s" (cdr pair)))))))
 
 (defun org-buffers-ibuffer-list ()
   "Get list of grouped buffers from ibuffer"
@@ -309,7 +312,18 @@ to represent recent files in ibuffer."
   (with-current-buffer (generate-new-buffer file)
     (setq buffer-file-name file
 	  default-directory (file-name-directory file))
+
+    (set (if (featurep 'xemacs) 'write-contents-hooks 'write-contents-functions)
+	 (list (lambda () (message "You do not want to save this buffer.") t)))
+
     (set (make-local-variable 'org-buffers-pseudobuffer) t)
+
+    (dolist (expr '(buffer-file-name
+		    default-directory
+		    org-buffers-pseudobuffer
+		    (local-variable-p 'org-buffers-pseudobuffer)))
+      (insert (format "%S\t%s\n" expr (eval expr))))
+
     (set-auto-mode)
     (current-buffer)))
 
